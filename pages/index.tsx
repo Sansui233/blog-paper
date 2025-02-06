@@ -10,6 +10,7 @@ import NavCat from '../components/post/navcat'
 import { POST_DIR, buildIndex, posts_db } from '../lib/data/server'
 import { dateI18n, parseDate } from '../lib/date'
 import { siteInfo } from '../site.config'
+import { bottomFadeIn } from '../styles/animations'
 import { hoverBoxShadow } from '../styles/css'
 
 type PostType = {
@@ -72,8 +73,8 @@ const Home: NextPage<Props> = ({ posts, categories }: Props) => {
               return (<ArticleItem key={post.id} p={post} i={i} />)
             })}
             {/* {transition((style, p, _, i) => {
-              return <ArticleItem p={p} springStyle={style} key={p.id} index={i}/>
-            })} */}
+                  return <ArticleItem p={p} springStyle={style} key={p.id} index={i}/>
+                })} */}
           </PostGrids>
         </OneColLayout>
       </LayoutContainer>
@@ -123,6 +124,7 @@ const PostGrids = styled.section`
   justify-content: center;
   grid-template-columns: 1fr 1fr;
   grid-column-gap: 4rem;
+  animation: ${bottomFadeIn} 0.5s ease;
 
   @media screen and (max-width: 780px) {
     grid-template-columns: repeat(1, 100%);

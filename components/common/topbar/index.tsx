@@ -168,6 +168,7 @@ const Layout = styled.header<{
 }>`
   height: 63px;
   width: 100%;
+  box-sizing: content-box;
   display: flex;
   justify-content: space-between;
   align-items: center;

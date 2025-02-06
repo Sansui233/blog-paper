@@ -1,8 +1,12 @@
 import styled from "styled-components";
+import { bottomFadeIn } from "../../styles/animations";
 import { hoverBoxShadow } from "../../styles/css";
 
 
 export const MarkdownStyle = styled.div`
+
+  animation: ${bottomFadeIn} 0.5s ease;
+  
   color: ${p => p.theme.colors.textSecondary};
 
   h1,h2,h3,h4,h5 {
