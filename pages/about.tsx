@@ -34,7 +34,6 @@ export default function About() {
       </Head>
       <LayoutContainer hidesearch={true}>
         <Hero className={isBgLoaded ? 'loaded' : ''}>
-          <div className="background"></div>
           <span>{`Hi, I'm ${siteInfo.author}`}</span>
         </Hero>
         <OneColLayout>
@@ -89,28 +88,11 @@ const Hero = styled.h1`
   margin: 0px 0px 0.5em;
   padding: 15% 0px;
   color: white;
+  background: black;
+  transition: background 0.8s ease;
 
   &.loaded {
-    background: #00000022;
-  }
-  
-  div.background {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -1;
-
-    background: linear-gradient(-45deg, #76318f, #283370, #003a4d, #a8a8a8);
-    background-size: 400% 400%;
-    animation: gradient 15s ease infinite;
-  }
-
-  &.loaded div.background {
-    opacity: 1;
-    animation: none;
-    background: black;
+    background: #00000015;
   }
 
   @keyframes gradient {
