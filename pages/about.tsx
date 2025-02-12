@@ -1,14 +1,31 @@
 import Head from "next/head";
+import { useEffect, useState } from "react";
 import styled from "styled-components";
 import { CommonHead } from ".";
 import { PageDescription } from '../components/common/page-description';
 import LayoutContainer, { OneColLayout } from "../components/layout";
 import { MarkdownStyle } from "../components/styled/markdown-style";
 import { siteInfo } from "../site.config";
-import { bottomFadeIn } from "../styles/animations";
+import { bottomFadeIn, textFocusIn } from "../styles/animations";
 import { textStroke } from "../styles/css";
 
 export default function About() {
+  const [isBgLoaded, setIsBgLoaded] = useState(false);
+
+  useEffect(() => {
+    const img = new Image();
+    img.src = '/imgs/bg.jpg';
+    img.onload = () => setIsBgLoaded(true);
+    img.onerror = () => {
+      console.error('Failed to load image');
+    };
+
+    return () => {
+      img.onload = null;
+      img.onerror = null;
+    }
+  }, [])
+
   return (
     <div>
       <Head>
@@ -16,7 +33,8 @@ export default function About() {
         <CommonHead />
       </Head>
       <LayoutContainer hidesearch={true}>
-        <Hero>
+        <Hero className={isBgLoaded ? 'loaded' : ''}>
+          <div className="background"></div>
           <span>{`Hi, I'm ${siteInfo.author}`}</span>
         </Hero>
         <OneColLayout>
@@ -62,21 +80,77 @@ export default function About() {
 }
 
 const Hero = styled.h1`
-
   span {
     ${() => textStroke}
   }
 
+  position: relative;
   text-align: center;
   margin: 0px 0px 0.5em;
   padding: 15% 0px;
-  background-color: #666E6B;
-  background-image: #666E6B;
-  background-image: url(/imgs/bg.jpg);
-  background-size: cover;
-  background-position: center 40%;
   color: white;
-  ${(props) => props.theme.colors.filterDarker}};
+
+  &.loaded {
+    background: #00000022;
+  }
+  
+  div.background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+
+    background: linear-gradient(-45deg, #76318f, #283370, #003a4d, #a8a8a8);
+    background-size: 400% 400%;
+    animation: gradient 15s ease infinite;
+  }
+
+  &.loaded div.background {
+    opacity: 1;
+    animation: none;
+    background: black;
+  }
+
+  @keyframes gradient {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
+  /* 图片背景（初始隐藏） */
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url(/imgs/bg.jpg);
+    background-size: cover;
+    background-position: center 40%;
+    opacity: 0;
+    z-index: -1;
+  }
+
+  /* 加载完成后的样式 */
+  &.loaded::before {
+    animation: none;
+    opacity: 0;
+    transition: opacity 0.5s;
+  }
+
+  &.loaded::after {
+    opacity: 1;
+    animation: ${textFocusIn} 0.8s ease-out;
+  }
 `
 
 const AnimatedMarkdown = styled(MarkdownStyle)`

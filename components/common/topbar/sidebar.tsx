@@ -50,7 +50,7 @@ export default function Sidebar({ isShow, toggle }: Props) {
             <a href={`mailto:${siteInfo.social.email}`}><Mail /></a>
             <a href="/rss"><Rss /></a>
           </Icons>
-          <div style={{ margin: "1rem auto" }}>Sansui 2023<br />All rights reserved</div>
+          <div style={{ margin: "1rem auto" }}>Sansui 2025<br />All rights reserved</div>
         </LastSection>
       </Content>
       <PositionedClose>

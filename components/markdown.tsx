@@ -26,8 +26,7 @@ export function MDImg(props: DetailedHTMLProps<ImgHTMLAttributes<HTMLImageElemen
     height: string
   }>({ width: '100%', height: "auto" });
   const [imgStyle, setImgStyle] = useState<CSSProperties>({
-    cursor: "zoom-in",
-    transform: "scale(1) translate(0,0)",
+    filter: "blur(12px)",
   });
 
   const vw = useViewWidth()
@@ -38,6 +37,11 @@ export function MDImg(props: DetailedHTMLProps<ImgHTMLAttributes<HTMLImageElemen
     if (!isClient || !imgRef.current) return
     const handleImageLoaded = () => {
       setisLoading(false)
+      setImgStyle({
+        cursor: "zoom-in",
+        filter: "blur(0px)",
+        transform: "scale(1) translate(0,0)",
+      })
     };
     const handleImageError = () => {
       setisLoading(false)
@@ -139,7 +143,7 @@ export function MDImg(props: DetailedHTMLProps<ImgHTMLAttributes<HTMLImageElemen
       <img ref={imgRef} loading="lazy" onClick={handleClick} style={{
         ...imgStyle,
         position: "relative",
-        transition: "transform .3s ease"
+        transition: "transform .3s ease, filter .5s ease"
       }} {...props} />
 
       {/* bg layer */}

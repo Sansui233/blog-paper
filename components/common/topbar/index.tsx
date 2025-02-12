@@ -8,7 +8,6 @@ import styled from "styled-components"
 import Neko from "../../../assets/neko.svg"
 import { throttle } from "../../../lib/throttle"
 import { siteInfo } from "../../../site.config"
-import { fadeInTop } from "../../../styles/animations"
 import { dropShadowSoft, hoverRound } from "../../../styles/css"
 import { LinkWithLine } from "../../styled/link-with-line"
 import MenuIcon from "./menuicon"
@@ -35,12 +34,7 @@ export default function Topbar({ placeHolder = true, scrollElem, hideSearch, ...
    * Hide on scroll
    */
   useEffect(() => {
-
-    let elem: HTMLElement | typeof globalThis = globalThis;
-
-    if (scrollElem) {
-      elem = scrollElem
-    }
+    let elem = scrollElem ? scrollElem : globalThis;
 
     const getScrollPos = () => {
       if (scrollElem && scrollElem instanceof HTMLElement) {
@@ -52,7 +46,7 @@ export default function Topbar({ placeHolder = true, scrollElem, hideSearch, ...
 
     let previousTop = getScrollPos()
 
-    const onScroll: EventListener = () => { // <-- DOM-EventListener
+    const onScroll = throttle(() => { // <-- DOM-EventListener
       if (getScrollPos() < 200) { // ignore on page top
         setisHidden(false)
         previousTop = getScrollPos()
@@ -68,16 +62,17 @@ export default function Topbar({ placeHolder = true, scrollElem, hideSearch, ...
         setisHidden(false)
         previousTop = getScrollPos()
       }
-    };
+    }, 100)
 
-    const throttled = throttle(onScroll, 100)
-    elem.addEventListener("scroll", throttled);
+    elem.addEventListener("scroll", onScroll);
 
 
     return () => {
-      elem.removeEventListener("scroll", throttled)
+      elem.removeEventListener("scroll", onScroll)
     };
+
   }, [scrollElem])
+
 
   const toggleSidebar = () => {
     setIsSidebar(!isSidebar)
@@ -227,12 +222,12 @@ const Nav = styled.nav`
     padding-top: 2px;
     font-weight: 600;
   }
-
-  ol.current a{
+  ol.current a {
     position: relative;
   }
   ol.current a:before {
     ${hoverRound}
+    
   }
 
 `
@@ -273,26 +268,37 @@ button {
   left: 0em;
   padding: 0;
   width: 100%;
+
+  border-color: transparent;
+  transition: border-color 1s ease;
 }
 
 .subnav.open {
   visibility: visible;
-  border-radius: 0.75rem;
+  border-radius: 0.5rem;
   border: solid 1px ${props => props.theme.colors.uiLineGray2};
   background-color: ${props => props.theme.colors.bg};
   ${dropShadowSoft}
 }
 
-.subnav.open > a {
+.subnav > a {
   display: block;
   text-align: center;
   color: ${props => props.theme.colors.textSecondary};
   margin: 0.5rem 0;
   padding: 0 0.25rem 0.25rem 0.25rem;
-  
 
+  pointer-event: none;
+  opacity: 0;
+  -webkit-filter: blur(12px);
+          filter: blur(12px);
+  transition: all 0.5s ease;
+}
 
-  animation: ${fadeInTop} 0.8s ease;
+.subnav.open > a {
+  -webkit-filter: blur(0px);
+          filter: blur(0px);
+  opacity: 1;
 
   &:first-child {
     margin-top: 2.75rem;

@@ -75,7 +75,7 @@ const Container = styled.div`
 const LabelStyle = styled.a`
   opacity: .8;
   margin: .3em;
-  background-color:${props => props.theme.colors.hoverBg};  
+  background-color:${props => props.theme.colors.tagBg};  
   padding: .3em 1em;
   border-radius: 1em;
   transition: opacity .3s,transform .3s;

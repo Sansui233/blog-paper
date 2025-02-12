@@ -23,6 +23,7 @@ import { SearchObj } from "../../lib/search";
 import { useDocumentEvent } from "../../lib/use-event";
 import useSearch from "../../lib/use-search";
 import { siteInfo } from "../../site.config";
+import { fadeInRight } from "../../styles/animations";
 import { floatMenu } from "../../styles/css";
 import { Extend } from "../../utils/type-utils";
 
@@ -286,31 +287,40 @@ const SiderContent = styled.div<{
     margin: 0;
   }
 
-  @media screen and (max-width: 780px) {
+  @media screen and (min-width: 780px) {
+    animation: ${fadeInRight} 0.5s ease;
+  }
+
+  @media screen and (max-width: 780px){
     ${floatMenu}
     position: fixed;
     bottom: 0;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
+    border: 1px solid ${props => props.theme.colors.uiLineGray2};
+    border-bottom: none;
     max-width: unset;
-    width: 96%;
-    right: 2%;
-    height: 66vh;
+    width: 100%;
+    height: min(66vh, 500px);
     padding: 0rem 1rem 1rem 1rem;
     transition: transform .3s ease;
     transform: ${p => p.$isMobileSider ? `translateY(0)` : `translateY(105%)`};
+    
 
     .close-btn {
       position: sticky;
-      top:0;
+      top: 0px;
       background: inherit;
+      transform: translateY(-1px);
+      border-bottom: 1px solid ${props => props.theme.colors.uiLineGray2};
 
       display: flex;
       font-weight: 600;
       justify-content: space-between;
       align-items: center;
 
-      padding: 1rem 0;
+      padding: 1rem 0 0.75rem 0;
+      margin-bottom: 1rem;
       ${p => p.$isMobileSider ? null : `visibility:hidden;`}
       color: ${p => p.theme.colors.textGray2};
       font-size: 1rem;
@@ -332,12 +342,12 @@ const SiderContent = styled.div<{
 `
 
 const SearchBox = styled.div`
-  border-radius: 0.75rem;
+  border-radius: 0.5rem;
   background: ${p => p.theme.colors.bg};
   color: ${p => p.theme.colors.textGray};
   display: flex;
   align-items: center;
-  margin: 0 0.5rem; /* 无 bg 时*/
+  margin: 0 1rem; /* 无 bg 时*/
   border: 1px solid ${p => p.theme.colors.uiLineGray2};
   box-shadow: 0 0 12px 0 ${props => props.theme.colors.shadowBg};
 

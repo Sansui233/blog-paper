@@ -81,13 +81,22 @@ font-size: .875rem;
 padding: 0.3rem 0.625rem;
 margin-right: 1rem;
 cursor: pointer;
-border-radius: 0.75rem;
+border-radius: 0.375rem;
 border: 1px solid ${props => props.theme.colors.uiLineGray2};
 text-wrap: nowrap;
 color: ${props => props.theme.colors.textGray};
+transition: all 0.5s ease;
+
+
+&:hover {
+  background: ${props => props.theme.colors.hoverBg};
+}
 
 &.current {
+border-color: ${props => props.theme.colors.bgInverse};
 background: ${props => props.theme.colors.bgInverse};
 color: ${props => props.theme.colors.bg};
 }
+
+
 `

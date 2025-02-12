@@ -105,7 +105,7 @@ export default function MemoCol({ postsData, postsDataBackup, setpostsData, setp
 const MemoColContainer = styled.div`
 min-height: 80vh;
 margin: 0.625rem 0;
-border-radius: 1.5rem;
+border-radius: 0.5rem;
 border: 1px solid ${props => props.theme.colors.uiLineGray2};
 background-color: ${props => props.theme.colors.bg};
 
@@ -113,10 +113,10 @@ box-shadow: 0 0 12px 0 ${props => props.theme.colors.shadowBg};
 
 // MemoCardStyle
 .virtualist > div:first-child > section {
-  border-radius: 2rem 2rem 0 0;
+  border-radius: 0.5rem 0.5rem 0 0;
 }
 .virtualist > div:last-child > section {
-  border-radius: 0 0 2rem 2rem;
+  border-radius: 0 0 0.5rem 0.5rem;
 }
 
 .virtualist > div:not(:last-child) > section {

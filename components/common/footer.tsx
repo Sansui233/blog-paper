@@ -10,7 +10,7 @@ const Footer = (props: Props) => {
       <a href={siteInfo.social.github}><Github /></a>
       <a href={`mailto:${siteInfo.social.email}`}><Mail /></a>
       <a href="/rss"><Rss /></a>
-      <div>{"Code & Design by Sansui 2023"} <br /> {"All rights reserved"}</div>
+      <div>{"Code & Design by Sansui 2025"} <br /> {"All rights reserved"}</div>
     </Container>
   )
 }

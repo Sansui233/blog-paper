@@ -21,7 +21,7 @@ export const lightTheme: DefaultTheme = {
     bgMask: "#f4f5f7f4",
     tagBg: "#efefef",
     floatBg: "#f5f5f5",
-    hoverBg: '#00000022',
+    hoverBg: '#00000012',
     shadowBg: `rgb(0 0 0 / 4%)`,
     codeBlockBg: '#f3f3f3',
     maskGradient: css`

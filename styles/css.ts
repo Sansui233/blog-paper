@@ -10,10 +10,10 @@ export const textStroke = css`
 `
 
 export const textShadow = {
-  s: css`box-shadow: inset 0 -0.3em 0 ${props => props.theme.colors.hoverBg};`,
-  m: css`box-shadow: inset 0 -0.5em 0 ${props => props.theme.colors.hoverBg};`,
-  l: css`box-shadow: inset 0 -0.8em 0 ${props => props.theme.colors.hoverBg};`,
-  f: css`box-shadow: inset 0 -1em 0 ${props => props.theme.colors.hoverBg};`
+  s: css`box-shadow: inset 0 -0.3em 0 ${p => p.theme.colors.shadowBg};`,
+  m: css`box-shadow: inset 0 -0.5em 0 ${p => p.theme.colors.shadowBg};`,
+  l: css`box-shadow: inset 0 -0.8em 0 ${p => p.theme.colors.shadowBg};`,
+  f: css`box-shadow: inset 0 -1em 0 ${p => p.theme.colors.shadowBg};`
 }
 
 export const hoverRound = css`
@@ -39,7 +39,7 @@ export const dropShadowAccent = css`box-shadow: 0 0 2px 0px ${props => props.the
 export const dropShadowSoft = css`box-shadow: 0 0 12px ${p => p.theme.colors.shadowBg};`
 export const paperCard = css`background: ${p => p.theme.colors.bg};box-shadow: rgb(0 0 0 / 10%) 0px 2px 4px;`
 export const floatMenu = css`
-border-radius: 0.75rem;
+border-radius: 0.5rem;
 background: ${p => p.theme.colors.bg};
 box-shadow: rgb(0 0 0 / 15%) 0px 0px 7px;
 `

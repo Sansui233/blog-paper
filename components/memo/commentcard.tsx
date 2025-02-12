@@ -65,7 +65,7 @@ const ModelButton = styled.button`
   margin-top: 2rem;
   max-width: 8rem;
   padding: 0.5rem 1rem;
-  border-radius: 0.75rem;
+  border-radius: 0.5rem;
   border: 1px solid ${p => p.theme.colors.uiLineGray2};
 
   font-weight: 600;
