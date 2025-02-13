@@ -12,7 +12,7 @@ import CardCommon from './cardcommon'
 // api doc: https://waline.js.org/reference/server/api.html
 // xxx.com/comment?path=%2Fmemos&pageSize=10&page=1&lang=en-US&sortBy=insertedAt_desc
 
-const Waline = dynamic(() => import("../../components/common/waline"))
+const Waline = dynamic(() => import("../page/waline"))
 
 export default function CommentCard() {
   const theme = useContext(ThemeContext)

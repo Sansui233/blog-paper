@@ -7,21 +7,21 @@ import { useTranslation } from "react-i18next";
 import styled, { ThemeContext } from "styled-components";
 import { CommonHead } from "..";
 import ButtonFloat from "../../components/common/button-float";
-import Topbar from "../../components/common/topbar";
+import { LinkWithLine } from "../../components/common/link-with-line";
 import { TwoColLayout } from "../../components/layout";
 import CardCommon from "../../components/memo/cardcommon";
 import CommentCard from "../../components/memo/commentcard";
 import { useImageBroswerStore } from "../../components/memo/imagebrowser";
 import MemoCol from "../../components/memo/memocol";
 import NavCard from "../../components/memo/navcard";
-import { LinkWithLine } from "../../components/styled/link-with-line";
+import Topbar from "../../components/page/topbar";
 import { clientList } from "../../lib/data/client";
 import { MemoInfo, MemoPost, MemoTag } from "../../lib/data/memos.common";
 import { memo_db, writeMemoJson } from "../../lib/data/server";
+import { useDocumentEvent } from "../../lib/hooks/use-event";
+import useSearch from "../../lib/hooks/use-search";
 import { compileMdxMemo } from "../../lib/markdown/mdx";
 import { SearchObj } from "../../lib/search";
-import { useDocumentEvent } from "../../lib/use-event";
-import useSearch from "../../lib/use-search";
 import { siteInfo } from "../../site.config";
 import { fadeInRight } from "../../styles/animations";
 import { floatMenu } from "../../styles/css";
@@ -150,7 +150,7 @@ export default function Memos({ source, info, memotags, client }: Props) {
               <div className="close-btn" onClick={(e) => { e.stopPropagation(); setIsMobileSider(v => !v) }}>
                 小小の菜单<X size={"1.25em"} style={{ marginLeft: ".5rem" }} />
               </div>
-              <SearchBox>
+              <MemoSearchBox>
                 <input type="text" placeholder={t("search")} ref={inputRef}
                   onFocus={
                     () => { initSearch() }
@@ -158,7 +158,7 @@ export default function Memos({ source, info, memotags, client }: Props) {
                 <Search className="hover-gold" size={"1.4rem"}
                   onClick={searchBehavior}
                 />
-              </SearchBox>
+              </MemoSearchBox>
               <NavCard info={info} />
               <CardCommon
                 Icon={TagIcon}
@@ -341,7 +341,7 @@ const SiderContent = styled.div<{
   }
 `
 
-const SearchBox = styled.div`
+const MemoSearchBox = styled.div`
   border-radius: 0.5rem;
   background: ${p => p.theme.colors.bg};
   color: ${p => p.theme.colors.textGray};

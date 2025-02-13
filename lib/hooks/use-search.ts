@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react'
-import { Naive, Result, SearchObj } from './search'
+import { Naive, Result, SearchObj } from '../search'
 
 export type SearchStatus = {
   isSearch: "ready" | "searching" | "done",
@@ -76,7 +76,7 @@ function useSearch<R>({ inputRef, setRes, initData }: Props<R>): {
       )
     }
 
-    newEngine = (await import("./search")).createNaive({
+    newEngine = (await import("../search")).createNaive({
       data: searchObj,
       field: ["tags", "content"],
       notifier,

@@ -2,8 +2,8 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import { CSSProperties, useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 import { create } from 'zustand';
-import { useDocumentEvent } from "../../../lib/use-event";
-import { useViewHeight, useViewWidth } from "../../../lib/use-view";
+import { useDocumentEvent } from "../../../lib/hooks/use-event";
+import { useViewHeight, useViewWidth } from "../../../lib/hooks/use-view";
 import Model from "../../common/model";
 import { TImage } from "../imagethumbs";
 import { useDrag } from "./use-drag";
@@ -55,6 +55,7 @@ export default function ImageBrowser() {
       })
     }
   }, [index, setIndex, imagesData])
+
   const reset = useCallback(() => {
   }, [])
 

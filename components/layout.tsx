@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
-import Footer from "./common/footer";
-import Topbar from "./common/topbar";
+import Footer from "./page/footer";
+import Topbar from "./page/topbar";
 
 type Props = React.HTMLProps<HTMLDivElement> & {
   hidesearch?: boolean

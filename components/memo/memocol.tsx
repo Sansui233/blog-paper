@@ -1,11 +1,11 @@
 import { Dispatch, SetStateAction, useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { clientList, createClient } from "../../lib/data/client";
+import { SearchStatus } from '../../lib/hooks/use-search';
 import { compileMdxMemo } from "../../lib/markdown/mdx";
-import { SearchStatus } from '../../lib/use-search';
 import { TMemo } from '../../pages/memos';
-import Footer from "../common/footer";
 import { PageDescription } from '../common/page-description';
+import Footer from "../page/footer";
 import { MemoCard, MemoLoading } from "./memocard";
 import VirtualList from "./virtuallist";
 

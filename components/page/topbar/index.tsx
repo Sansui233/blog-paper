@@ -9,7 +9,7 @@ import Neko from "../../../assets/neko.svg"
 import { throttle } from "../../../lib/throttle"
 import { siteInfo } from "../../../site.config"
 import { dropShadowSoft, hoverRound } from "../../../styles/css"
-import { LinkWithLine } from "../../styled/link-with-line"
+import { LinkWithLine } from "../../common/link-with-line"
 import MenuIcon from "./menuicon"
 import Sidebar from "./sidebar"
 

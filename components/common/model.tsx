@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from "react"
 import styled from "styled-components"
-import { useViewHeight } from "../../lib/use-view"
+import { useViewHeight } from "../../lib/hooks/use-view"
 
 type Props = React.HTMLProps<HTMLDivElement> & {
   isModel: boolean, // 外部传入 model 状态 noun

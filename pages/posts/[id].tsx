@@ -11,21 +11,21 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import styled from "styled-components"
 import { CommonHead } from ".."
 import ButtonFloat from "../../components/common/button-float"
-import Pagination from "../../components/common/pagination"
 import LayoutContainer from "../../components/layout"
-import { useMdxPost } from "../../components/mdx"
-import { MarkdownStyle } from "../../components/styled/markdown-style"
+import { MarkdownStyle } from "../../components/markdown/markdown-style"
+import { useMdxPost } from "../../components/markdown/mdx"
+import Pagination from "../../components/page/pagination"
 import { PostMeta } from '../../lib/data/posts.common'
 import { POST_DIR, posts_db } from "../../lib/data/server"
 import { dateI18n, parseDate } from "../../lib/date"
+import { useDocumentEvent } from "../../lib/hooks/use-event"
 import { grayMatter2PostMeta } from "../../lib/markdown/frontmatter"
 import { compileMdxPost } from "../../lib/markdown/mdx"
 import { throttle } from "../../lib/throttle"
-import { useDocumentEvent } from "../../lib/use-event"
 import { fadeInRight } from "../../styles/animations"
 import { floatMenu } from "../../styles/css"
 
-const Waline = dynamic(() => import("../../components/common/waline"))
+const Waline = dynamic(() => import("../../components/page/waline"))
 
 type Props = {
   meta: PostMeta,

@@ -5,8 +5,8 @@ import { TMemo } from "../../pages/memos";
 import { siteInfo } from "../../site.config";
 import { bottomFadeIn } from "../../styles/animations";
 import { textShadow } from "../../styles/css";
-import { useMdxMemo } from "../mdx";
-import { MarkdownStyle } from "../styled/markdown-style";
+import { MarkdownStyle } from "../markdown/markdown-style";
+import { useMdxMemo } from "../markdown/mdx";
 import { ImageThumbs } from "./imagethumbs";
 
 export type MemoCardProps = {

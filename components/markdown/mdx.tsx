@@ -1,7 +1,8 @@
 import { runSync } from '@mdx-js/mdx'
 import { Fragment, useMemo } from 'react'
 import * as prod from 'react/jsx-runtime'
-import { MDImg, memoTag } from './markdown'
+import { MDImg } from "./md-img"
+import { MemoTag } from './md-tag'
 
 /**
  * @param code function string
@@ -31,7 +32,7 @@ export function useMdxPost(code: string) {
 export function useMdxMemo(code: string, searchHandler: (text: string, immediateSearch?: boolean) => void) {
   const mdxModule = useMemo(() => convertBack(code), [code])
   const components = useMemo(() => ({
-    Tag: memoTag(searchHandler)
+    Tag: MemoTag(searchHandler)
   }), [searchHandler])
 
   return <mdxModule.default components={components} />
