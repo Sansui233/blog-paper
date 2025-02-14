@@ -72,7 +72,7 @@ export default function MemoCol({ postsData, postsDataBackup, setpostsData, setp
       <PageDescription style={{ marginRight: "1rem" }}>
         {statusRender()}
       </PageDescription>
-      <MemoColContainer style={{ minHeight: "80vh", marginTop: "0.625rem" }}>
+      <MemoColContainer style={{ marginTop: "0.625rem" }}>
         {searchStatus.isSearch === "ready" // 首屏的问题……
           ? <VirtualList<TMemo>
             key={"vl1"}
@@ -103,7 +103,6 @@ export default function MemoCol({ postsData, postsDataBackup, setpostsData, setp
 }
 
 const MemoColContainer = styled.div`
-min-height: 80vh;
 margin: 0.625rem 0;
 border-radius: 0.5rem;
 border: 1px solid ${props => props.theme.colors.uiLineGray2};
@@ -113,10 +112,12 @@ box-shadow: 0 0 12px 0 ${props => props.theme.colors.shadowBg};
 
 // MemoCardStyle
 .virtualist > div:first-child > section {
-  border-radius: 0.5rem 0.5rem 0 0;
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
 }
 .virtualist > div:last-child > section {
-  border-radius: 0 0 0.5rem 0.5rem;
+  border-bottom-left-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
 }
 
 .virtualist > div:not(:last-child) > section {
