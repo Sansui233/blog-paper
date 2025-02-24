@@ -6,6 +6,9 @@ import { siteInfo } from "../../site.config";
 
 const Waline = (props: React.HTMLProps<HTMLDivElement>) => {
   useEffect(() => {
+    if (!siteInfo.walineApi) {
+      return;
+    }
     // 挂载 waline 评论系统
     init({
       el: '#waline',
