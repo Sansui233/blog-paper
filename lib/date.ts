@@ -1,14 +1,19 @@
 import i18next from "../locales/i18n";
+import { siteInfo } from '../site.config'
+
+const dateFormatter = new Intl.DateTimeFormat(undefined, {
+  year: 'numeric',
+  month: 'short',
+  day: 'numeric',
+  hour: 'numeric',
+  minute: 'numeric',
+  hour12: false,
+  timeZone: siteInfo.timezone ?? 'Asia/Shanghai'
+})
 
 export function dateToYMDMM(d: Date): string {
-  return d.getFullYear() + "-"
-    + ("0" + (d.getMonth() + 1)).slice(-2) + "-"
-    + ("0" + d.getDate()).slice(-2) + " "
-    + ("0" + d.getHours()).slice(-2) + ":"
-    + ("0" + d.getMinutes()).slice(-2);
+  return dateFormatter.format(d)
 }
-
-
 
 
 export function dateI18n(d: Date, mode: "dateYMD" | "dateNatural" = "dateNatural"): string {
