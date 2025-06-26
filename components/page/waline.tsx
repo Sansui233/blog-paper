@@ -41,7 +41,7 @@ const StyledWL = styled.div`
   --waline-bg-color-light: #99999915;
   --waline-border: 1px solid #99999966;
   --waline-border-color: #99999966;
-  --waline-info-bgcolor: #99999915;
+  --waline-info-bg-color: #99999915;
 
   .wl-btn.primary {
     background: ${p => p.theme.colors.bgInverse};

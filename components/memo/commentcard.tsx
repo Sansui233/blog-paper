@@ -15,7 +15,7 @@ type Props = {
 }
 
 export default function CommentCard({ setIsCommentModal }: Props) {
-  const [comments, setComments] = useState<Array<Pick<WalineComment, "objectId" | "comment">>>([{ objectId: "0x00", comment: "等等，好像没有评论哦~" }])
+  const [comments, setComments] = useState<Array<Pick<WalineComment, "objectId" | "comment">>>([{ objectId: 0x00, comment: "等等，好像没有评论哦~" }])
 
   useEffect(() => {
     const path = encodeURIComponent(globalThis.location.pathname)
