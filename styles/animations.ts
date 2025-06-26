@@ -1,11 +1,27 @@
 import { keyframes } from "styled-components";
 
-export const fadeIn = keyframes`
+export const focusIn = keyframes`
 0% {
   opacity: 0;
+  -webkit-backdrop-filter: blur(0px);
+          backdrop-filter: blur(0px);
 }
 100% {
   opacity: 1;
+  -webkit-backdrop-filter: blur(12px);
+          backdrop-filter: blur(12px);
+}`
+
+export const focusOut = keyframes`
+0% {
+  opacity: 1;
+  -webkit-backdrop-filter: blur(12px);
+          backdrop-filter: blur(12px);
+}
+100% {
+  opacity: 0;
+  -webkit-backdrop-filter: blur(0px);
+          backdrop-filter: blur(0px);
 }`
 
 export const bottomFadeIn = keyframes`

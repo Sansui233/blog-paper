@@ -8,6 +8,7 @@ import styled, { ThemeContext } from "styled-components";
 import { CommonHead } from "..";
 import ButtonFloat from "../../components/common/button-float";
 import { LinkWithLine } from "../../components/common/link-with-line";
+import Modal from "../../components/common/modal";
 import { TwoColLayout } from "../../components/layout";
 import CardCommon from "../../components/memo/cardcommon";
 import CommentCard from "../../components/memo/commentcard";
@@ -24,12 +25,13 @@ import { compileMdxMemo } from "../../lib/markdown/mdx";
 import { SearchObj } from "../../lib/search";
 import { siteInfo } from "../../site.config";
 import { fadeInRight } from "../../styles/animations";
-import { floatMenu } from "../../styles/css";
+import { dropShadow, floatMenu } from "../../styles/css";
 import { Extend } from "../../utils/type-utils";
 
-const ImageBrowser = dynamic(() => import("../../components/memo/imagebrowser"))
-
 export const MemoCSRAPI = '/data/memos'
+
+const ImageBrowser = dynamic(() => import("../../components/memo/imagebrowser"))
+const Waline = dynamic(() => import("../../components/page/waline"))
 
 // TMemo 的 content 是 code……
 export type TMemo = Omit<MemoPost, "content"> & {
@@ -48,7 +50,8 @@ export default function Memos({ source, info, memotags, client }: Props) {
   const theme = useContext(ThemeContext)
   const [isMobileSider, setIsMobileSider] = useState(false)
   const [t, i18n] = useTranslation()
-  const isModel = useImageBroswerStore(state => state.isModel)
+  const isImageModal = useImageBroswerStore(state => state.isModal)
+  const [isCommentModal, setIsCommentModal] = useState(false)
   const [postsData, setpostsData] = useState(source)
   const [postsDataBackup, setpostsDataBackup] = useState(source)
 
@@ -184,11 +187,23 @@ export default function Memos({ source, info, memotags, client }: Props) {
                   {siteInfo.friends.map((f, i) => <div key={i}><LinkWithLine href={f.link}>{f.name}</LinkWithLine></div>)}
                 </CardCommon>
               }
-              {siteInfo.walineApi && siteInfo.walineApi !== "" && <CommentCard />}
+              {siteInfo.walineApi && siteInfo.walineApi !== "" && <CommentCard setIsCommentModal={setIsCommentModal} />}
             </SiderContent>
           </TwoColLayout>
         </OneColLayout>
-        {isModel && <ImageBrowser />}
+        {isImageModal && <ImageBrowser />}
+        {siteInfo.walineApi && siteInfo.walineApi !== "" &&
+          <Modal
+            isModal={isCommentModal}
+            setModal={setIsCommentModal}
+            style={{ background: "transparent" }}
+            isAnimated={true}
+            showCloseBtn={true}>
+            <CommentContainer>
+              <Waline onClick={e => e.stopPropagation()} />
+            </CommentContainer>
+          </Modal>
+        }
       </main>
     </>
   )
@@ -379,5 +394,24 @@ const MemoSearchBox = styled.div`
     flex: 0  0 auto;
     margin: 0 0.6rem 0 0.5rem;
     color: ${p => p.theme.colors.uiLineGray};
+  }
+`
+
+const CommentContainer = styled.div`
+  height:100%;
+  width: 100%;
+  overflow-y: auto;
+  max-width: 640px;
+  margin: 0 auto;
+  background: ${p => p.theme.colors.bg};
+
+  ${dropShadow}
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  &>div{
+    max-width: min(90%, 640px);
+    cursor: default;
   }
 `

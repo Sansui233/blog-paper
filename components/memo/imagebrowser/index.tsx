@@ -4,13 +4,13 @@ import styled from "styled-components";
 import { create } from 'zustand';
 import { useDocumentEvent } from "../../../lib/hooks/use-event";
 import { useViewHeight, useViewWidth } from "../../../lib/hooks/use-view";
-import Model from "../../common/model";
+import Modal from "../../common/modal";
 import { TImage } from "../imagethumbs";
 import { useDrag } from "./use-drag";
 
 export interface ImageBrowserState {
-  isModel: boolean;
-  setisModel: (b: boolean) => void
+  isModal: boolean;
+  setisModal: (b: boolean) => void
   imagesData: Array<TImage>
   setImagesData: (imagesData: TImage[]) => void
   currentIndex: number
@@ -19,8 +19,8 @@ export interface ImageBrowserState {
 
 export const useImageBroswerStore = create<ImageBrowserState>((set) => {
   return {
-    isModel: false,
-    setisModel: (isModel: boolean) => set(() => ({ isModel })), // wow amazing, partial updating
+    isModal: false,
+    setisModal: (isModal: boolean) => set(() => ({ isModal })), // wow amazing, partial updating
     imagesData: new Array<TImage>(),
     setImagesData: (imagesData: TImage[]) => set(() => ({ imagesData })),
     currentIndex: 0,
@@ -146,7 +146,7 @@ export default function ImageBrowser() {
 
 
   return (
-    <Model isModel={true} setModel={store.setisModel} style={{ ...endTrans, background: "#1d1d1d" }}>
+    <Modal isModal={true} setModal={store.setisModal} style={{ ...endTrans, background: "#1d1d1d" }}>
       {/* Debug */}
       {/* <Tools style={{ bottom: "0rem", flexDirection: "column", height: "12em" }}>
         <div>startpos {startpos.toString()}</div>
@@ -180,9 +180,9 @@ export default function ImageBrowser() {
       }
 
       <Tools>{index.curr + 1}/{imagesData.length} &nbsp;|&nbsp;
-        <span onClick={(e) => { e.stopPropagation(), store.setisModel(false) }}>{"关闭"}</span></Tools>
+        <span onClick={(e) => { e.stopPropagation(), store.setisModal(false) }}>{"关闭"}</span></Tools>
 
-    </Model>
+    </Modal>
   )
 }
 

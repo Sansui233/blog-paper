@@ -19,7 +19,7 @@ export function MDImg(props: DetailedHTMLProps<ImgHTMLAttributes<HTMLImageElemen
     setIsClient(true);
   }, []);
 
-  const [isModel, setisModel] = useState(false);
+  const [isModal, setisModal] = useState(false);
   const [isLoading, setisLoading] = useState(true);
   const [isError, setisError] = useState(false);
   const imgRef: LegacyRef<HTMLImageElement> | undefined = useRef(null);
@@ -76,15 +76,15 @@ export function MDImg(props: DetailedHTMLProps<ImgHTMLAttributes<HTMLImageElemen
 
   // Close on scroll
   useDocumentEvent("scroll", () => {
-    if (isModel) {
-      setisModel(false);
+    if (isModal) {
+      setisModal(false);
       handleClick();
     }
-  }, false, [isModel]);
+  }, false, [isModal]);
 
   // Click to show or hide image model
   const handleClick = useCallback(() => {
-    if (isModel && imgRef.current && containerRef.current) {
+    if (isModal && imgRef.current && containerRef.current) {
       // hide model
       //0ms
       setImgStyle(s => {
@@ -139,8 +139,8 @@ export function MDImg(props: DetailedHTMLProps<ImgHTMLAttributes<HTMLImageElemen
     } else {
       console.error("[Error] img nothing happened, ref not inited");
     }
-    setisModel(!isModel);
-  }, [isModel, vh, vw]);
+    setisModal(!isModal);
+  }, [isModal, vh, vw]);
 
   // Render
   if (isClient) {
@@ -157,7 +157,7 @@ export function MDImg(props: DetailedHTMLProps<ImgHTMLAttributes<HTMLImageElemen
         transition: "transform .3s ease, filter 1s ease"
       }} {...props} />
 
-      {isModel ? <Mask onClick={handleClick} /> : null}
+      {isModal ? <Mask onClick={handleClick} /> : null}
 
     </ImageWrapper>;
   }

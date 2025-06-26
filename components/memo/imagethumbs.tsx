@@ -98,7 +98,7 @@ export function ImageThumbs({ imgsmd }: {
             e.stopPropagation()
             ctx.setCurrentIndex(0)
             ctx.setImagesData(thumbData)
-            ctx.setisModel(true)
+            ctx.setisModal(true)
           }} />
         </ImageContainer></div>
 
@@ -114,7 +114,7 @@ export function ImageThumbs({ imgsmd }: {
                 // console.debug("% click on", i)
                 ctx.setCurrentIndex(i)
                 ctx.setImagesData(thumbData)
-                ctx.setisModel(true)
+                ctx.setisModal(true)
               }} />
             </ImageContainer>)
         })}

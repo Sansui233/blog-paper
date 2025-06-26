@@ -112,7 +112,7 @@ export function useDrag(store: ImageBrowserState, prev: () => void, next: () => 
     if (Date.now() - state.starttime < 140 && Math.abs(state.trans[0]) < 5 && Math.abs(state.trans[1]) < 5) {
       setisBeforeUnmount(true)
       setTimeout(() => {
-        store.setisModel(false)
+        store.setisModal(false)
         setisBeforeUnmount(false)
       }, 300) // 避免点击穿透的问题。touchstart ==>touchmove==>touched ==>click
     } else {
