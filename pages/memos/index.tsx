@@ -99,13 +99,13 @@ export default function Memos({ source, info, memotags, client }: Props) {
 
   // 包装 handle search，空值输入不触发搜索，恢复数据
   const searchBehavior = useCallback(() => {
-    if (inputRef.current && inputRef.current.value === "") {
+    if (inputRef.current && inputRef.current.value === "" && searchStatus.isSearch === "done") {
       setpostsData(postsDataBackup)
       resetSearchStatus()
       return
     }
     search()
-  }, [search, postsDataBackup, resetSearchStatus]) //TODO
+  }, [search, postsDataBackup, searchStatus, resetSearchStatus]) //TODO
 
   // bind keyboard event
   useDocumentEvent(

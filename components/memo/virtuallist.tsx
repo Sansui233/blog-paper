@@ -23,6 +23,16 @@ export type VirtualListType = <T extends {
 }>(props: Props<T>) => JSX.Element
 
 
+// TODO fix: placeholder and activeIndex should subscribe when sources is changed
+// 这边有个问题是 placeholder 的更新到底由谁控制。由外而内的话是订阅 sources 的改变，由内而外的话是自己更新
+// 我偏向于纯自己更新。由外而内不是不行，等于于手搓双向绑定，感觉会不太符合 React 单向数据流的整体逻辑。这也是所有具有 数据自动更新的 组件要考虑的问题。
+// 所以正常的单个 virtualist 不应该把数据更新的部分传给外部，应该初始化后就定死，不要用外部的 sources 渲染，只由内部渲染。
+// 外部的 source 应该只叫 InitSource 这样
+// 但问题是有时候，外部也可能要访问更新后的 source 来渲染一些东西，再结合 React 数据是上到下传递，还是只能把数据放外面
+// 所以最终还是得考虑好**状态机**，或者权限控制。纯函数式的思路真的不太好设计这类。
+// 我并不想把简单的事情搞复杂，Virtualist 真要拆开写能拆出很多可以优化的东西
+// 但目前只需要是知道外部不要去 setSources 就行了，如果要 Set，必须重新渲染一个 VirtualList。
+// 在 Memo 的 Search 中，source 刷新必须伴随 searchStatus 的改变。
 // TODO scroll to anywhere
 // TODO modify height while loading
 const VirtualList: VirtualListType = ({ sources, setSources, Elem, scrollRef, fetchFrom: fetchFrom, batchsize, Loading, style, ...otherprops }) => {
