@@ -264,7 +264,7 @@ align-self: flex-end;
 }
 
 @media screen and (min-width: 1080px) {
-  max-width: 640px;
+  max-width: 780px;
 }
 
 
@@ -401,17 +401,23 @@ const CommentContainer = styled.div`
   height:100%;
   width: 100%;
   overflow-y: auto;
-  max-width: 640px;
+  max-width: 780px;
   margin: 0 auto;
   background: ${p => p.theme.colors.bg};
 
+  padding-top: 2rem; /* avoid close bar conflict */
+  padding-bottom: 2rem; /* avoid close bar conflict */
+
   ${dropShadow}
-  &::-webkit-scrollbar {
-    display: none;
-  }
 
   &>div{
-    max-width: min(90%, 640px);
+    max-width: min(90%, 780px);
     cursor: default;
+  }
+
+  @media screen and (min-width: 780px) {
+    height: 96vh;
+    margin-top: 2vh;
+    border-radius: 0.5rem;
   }
 `

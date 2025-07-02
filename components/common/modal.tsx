@@ -104,13 +104,11 @@ const CloseBar = styled.div`
   height: 2.5rem;
   padding: 0 0.5rem;
   top: 0.5rem;
-  pointer-event: none;
   
   display: flex;
   justify-content: flex-end;
 
   color: ${props => props.theme.colors.textGray3};
-  
   &:hover {
     color: ${props => props.theme.colors.textPrimary};
   }
@@ -120,6 +118,7 @@ const CloseBar = styled.div`
     bottom: 0.5rem;
     justify-content: center;
   }
+  
   .close {
     cursor: pointer;
     border-radius: 0.5rem;
@@ -127,9 +126,11 @@ const CloseBar = styled.div`
     padding: 0.3rem 0.5rem;
     ${dropShadow}
     border: solid 1px ${props => props.theme.colors.uiLineGray2};
+    cursor: pointer;
 
     display: flex;
     align-items: center;
+
   }
 
 `
