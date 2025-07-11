@@ -1,4 +1,5 @@
-import React, { Dispatch, SetStateAction, useContext, useMemo, useState } from "react";
+import { useRouter } from "next/router";
+import React, { Dispatch, SetStateAction, useCallback, useContext, useMemo, useState } from "react";
 import styled, { ThemeContext } from "styled-components";
 import { dateToYMDMM } from "../../lib/date";
 import { TMemo } from "../../pages/memos";
@@ -19,6 +20,7 @@ export function MemoCard({ source, setSearchText, triggerHeightChange, ...otherp
   const [isCollapse, setfisCollapse] = useState(true);
   const theme = useContext(ThemeContext);
   const ref = React.useRef<HTMLDivElement>(null);
+  const router = useRouter()
 
   const shouldCollapse = source.length > 200 ? true : false;
 
@@ -52,6 +54,13 @@ export function MemoCard({ source, setSearchText, triggerHeightChange, ...otherp
     }
   }
 
+  const handleClickTag = useCallback((tag: string) => {
+    router.push({
+      pathname: router.pathname,
+      query: { ...router.query, tag: encodeURIComponent(tag.substring(1)) },
+    }, undefined, { shallow: true })
+  }, [router])
+
   return (
     <MemoCardStyle {...otherprops} $isCollapse={shouldCollapse === false ? false : isCollapse} ref={ref}>
       <div className="content">
@@ -67,7 +76,7 @@ export function MemoCard({ source, setSearchText, triggerHeightChange, ...otherp
           </div>
         </MemoMeta>
         <MemoMarkdown $bottomSpace={shouldCollapse}>
-          {useMdxMemo(source.code, setSearchText)}
+          {useMdxMemo(source.code, handleClickTag)}
         </MemoMarkdown>
         <CardMask $isCollapse={isCollapse} $isShown={shouldCollapse}>
           <div onClick={handleExpand} className="rd-more">

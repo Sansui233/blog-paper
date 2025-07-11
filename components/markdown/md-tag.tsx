@@ -1,13 +1,13 @@
 /**
  * return Tag component with search handler
  */
-export function MemoTag(searchHandler?: (text: string, immediateSearch?: boolean) => void) {
+export function MemoTag(handleClickTag?: (tag: string) => void) {
 
   function Tag({ text }: { text: string }) {
     // console.debug("[markdown.tsx] detect tag", text)
     return <span className="tag" onClick={() => {
-      if (searchHandler) {
-        searchHandler(`#${text}`, true)
+      if (handleClickTag) {
+        handleClickTag("#" + text)
       }
     }}>#{text} </span>
   }

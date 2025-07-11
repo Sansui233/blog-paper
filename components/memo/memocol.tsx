@@ -1,3 +1,4 @@
+import { useRouter } from 'next/router';
 import { Dispatch, SetStateAction, useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { clientList, createClient } from "../../lib/data/client";
@@ -23,6 +24,7 @@ export default function MemoCol({ postsData, postsDataBackup, setpostsData, setp
 
   // virtual list
   const [cli, setCli] = useState(createClient(client))
+  const router = useRouter()
   const fetchFrom = useCallback(async (start: number, batchsize: number) => {
     return cli.queryMemoByCount(start, batchsize).then(data => {
       if (data.length > 0) {
@@ -57,8 +59,9 @@ export default function MemoCol({ postsData, postsDataBackup, setpostsData, setp
               marginLeft: "0.875em"
             }}
             onClick={() => {
-              resetSearchStatus()
-              setpostsData(postsDataBackup)
+              router.push({
+                pathname: router.pathname,
+              }, undefined, { shallow: true })
             }}
           >X</span>
         </>

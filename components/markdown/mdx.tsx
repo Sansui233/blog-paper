@@ -29,11 +29,11 @@ export function useMdxPost(code: string) {
   return <mdxModule.default components={components} />
 }
 
-export function useMdxMemo(code: string, searchHandler: (text: string, immediateSearch?: boolean) => void) {
+export function useMdxMemo(code: string, handleClickTag: (tag: string) => void) {
   const mdxModule = useMemo(() => convertBack(code), [code])
   const components = useMemo(() => ({
-    Tag: MemoTag(searchHandler)
-  }), [searchHandler])
+    Tag: MemoTag(handleClickTag)
+  }), [handleClickTag])
 
   return <mdxModule.default components={components} />
 }

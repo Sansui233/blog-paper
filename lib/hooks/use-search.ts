@@ -138,7 +138,7 @@ function useSearch<R>({ inputRef, setRes, initData }: Props<R>): {
   return {
     searchStatus,
     resetSearchStatus,
-    setTextAndSearch: setTextAndSearch,
+    setTextAndSearch,
     search,
     initSearch,
   }
