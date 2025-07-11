@@ -55,10 +55,10 @@ function useSearch<R>({ inputRef, setRes, initData }: Props<R>): {
    */
   const initSearch = useCallback(async () => {
 
+    if (engine) return engine
+
     console.debug("%% init search...")
     let newEngine: Naive | undefined = undefined;
-
-
     const { searchObj, filterRes } = await initData()
 
     // 过滤结果
@@ -89,7 +89,7 @@ function useSearch<R>({ inputRef, setRes, initData }: Props<R>): {
     })
 
     return newEngine
-  }, [initData, setRes])
+  }, [initData, setRes, engine])
 
   /**
    * start search according to the text in the input ref element
