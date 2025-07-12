@@ -20,7 +20,12 @@ public/sitemap.xml
 
 # testing
 /coverage
-pages/test.tsx
+pages/test
+styles/test*
+
+# migrating
+/pages-backup
+
 
 # next.js
 /.next/
