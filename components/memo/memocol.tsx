@@ -3,6 +3,7 @@ import { Dispatch, SetStateAction, useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { clientList, createClient } from "../../lib/data/client";
 import { SearchStatus } from '../../lib/hooks/use-search';
+import { mdLength } from '../../lib/markdown/md-length';
 import { compileMdxMemo } from "../../lib/markdown/mdx";
 import { TMemo } from '../../pages/memos';
 import { PageDescription } from '../common/page-description';
@@ -31,7 +32,7 @@ export default function MemoCol({ postsData, postsDataBackup, setpostsData, setp
         return Promise.all(data.map(async d => {
           return {
             ...d,
-            length: d.content.length,
+            length: mdLength(d.content),
             code: (await compileMdxMemo(d.content)).code
           }
         }))

@@ -87,7 +87,7 @@ export default function Memos({ source, info, memotags, client }: Props) {
           return {
             ...memo,
             code: (await compileMdxMemo(memo.content)).code,
-            length: memo.content.length
+            length: mdLength(memo.content)
           }
         })
         return tmemos
