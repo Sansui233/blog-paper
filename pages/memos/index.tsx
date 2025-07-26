@@ -116,12 +116,12 @@ export default function Memos({ source, info, memotags, client }: Props) {
   useEffect(() => {
     if (tag && inputRef.current && inputRef.current.value !== tag) {
       setTextAndSearch("#" + decodeURIComponent(tag as string))
-    } else if (!tag) {
+    } else if (!tag && searchStatus.isSearch === "done") {
       setTextAndSearch("", false)
       setpostsData(postsDataBackup)
       resetSearchStatus()
     }
-  }, [tag, resetSearchStatus, setTextAndSearch, setpostsData, postsDataBackup])
+  }, [tag, resetSearchStatus, setTextAndSearch, setpostsData, postsDataBackup, searchStatus.isSearch]);
 
 
   // bind keyboard event
