@@ -16,7 +16,9 @@ export function dateToYMDMM(d: Date): string {
 
   const parts = dateFormatter.formatToParts(d);
   const lookup = Object.fromEntries(parts.map(p => [p.type, p.value]));
-  return `${lookup.year}-${lookup.month}-${lookup.day} ${lookup.hour}:${lookup.minute}`;
+  // node.js will return "24" for midnight "00". convert to ECMA-402 standard "00"
+  const hour = lookup.hour === "24" ? "00" : lookup.hour;
+  return `${lookup.year}-${lookup.month}-${lookup.day} ${hour}:${lookup.minute}`;
 }
 
 // todo test cases "2021-01-01 00:00"
