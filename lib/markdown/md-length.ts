@@ -66,7 +66,5 @@ export function mdLength(markdown: string): number {
   text = text.replace(/\s+/g, ' ');
   text = text.trim();
 
-  console.debug('Processed text:', text); // 调试输出
-
   return text.length;
 }

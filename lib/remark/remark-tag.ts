@@ -5,7 +5,6 @@ import { visit } from "unist-util-visit"
 export function remarkTag() {
   return function (tree: Root) {
     visit(tree, "paragraph", function (node, index, parent) {
-      // console.log("%%%%%%%%%%%",node.type)
       const newChildren: any[] = []
       node.children.forEach(child => {
         if (child.type === "text") {

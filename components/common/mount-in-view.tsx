@@ -17,7 +17,6 @@ const DivInViewPort = ({ placeHolderHeight, threshold = 1, children }: Props) =>
     const callback: IntersectionObserverCallback = (entries, observer) => {
       entries.forEach(entry => {
         if (entry.boundingClientRect.height !== 0 && entry.intersectionRatio >= threshold) {
-          console.log('set mount')
           setIsMounted(true)
         }
       })

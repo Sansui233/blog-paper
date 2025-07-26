@@ -32,7 +32,7 @@ export default function CommentCard({ setIsCommentModal }: Props) {
       <Container>
         {comments.map(item => <li key={item.objectId}>{item.comment.replace(/<[^>]*>/g, '')}</li>)}
       </Container>
-      <ModalButton onClick={() => { setIsCommentModal(true); console.debug("open comment model") }}>
+      <ModalButton onClick={() => { setIsCommentModal(true) }}>
         <PencilLine size="1em" style={{ marginRight: "0.5em" }} />
         <span>
           添加留言

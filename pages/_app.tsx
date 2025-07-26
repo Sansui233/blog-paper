@@ -21,7 +21,6 @@ function MyApp({ Component, pageProps }: AppProps) {
   // init language
   useEffect(() => {
     const lang = detectBrowserLang().slice(0, 2)
-    console.debug("app set lang: ", lang)
     setLanguage(lang) // 由于大部分内容 SSR，英文 ui 会有闪屏……
   }, [setLanguage])
 
@@ -44,7 +43,6 @@ function MyApp({ Component, pageProps }: AppProps) {
   // subscribe theme changed from User
   useEffect(() => {
     if (themeObj.mode !== appState.theme) {
-      console.debug("app set theme: ", appState.theme)
       setThemeObj(themeMap(appState.theme))
     }
   }, [appState, themeObj.mode])
@@ -52,7 +50,6 @@ function MyApp({ Component, pageProps }: AppProps) {
   // init global theme context after cookie available
   useEffect(() => {
     const cookieTheme = appState.getCookieTheme()
-    console.debug("set cookieTheme ", cookieTheme)
     setThemeObj(themeMap(cookieTheme))
     appState.setTheme(cookieTheme)
     // eslint-disable-next-line react-hooks/exhaustive-deps

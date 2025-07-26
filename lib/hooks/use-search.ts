@@ -57,7 +57,7 @@ function useSearch<R>({ inputRef, setRes, initData }: Props<R>): {
 
     if (engine) return engine
 
-    console.debug("%% init search...")
+    console.log("init search...")
     let newEngine: Naive | undefined = undefined;
     const { searchObj, filterRes } = await initData()
 

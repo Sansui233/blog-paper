@@ -114,7 +114,6 @@ export default function Memos({ source, info, memotags, client }: Props) {
   // search according to url query
   const { tag } = router.query
   useEffect(() => {
-    console.debug("%% useEffectsetsearch")
     if (tag && inputRef.current && inputRef.current.value !== tag) {
       setTextAndSearch("#" + decodeURIComponent(tag as string))
     } else if (!tag) {

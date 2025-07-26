@@ -86,7 +86,7 @@ export const darkTheme: DefaultTheme = {
 
 export const genSystemTheme = ((): DefaultTheme => {
   if (typeof window === "undefined") {
-    console.debug("serverside window not available, set to light");
+    console.warn("serverside window not available, set to light");
     return lightTheme // fallback
   } else {
     const theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? darkTheme : lightTheme

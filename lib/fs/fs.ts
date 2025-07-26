@@ -8,7 +8,7 @@ function mkdirSync(dirname: string) {
   if (fs.existsSync(dirname)) {
     return true;
   } else if (dirname === "") {
-    console.debug("unexpected blank dir")
+    console.error("unexpected blank dir")
     return true
   } else {
     // Recursively mkdir
