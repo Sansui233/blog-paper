@@ -22,6 +22,7 @@ import { MemoInfo, MemoPost, MemoTag } from "../../lib/data/memos.common";
 import { memo_db, writeMemoJson } from "../../lib/data/server";
 import { useDocumentEvent } from "../../lib/hooks/use-event";
 import useSearch from "../../lib/hooks/use-search";
+import { mdLength } from "../../lib/markdown/md-length";
 import { compileMdxMemo } from "../../lib/markdown/mdx";
 import { SearchObj } from "../../lib/search";
 import { siteInfo } from "../../site.config";
@@ -242,7 +243,7 @@ export const getStaticProps: GetStaticProps<Props> = async () => {
     return {
       ...m,
       code: code,
-      length: m.content.length,
+      length: mdLength(m.content)
     }
   }))
 
