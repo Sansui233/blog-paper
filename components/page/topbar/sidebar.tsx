@@ -5,6 +5,7 @@ import styled from "styled-components"
 import useAppState, { ThemeMsg } from "../../../lib/app-states"
 import { siteInfo } from "../../../site.config"
 import MenuIcon from "./menuicon"
+import { focusIn, slideInLeft, topFadeIn } from "../../../styles/animations"
 
 type Props = {
   isShow: boolean,
@@ -30,21 +31,21 @@ export default function Sidebar({ isShow, toggle }: Props) {
   }, [appState])
 
   return (
-    <Container style={isShow ? undefined : { transform: "translateY(-100%)" }}>
+    <Container className={isShow ? "is-show":"is-hide"}>
       <Content style={{ paddingTop: '8rem' }}>
-        <h1>
+        <h1 data-i={"0"}>
           <span>
             {"SANSUI'S BLOG"}
           </span>
         </h1>
-        <div onClick={handleThemeChange}>
+        <div data-i={"1"} onClick={handleThemeChange}>
           <OptionText>
             {themeText}
           </OptionText>
         </div>
-        <div><OptionText><Link href="/categories">分类标签</Link></OptionText></div>
-        <div><OptionText><Link href="/atom.xml">RSS</Link></OptionText></div>
-        <LastSection>
+        <div data-i={"2"}><OptionText><Link href="/categories">分类标签</Link></OptionText></div>
+        <div data-i={"3"}><OptionText><Link href="/atom.xml">RSS</Link></OptionText></div>
+        <LastSection data-i={"4"}>
           <Icons>
             <a href={siteInfo.social.github}><Github /></a>
             <a href={`mailto:${siteInfo.social.email}`}><Mail /></a>
@@ -86,15 +87,22 @@ const Icons = styled.div`
   }
 `
 
-const Container = styled.div`
+const Container = styled.section`
   background: ${p => p.theme.colors.bg};
   overflow: auto;
   position: fixed;
   width: 100%;
   height: 100%;
-  z-index: 10;
-  transform: translateY(0);
-  transition: transform 1s cubic-bezier(0.46, 0, 0.08, 1.11);
+  z-index: 9;
+  opacity: 0;
+  backdrop-filter: blur(6px);
+  transition: all 0.5s cubic-bezier(0.46, 0, 0.08, 1.11);
+  pointer-events: none;
+  
+  &.is-show {
+    opacity: 1;
+    pointer-events: auto;
+  }
 
   h1 {
     span{
@@ -112,6 +120,26 @@ const Container = styled.div`
       mix-blend-mode: ${p => p.theme.colors.bgFilter};
     }
   }
+  
+  &.is-show [data-i]{
+    opacity: 0;
+    animation: ${topFadeIn} 1s ease forwards;
+  }
+  
+  [data-i="1"] {
+    animation-delay: 0.1s !important;
+  }
+  [data-i="2"]{
+    animation-delay: 0.2s  !important;
+  }
+  [data-i="3"]{
+    animation-delay: 0.3s  !important;
+  }
+  [data-i="4"]{
+    animation-delay: 0.4s  !important;
+  }
+  
+
 `
 
 const Content = styled.div`

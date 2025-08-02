@@ -145,18 +145,18 @@ const SearchIcon = styled.div<{ $isSearch: boolean, $hideSearch: boolean | undef
   @media screen and (max-width: 780px) {
     ${p => p.$hideSearch && "display:none;"}
   }
-
 `
+
 const PlaceHolder = styled.div`
-    height: 63px;
-    width: 100%;
-    text-align: center;
-    padding-top: 0.625rem;
-    font-size: 0.625rem;
-    font-style: italic;
-    color: ${p => p.theme.colors.accent};
-    font-family: 'Times New Roman', STSong, '宋体', serif;
-    opacity: .6;
+  height: 63px;
+  width: 100%;
+  text-align: center;
+  padding-top: 0.625rem;
+  font-size: 0.625rem;
+  font-style: italic;
+  color: ${p => p.theme.colors.accent};
+  font-family: 'Times New Roman', STSong, '宋体', serif;
+  opacity: .6;
 `
 const Layout = styled.header<{
   $isHidden: boolean
@@ -169,9 +169,11 @@ const Layout = styled.header<{
   align-items: center;
   position: fixed;
   background-color: ${(props => props.theme.colors.bg)};
+  background-color: color-mix(in srgb, ${(props => props.theme.colors.bg)}, transparent 40%);
   z-index:10;
   transform: ${props => props.$isHidden ? "translateY(-100%)" : "translateY(0)"};
   transition: transform .5s ease;
+  backdrop-filter: blur(6px);
 `
 
 const Avatar = styled.div`
@@ -227,9 +229,7 @@ const Nav = styled.nav`
   }
   ol.current a:before {
     ${hoverRound}
-    
   }
-
 `
 
 const More = styled.div`

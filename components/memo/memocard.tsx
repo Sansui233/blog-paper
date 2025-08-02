@@ -134,6 +134,7 @@ const CardMask = styled.div<{
     text-align: right;
     
     color: ${p => p.theme.colors.accent};
+    
     ${props => props.$isCollapse === true ? props.theme.colors.maskGradient : ''}
 
     .rd-more {
@@ -145,6 +146,7 @@ const CardMask = styled.div<{
         transition: box-shadow .3s;
         margin-right: 0.5rem;
       }
+      // background: ${p => p.theme.colors.bg};
     }
 
     & .rd-more:hover span {
