@@ -103,25 +103,44 @@ export default function Memos({ source, info, memotags, client }: Props) {
 
   // 包装 handle search，空值输入不触发搜索，恢复数据
   const handleClickSearchBtn = useCallback(() => {
-    if (inputRef.current && inputRef.current.value === "" && searchStatus.isSearch === "done") {
+    if (!inputRef.current) return
+
+    if (inputRef.current.value === "" && searchStatus.isSearch === "done") {
       setpostsData(postsDataBackup)
       resetSearchStatus()
       return
     }
-    search() // search according to the text in input ref
-  }, [search, postsDataBackup, searchStatus, resetSearchStatus])
+
+    // search according to router query
+    router.push({
+      pathname: router.pathname,
+      query: { q: encodeURIComponent(inputRef.current.value) },
+    }, undefined, { shallow: true })
+  }, [searchStatus.isSearch, router, postsDataBackup, resetSearchStatus])
 
   // search according to url query
-  const { tag } = router.query
+  // 目前是优先级关系， query 优先于 tag
+  const { tag, q } = router.query
   useEffect(() => {
-    if (tag && inputRef.current && inputRef.current.value !== tag) {
-      setTextAndSearch("#" + decodeURIComponent(tag as string))
-    } else if (!tag && searchStatus.isSearch === "done") {
+    if (q && inputRef.current && inputRef.current.value !== q) {
+      setTextAndSearch(decodeURIComponent(q as string))
+      return
+    }
+
+    const tag_full = "#" + decodeURIComponent(tag as string)
+    if (tag && inputRef.current && inputRef.current.value !== tag_full) {
+      setTextAndSearch(tag_full)
+      return
+    }
+
+    // default
+    if (!tag && searchStatus.isSearch === "done") {
       setTextAndSearch("", false)
       setpostsData(postsDataBackup)
       resetSearchStatus()
     }
-  }, [tag, resetSearchStatus, setTextAndSearch, setpostsData, postsDataBackup, searchStatus.isSearch]);
+
+  }, [tag, resetSearchStatus, setTextAndSearch, setpostsData, postsDataBackup, searchStatus.isSearch, q]);
 
 
   // bind keyboard event
@@ -138,7 +157,7 @@ export default function Memos({ source, info, memotags, client }: Props) {
   const handleClickTag = useCallback((t: MemoTag) => {
     router.push({
       pathname: router.pathname,
-      query: { ...router.query, tag: encodeURIComponent(t.name) },
+      query: { tag: encodeURIComponent(t.name) },
     }, undefined, { shallow: true })
   }, [router])
 

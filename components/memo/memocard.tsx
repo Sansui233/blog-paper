@@ -57,7 +57,7 @@ export function MemoCard({ source, setSearchText, triggerHeightChange, ...otherp
   const handleClickTag = useCallback((tag: string) => {
     router.push({
       pathname: router.pathname,
-      query: { ...router.query, tag: encodeURIComponent(tag.substring(1)) },
+      query: { tag: encodeURIComponent(tag.substring(1)) },
     }, undefined, { shallow: true })
   }, [router])
 
