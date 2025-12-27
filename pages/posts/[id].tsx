@@ -402,7 +402,7 @@ const ColumnRightContainer = styled.aside<{
 
 const ColumnRightContent = styled.section`
   padding: 0 1rem 0 2rem;
-  line-height: 1.75rem; /* 与正文同 line-height */
+  line-height: 1.8rem; /* 与正文同 line-height */
 
   @media screen and (max-width: 1000px){
     padding-bottom: 1rem;
