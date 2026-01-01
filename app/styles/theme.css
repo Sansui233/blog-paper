@@ -1,0 +1,38 @@
+@theme {
+  --font-sans: "Inter", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+  --font-mono: SFMono-Regular, consolas, "Liberation Mono", menlo, monaco, "Courier New", courier, monospace, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+  /* 
+    注册颜色 Key: color-*
+    用法: text-text-primary, bg-bg-2, border-ui-line-gray 
+  */
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-gray: var(--text-gray);
+  --color-text-gray2: var(--text-gray-2);
+  --color-text-gray3: var(--text-gray-3);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-bg: var(--bg);
+  --color-bg-2: var(--bg-2);
+  --color-bg-inverse: var(--bg-inverse);
+  --color-bg-mask: var(--bg-mask);
+  --color-tag-bg: var(--tag-bg);
+  --color-float-bg: var(--float-bg);
+  --color-hover-bg: var(--hover-bg);
+  --color-shadow-bg: var(--shadow-bg);
+  --color-code-block-bg: var(--code-block-bg);
+  --color-ui-line-gray: var(--ui-line-gray);
+  --color-ui-line-gray2: var(--ui-line-gray-2);
+  --color-ui-line-gray3: var(--ui-line-gray-3);
+  /* 
+    注册背景图片 (用于渐变)
+    用法: bg-mask-gradient, bg-nav-gradient
+  */
+  --background-image-mask-gradient: var(--mask-gradient);
+  --background-image-nav-gradient: var(--nav-bg-gradient);
+
+  /* 注册动画到 Tailwind 工具类 (可选，如果你想用 animate-bottomFadeIn) */
+  --animate-bottom-fade-in: bottomFadeIn 0.5s ease;
+  --animate-focus-in: focusIn 0.5s ease;
+  --animate-slide-down: slideDown 0.3s ease;
+}

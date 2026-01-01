@@ -1,10 +1,21 @@
+.velite/
+.claude/
+.vscode/
+.idea/
+
 .DS_Store
 .env
 *.local
 /node_modules/
+# **/node_modules/
 
 # React Router
 /.react-router/
 /build/
 
-.velite/
+/dist/
+/out/
+/public/
+
+
+

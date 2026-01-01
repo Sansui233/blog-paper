@@ -1,0 +1,248 @@
+/* src/styles/base.css */
+
+@layer base {
+/* ---------------------------------------------------------
+  1. Web Fonts 引入
+--------------------------------------------------------- */
+/* latin-ext */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/inter/v13/UcC73FwrK3iLTeHuS_fvQtMwCp50KnMa25L7SUc.woff2) format('woff2');
+  unicode-range: U+0100-02AF, U+0304, U+0308, U+0329, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/inter/v13/UcC73FwrK3iLTeHuS_fvQtMwCp50KnMa1ZL7.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+  :root {
+    /* --- Light Mode Colors --- */
+    --text-primary: #000000;
+    --text-secondary: #343a3b;
+    --text-gray: #777;
+    --text-gray-2: #989898;
+    --text-gray-3: #aeaeae;
+    --accent: #ae8d0b;
+    --accent-hover: #e0c56e;
+    --bg: #ffffff;
+    --bg-2: #f9f9f9;
+    --bg-inverse: #292929;
+    --bg-mask: #f4f5f7f4;
+    --tag-bg: #efefef;
+    --float-bg: #f5f5f5;
+    --hover-bg: #00000012;
+    --shadow-bg: rgb(0 0 0 / 4%);
+    --code-block-bg: #f3f3f3;
+    --ui-line-gray: #a2a2a280;
+    --ui-line-gray-2: #a2a2a260;
+    --ui-line-gray-3: #a2a2a243;
+    /* Custom Properties */
+    --bg-filter-val: multiply;
+    --mask-gradient-val: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,.8) 40%, rgba(255,255,255,1) 75%);
+    --nav-bg-gradient-val: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.8) 14%, rgba(255,255,255,1) 23%, rgba(255,255,255,1) 100%);
+  }
+  /* --- Dark Mode Overrides --- */
+  /* 使用 class="dark" 作用于 html 或 body */
+  .dark {
+    --text-primary: #f8f8f8;
+    --text-secondary: #dfdfdf;
+    --text-gray: #bababa;
+    --text-gray-2: #8e8e8e;
+    --text-gray-3: #6a6a6a;
+    --accent: #c4a747;
+    --accent-hover: #ae8d0b;
+    --bg: #242424;
+    --bg-2: #1e1e1e;
+    --bg-inverse: #f8f8f8;
+    --bg-mask: #242424f4;
+    --tag-bg: #353535;
+    --float-bg: #303030;
+    --hover-bg: #ffffff55;
+    --shadow-bg: rgb(255 255 255 / 5%);
+    --code-block-bg: #3b3b3b;
+    --ui-line-gray: #a2a2a280;
+    --ui-line-gray-2: #a2a2a25a;
+    --ui-line-gray-3: #a2a2a233;
+    --bg-filter-val: screen;
+    --mask-gradient-val: linear-gradient(to bottom, rgba(36,36,36,0) 0%, rgba(36,36,36,.8) 40%, rgba(36,36,36,1) 75%);
+    --nav-bg-gradient-val: linear-gradient(to right, rgba(36,36,36,0) 0%, rgba(36,36,36,0.8) 14%, rgba(36,36,36,1) 23%, rgba(36,36,36,1) 100%);
+  }
+
+  /* 
+     Tailwind 默认 reset 已经处理了 box-sizing 和 margin:0。
+     这里保留你特定的 html/body 设置 
+  */
+  
+  html, body {
+    @apply h-full;
+  }
+
+  body {
+    line-height: 1.5;
+    tab-size: 2em;
+    -webkit-font-smoothing: antialiased;
+    /* 引用你在 theme.css 定义的变量 */
+    background-color: var(--bg);
+    color: var(--text-primary);
+    /* 应用上面定义的字体栈 */
+    font-family: var(--font-sans);
+    overflow-wrap: break-word; /* 对应 p, h1-h6 的设置 */
+  }
+
+  /* 堆叠上下文 */
+  #root, #__next {
+    isolation: isolate;
+  }
+
+  /* 链接 */
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  /* ----------------------------------------
+     Typography (排版系统)
+     直接使用 CSS 属性以保证和你旧设计 100% 一致
+  ---------------------------------------- */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold;
+  }
+
+  h1 {
+    font-size: 2.375rem;
+    line-height: 3.375rem;
+    margin-top: 2.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  h2 {
+    font-size: 1.875rem;
+    line-height: 2.75rem;
+    margin-top: 2.5rem;
+    margin-bottom: 1.25rem;
+  }
+
+  h3 {
+    font-size: 1.5rem;
+    line-height: 2.25rem;
+    margin-top: 2rem;
+    margin-bottom: 1.25rem;
+  }
+
+  h4, h5, h6 {
+    margin-top: 2rem;
+    margin-bottom: 1.25rem;
+  }
+
+  h4 {
+    font-size: 1.25rem;
+    line-height: 1.875rem;
+  }
+
+  h5 {
+    font-size: 1rem;
+    line-height: 1.625rem;
+    margin-bottom: 0.5rem;
+  }
+
+  h6 {
+    font-size: 1rem;
+    line-height: 1.5rem;
+    opacity: 0.6;
+  }
+
+  p, ul, ol {
+    font-size: 1rem;
+    line-height: 1.8rem;
+    margin: 1rem 0;
+  }
+
+  ul, ol {
+    padding-inline-start: 1.5rem;
+  }
+
+  li {
+    margin: 0.125rem 0;
+  }
+
+  /* 分割线 */
+  hr {
+    height: 2px;
+    padding: 0;
+    margin: 16px 0;
+    background-color: #7c7c7c3b; /* 可以换成 var(--ui-line-gray3) 如果你想用主题色 */
+    border: 0 none;
+    overflow: hidden;
+    box-sizing: content-box;
+  }
+
+  /* 代码字体 */
+  code {
+    letter-spacing: normal;
+    font-family: var(--font-mono);
+    word-break: break-all;
+  }
+
+  pre code {
+    display: block;
+    max-width: 100%;
+    overflow: scroll;
+    font-size: 0.875rem;
+  }
+  
+  /* SVG */
+  svg {
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  /* ----------------------------------------
+     Custom Scrollbar (Webkit)
+  ---------------------------------------- */
+  html ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  html ::-webkit-scrollbar-thumb {
+    background: #8a8a8a3d;
+    background-clip: padding-box;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  html ::-webkit-scrollbar-thumb:hover {
+    background: #8a8a8a61;
+    border: 4px solid transparent;
+  }
+
+  /* ----------------------------------------
+     Responsive Typography
+  ---------------------------------------- */
+  @media screen and (max-width: 580px) {
+    h1 {
+      font-size: 1.8rem;
+      line-height: 2.5rem;
+      margin-top: 1.8rem;
+    }
+    h2 {
+      font-size: 1.5rem;
+      margin-top: 1.8rem;
+    }
+    h3 {
+      font-size: 1.25rem;
+      margin-top: 1.25rem;
+    }
+    h4 {
+      font-size: 1.1rem;
+    }
+  }
+}

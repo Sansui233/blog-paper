@@ -1,5 +1,5 @@
+import { throttle } from "lib/throttle"
 import { useEffect, useState } from "react"
-import { throttle } from "../throttle"
 
 /**
  * Get real view height

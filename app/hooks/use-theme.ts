@@ -1,7 +1,7 @@
 // src/hooks/useTheme.ts
 import { useEffect, useState } from 'react';
 
-type ThemeMode = 'light' | 'dark' | 'system';
+export type ThemeMode = 'light' | 'dark' | 'system';
 
 export function useTheme() {
   const [theme, setTheme] = useState<ThemeMode>(() => {

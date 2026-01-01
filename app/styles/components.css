@@ -1,0 +1,77 @@
+@layer components {
+  .markdown-wrapper {
+    /* 直接引用动画名，或者用 Tailwind 的工具类 */
+    animation: bottomFadeIn 0.5s ease;
+    color: var(--text-secondary);
+
+    h1, h2, h3, h4, h5 { color: var(--text-primary); }
+    h6 { color: var(--text-gray); }
+
+    hr { 
+      background-color: var(--ui-line-gray3); 
+      @apply h-0.5 border-0 my-4 overflow-hidden;
+    }
+
+    /* 媒体 */
+    img, picture, video, canvas, svg, pre {
+      @apply block my-6 mx-auto max-w-full;
+    }
+
+    img, picture {
+      @apply rounded-2xl shadow-md;
+      box-shadow: 0 2px 6px rgb(0 0 0 / 15%);
+    }
+
+    blockquote {
+      @apply my-6 border-l-2 pl-6;
+      border-color: currentColor;
+      color: var(--text-gray);
+    }
+
+    a {
+      @apply relative font-bold transition-shadow duration-300 text-text-primary;
+      box-shadow: inset 0 -2px 0 var(--accent-hover);
+    }
+
+    a:hover {
+      /* 你的 hoverBoxShadow 逻辑 */
+      box-shadow: inset 0 -12px 0 var(--accent-hover); 
+    }
+    a:hover::before { height: 0.4em; }
+
+    code {
+      color: var(--accent);
+      background-color: var(--code-block-bg);
+      @apply rounded px-1.5 py-1 mx-px text-sm font-mono;
+    }
+
+    pre code {
+      color: var(--text-secondary);
+      @apply block rounded-lg p-8 m-0 overflow-auto text-sm;
+    }
+
+    ul li { @apply block relative; }
+    ul li::before {
+      content: "•";
+      @apply absolute -left-4;
+      color: var(--accent);
+    }
+
+    del { @apply opacity-30; }
+
+    @media (min-width: 580px) {
+      img, picture, video, canvas, svg, pre { display: block; }
+    }
+
+    /* HLJS */
+    .hljs { background: var(--code-block-bg); }
+    .hljs-emphasis { font-style: italic; }
+    .hljs-strong { font-weight: bold; }
+    .hljs-comment, .hljs-quote { color: #a79b87ba; font-style: italic; }
+    .hljs-variable, .hljs-template-variable, .hljs-link, .hljs-title, .hljs-tag, .hljs-attr {
+      color: var(--accent);
+    }
+    .hljs-string { color: #c68032; }
+    .hljs-keyword { color: #799f67; }
+  }
+}

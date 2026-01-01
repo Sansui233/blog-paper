@@ -1,6 +1,6 @@
-import { useDocumentEvent } from "lib/hooks/use-event";
-import { useViewHeight, useViewWidth } from "lib/hooks/use-view";
-import { useCallback, useEffect, useRef, useState, type CSSProperties, type DetailedHTMLProps, type ImgHTMLAttributes, type LegacyRef } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type DetailedHTMLProps, type ImgHTMLAttributes, type Ref } from "react";
+import { useDocumentEvent } from "~/hooks/use-event";
+import { useViewHeight, useViewWidth } from "~/hooks/use-view";
 import { SkeletonError, SkeletonLoading } from "../common/skeleton";
 
 
@@ -21,8 +21,8 @@ export function MDImg(props: DetailedHTMLProps<ImgHTMLAttributes<HTMLImageElemen
   const [isModal, setisModal] = useState(false);
   const [isLoading, setisLoading] = useState(true);
   const [isError, setisError] = useState(false);
-  const imgRef: LegacyRef<HTMLImageElement> | undefined = useRef(null);
-  const containerRef: LegacyRef<HTMLDivElement> | undefined = useRef(null);
+  const imgRef: Ref<HTMLImageElement> | undefined = useRef(null);
+  const containerRef: Ref<HTMLDivElement> | undefined = useRef(null);
 
   // life cycle - init style
   const [containerStyle, setContainerStyle] = useState<CSSProperties & {
