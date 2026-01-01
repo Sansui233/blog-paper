@@ -7,8 +7,9 @@ import {
   ScrollRestoration,
 } from "react-router";
 
+import { useTheme } from "lib/hooks/use-theme";
 import type { Route } from "./+types/root";
-import "./app.css";
+import "./styles/app.css";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -24,6 +25,7 @@ export const links: Route.LinksFunction = () => [
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  const { theme, setTheme } = useTheme();
   return (
     <html lang="en">
       <head>

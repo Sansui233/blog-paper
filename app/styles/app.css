@@ -1,0 +1,202 @@
+@import "tailwindcss";
+
+/* =========================================
+   1. 主题配置与变量映射 (color)
+   ========================================= */
+@theme {
+  /* 将 CSS 变量暴露给 Tailwind 工具类，例如 class="text-accent" */
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-gray: var(--text-gray);
+  --color-text-gray2: var(--text-gray2);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-bg: var(--bg);
+  --color-bg2: var(--bg2);
+  --color-code-block-bg: var(--code-block-bg);
+  --color-ui-line-gray3: var(--ui-line-gray3);
+  
+  /* 定义字体 */
+  --font-sans: "Inter", "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+
+  /* 定义动画 */
+  --animate-bottom-fade-in: bottomFadeIn 0.5s ease;
+}
+
+/* =========================================
+   2. 颜色变量定义 (Light / Dark)
+   ========================================= */
+:root {
+  /* Light Mode (默认) - 对应 lightTheme */
+  --text-primary: #000000;
+  --text-secondary: #343a3b;
+  --text-gray: #777;
+  --text-gray2: #989898;
+  --accent: #ae8d0b;
+  --accent-hover: #e0c56e;
+  --bg: #ffffff;
+  --bg2: #f9f9f9;
+  --code-block-bg: #f3f3f3;
+  --ui-line-gray3: #a2a2a243;
+  
+  /* 其他你需要的变量可以继续加在这里 */
+}
+
+/* Dark Mode - 当 html 有 class="dark" 时生效 */
+.dark {
+  /* Dark Mode - 对应 darkTheme */
+  --text-primary: #f8f8f8;
+  --text-secondary: #dfdfdf;
+  --text-gray: #bababa;
+  --text-gray2: #8e8e8e;
+  --accent: #c4a747;
+  --accent-hover: #ae8d0b;
+  --bg: #242424;
+  --bg2: #1e1e1e;
+  --code-block-bg: #3b3b3b;
+  --ui-line-gray3: #a2a2a233;
+}
+
+/* =========================================
+   3. 全局样式重置 (替代 Global.css & global.ts)
+   ========================================= */
+@layer base {
+  html, body {
+    @apply h-full antialiased font-sans;
+    background-color: var(--bg);
+    color: var(--text-primary);
+    transition: background-color 0.3s, color 0.3s; /* 平滑切换主题 */
+  }
+
+  /* 你的 Global.css 中的特定重置 */
+  h1, h2, h3, h4, h5, h6 { @apply font-bold break-words; }
+  h1 { @apply text-4xl leading-snug mt-10 mb-6; }
+  h2 { @apply text-3xl leading-snug mt-10 mb-5; }
+  /* ...其他 header 样式... */
+}
+
+/* =========================================
+   4. 动画定义 (替代 animations.ts)
+   ========================================= */
+@keyframes bottomFadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+/* ...把其他 keyframes 复制到这里... */
+
+/* =========================================
+   5. Markdown 组件样式 (替代 MarkdownStyle)
+   ========================================= */
+@layer components {
+  .markdown-wrapper {
+    /* 引用主题动画 */
+    animation: var(--animate-bottom-fade-in);
+    color: var(--text-secondary);
+
+    /* 标题 */
+    h1, h2, h3, h4, h5 { color: var(--text-primary); }
+    h6 { color: var(--text-gray); }
+
+    hr { 
+      background-color: var(--ui-line-gray3); 
+      @apply h-[2px] border-0 my-4 overflow-hidden;
+    }
+
+    /* 媒体 */
+    img, picture, video, canvas, svg, pre {
+      @apply block my-6 mx-auto max-w-full;
+    }
+
+    img, picture {
+      @apply rounded-2xl shadow-md;
+      /* 这里使用了原生 CSS 覆盖 Tailwind 默认 shadow */
+      box-shadow: 0 2px 6px rgb(0 0 0 / 15%);
+    }
+
+    /* 引用 */
+    blockquote {
+      @apply my-6 border-l-2 pl-6;
+      border-color: currentColor; /* 跟随文字颜色或指定 color */
+      color: var(--text-gray);
+    }
+
+    /* 链接 */
+    a {
+      @apply relative font-bold transition-shadow duration-300 text-text-primary;
+      /* 使用 inset shadow 模拟下划线 */
+      box-shadow: inset 0 -2px 0 var(--accent-hover);
+    }
+
+    a:hover {
+      /* 你的 hoverBoxShadow 逻辑，假设是这个效果 */
+      box-shadow: inset 0 -12px 0 var(--accent-hover); 
+    }
+    
+    a:hover::before { height: 0.4em; }
+
+    /* 行内代码 */
+    code {
+      color: var(--accent);
+      background-color: var(--code-block-bg);
+      @apply rounded px-1.5 py-1 mx-[1px] text-sm font-mono;
+    }
+
+    /* 代码块 (pre code) */
+    pre code {
+      color: var(--text-secondary);
+      @apply block rounded-lg p-8 m-0 overflow-auto text-sm;
+    }
+
+    /* 列表 */
+    ul li {
+      @apply block relative;
+    }
+    ul li::before {
+      content: "•";
+      @apply absolute -left-4;
+      color: var(--accent);
+    }
+
+    del { @apply opacity-30; }
+
+    /* 响应式 */
+    @media (min-width: 580px) {
+      img, picture, video, canvas, svg, pre { display: block; }
+    }
+
+    /* --- HLJS 语法高亮适配 (直接使用 CSS 变量) --- */
+    .hljs { background: var(--code-block-bg); }
+    .hljs-emphasis { font-style: italic; }
+    .hljs-strong { font-weight: bold; }
+    
+    .hljs-comment, .hljs-quote {
+      color: #a79b87ba;
+      font-style: italic;
+    }
+
+    /* 使用 CSS 变量注入主题色 */
+    .hljs-variable,
+    .hljs-template-variable,
+    .hljs-link,
+    .hljs-title,
+    .hljs-tag,
+    .hljs-attr {
+      color: var(--accent);
+    }
+    
+    /* 其他静态颜色可以直接保留 Hex，或者也提取变量 */
+    .hljs-string { color: #c68032; }
+    .hljs-keyword { color: #799f67; }
+  }
+}
+
+
+html,
+body {
+  @apply bg-white dark:bg-gray-950;
+
+  @media (prefers-color-scheme: dark) {
+    color-scheme: dark;
+  }
+}
