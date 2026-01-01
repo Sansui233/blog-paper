@@ -1,4 +1,4 @@
-import { MemoInfo } from "../memos.common"
+import type { MemoInfo } from "../memos.common"
 
 export interface MemoInfoExt extends MemoInfo {
   pages: number,
@@ -8,7 +8,7 @@ export interface MemoInfoExt extends MemoInfo {
 export type MemoFileMap = {
   srcName: string,
   lastModified: number,
-  dateRange:{
+  dateRange: {
     start: string,
     end: string
   },

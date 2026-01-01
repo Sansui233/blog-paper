@@ -1,4 +1,4 @@
-import { Feed, Item } from "feed";
+import { Feed, type Item } from "feed";
 import fs from 'fs';
 import matter from "gray-matter";
 import path from 'path';
@@ -7,7 +7,7 @@ import { siteInfo } from "../../../site.config";
 import { parseDate } from "../../date";
 import { grayMatter2PostMeta } from "../../markdown/frontmatter";
 import { compileMdxRss } from "../../markdown/mdx";
-import { PostMeta } from "../posts.common";
+import type { PostMeta } from "../posts.common";
 import { MEMOS_DIR } from "./memos";
 import { POST_DIR, getFrontMatter, posts_db } from './posts';
 

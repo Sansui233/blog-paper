@@ -1,5 +1,5 @@
-import { Extend } from "../../../utils/type-utils";
-import { MemoInfo, MemoPost, MemoTag } from "../memos.common";
+import type { Extend } from "../../../utils/type-utils";
+import type { MemoInfo, MemoPost, MemoTag } from "../memos.common";
 import StaticClient from "./static";
 
 export interface Client {

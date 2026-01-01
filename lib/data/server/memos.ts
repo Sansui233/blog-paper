@@ -3,8 +3,8 @@ import path from "path";
 import readline from "readline";
 import { dateToYMDMM, parseDate } from "../../date";
 import { getLastModTime, writeJson } from "../../fs/fs";
-import { INFOFILE, MemoPost, MemoTag } from "../memos.common";
-import { MemoFileMap, MemoInfoExt, MemoPageMap } from "./type";
+import { INFOFILE, type MemoPost, type MemoTag } from "../memos.common";
+import type { MemoFileMap, MemoInfoExt, MemoPageMap } from "./type";
 
 export const MEMOS_DIR = path.join(process.cwd(), 'source', 'memos')
 const MEMO_CSR_DATA_DIR = path.join(process.cwd(), 'public', 'data', 'memos')

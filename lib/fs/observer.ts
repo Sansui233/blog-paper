@@ -5,7 +5,7 @@
 import fs from "fs";
 import path from "path";
 import { getStat, loadJson, writeJson } from "./fs";
-import { DirInfo, FileInfo } from "./obeserver.common";
+import type { DirInfo, FileInfo } from "./obeserver.common";
 
 /**
  * 

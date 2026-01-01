@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react'
-import { Naive, Result, SearchObj } from '../search'
+import type { Naive, Result, SearchObj } from '../search'
 
 export type SearchStatus = {
   isSearch: "ready" | "searching" | "done",
