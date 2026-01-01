@@ -1,9 +1,17 @@
+import { rehypeHeadingsAddId } from 'lib/rehype/rehype-toc'
+import { remarkUnrwrapImages } from 'lib/remark/remark-unwrap-images'
+import rehypeHighlight from 'rehype-highlight'
+import remarkGfm from 'remark-gfm'
 import { defineConfig, s } from 'velite'
 
 // `s` is extended from Zod with some custom schemas,
 // you can also import re-exported `z` from `velite` if you don't need these extension schemas.
 
 export default defineConfig({
+  mdx: {
+    remarkPlugins: [remarkGfm, remarkUnrwrapImages],
+    rehypePlugins: [rehypeHeadingsAddId, rehypeHighlight],
+  },
   collections: {
     posts: {
       name: 'Post', // collection type name
