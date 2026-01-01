@@ -11,10 +11,15 @@
   "dependencies": {
     "@react-router/node": "7.10.1",
     "@react-router/serve": "7.10.1",
+    "@types/mdast": "^4.0.4",
     "isbot": "^5.1.31",
+    "lucide-react": "^0.562.0",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
-    "react-router": "7.10.1"
+    "react-router": "7.10.1",
+    "stopwords-zh": "^0.4.0",
+    "unist-util-visit": "^5.0.0",
+    "utility-types": "^3.11.0"
   },
   "devDependencies": {
     "@react-router/dev": "7.10.1",
