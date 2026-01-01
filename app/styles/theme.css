@@ -8,8 +8,8 @@
   --color-text-primary: var(--text-primary);
   --color-text-secondary: var(--text-secondary);
   --color-text-gray: var(--text-gray);
-  --color-text-gray2: var(--text-gray-2);
-  --color-text-gray3: var(--text-gray-3);
+  --color-text-gray-2: var(--text-gray-2);
+  --color-text-gray-3: var(--text-gray-3);
   --color-accent: var(--accent);
   --color-accent-hover: var(--accent-hover);
   --color-bg: var(--bg);
@@ -22,14 +22,19 @@
   --color-shadow-bg: var(--shadow-bg);
   --color-code-block-bg: var(--code-block-bg);
   --color-ui-line-gray: var(--ui-line-gray);
-  --color-ui-line-gray2: var(--ui-line-gray-2);
-  --color-ui-line-gray3: var(--ui-line-gray-3);
+  --color-ui-line-gray-2: var(--ui-line-gray-2);
+  --color-ui-line-gray-3: var(--ui-line-gray-3);
   /* 
     注册背景图片 (用于渐变)
     用法: bg-mask-gradient, bg-nav-gradient
   */
   --background-image-mask-gradient: var(--mask-gradient);
   --background-image-nav-gradient: var(--nav-bg-gradient);
+  /*
+    注册box-shadow (用于统一阴影效果)
+    用法: shadow-float-menu
+  */
+  --shadow-float-menu: rgb(0 0 0 / 15%) 0px 0px 7px;;
 
   /* 注册动画到 Tailwind 工具类 (可选，如果你想用 animate-bottomFadeIn) */
   --animate-bottom-fade-in: bottomFadeIn 0.5s ease;

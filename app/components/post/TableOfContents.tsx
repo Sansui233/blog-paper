@@ -50,7 +50,7 @@ export function TableOfContents({
         /* Mobile: drawer from bottom/right */
         max-lg:top-auto max-lg:left-auto max-lg:bottom-34 max-lg:right-2
         max-lg:w-75 max-lg:max-h-[calc(100vh-8rem-9rem)]
-        max-lg:bg-bg max-lg:rounded-xl max-lg:shadow-lg max-lg:border max-lg:border-ui-line-gray3
+        max-lg:bg-bg max-lg:rounded-lg max-lg:shadow-float-menu max-lg:border max-lg:border-ui-line-gray-3
         max-lg:transition-all max-lg:duration-300
         ${isMobileOpen
           ? 'max-lg:opacity-100 max-lg:translate-x-0'
@@ -66,7 +66,7 @@ export function TableOfContents({
       `}
     >
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-bg px-4 pt-4 pb-2 font-bold text-xl max-lg:px-6">
+      <div className="sticky top-0 z-10 bg-bg px-4 pt-4 pb-2 mb-2 font-bold text-xl max-lg:pl-8 max-lg:pr-4">
         目录
         <button
           onClick={(e) => {
@@ -74,7 +74,7 @@ export function TableOfContents({
             onClose();
           }}
           className={`
-            float-right cursor-pointer text-text-gray hover:text-accent
+            float-right cursor-pointer text-[1rem] text-text-gray-2 hover:text-accent
             hidden max-lg:block
             ${!isMobileOpen && 'invisible'}
           `}
@@ -84,7 +84,7 @@ export function TableOfContents({
       </div>
 
       {/* Content */}
-      <nav className="px-4 pb-4 max-lg:px-6 max-lg:pb-4">
+      <nav className="px-4 pb-4 max-lg:px-6 max-lg:pl-8 max-lg:pr-4">
         {flatItems.length > 0 ? (
           <div className="relative">
             {flatItems.map((item, i) => (

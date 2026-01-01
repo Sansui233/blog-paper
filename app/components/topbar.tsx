@@ -115,7 +115,7 @@ export default function Topbar({
         {...otherProps}
       >
         {/* Avatar / Logo */}
-        <div className="flex-1 flex justify-start items-center font-semibold w-52.5 max-md:w-25">
+        <div className="flex-auto justify-start items-center font-semibold w-52.5 max-md:w-25">
           <Link to="/" className="px-4 flex items-center">
             <NekoIcon width={36} className="shrink-0" />
             <span className="px-2 max-md:hidden">{`${siteInfo.author}'s blog`}</span>
@@ -143,7 +143,7 @@ export default function Topbar({
         </nav>
 
         {/* Right side: Mobile nav dropdown + Search + Menu */}
-        <div className="flex-1 flex items-center justify-end w-52.5 max-md:w-25 [&>div]:mr-4">
+        <div className="flex-auto flex items-center justify-end w-52.5 max-md:w-25 [&>div]:mr-4">
           {/* Mobile Nav Dropdown */}
           <div className="relative min-w-14.25 text-xl font-semibold min-[580px]:hidden">
             {/* Dropdown menu */}
@@ -152,7 +152,7 @@ export default function Topbar({
                 absolute -top-2 left-0 w-full
                 transition-all duration-300
                 ${isDropperOpen
-                  ? "visible rounded-lg border border-ui-line-gray3 bg-bg shadow-md"
+                  ? "visible rounded-lg border border-ui-line-gray-3 bg-bg shadow-md"
                   : "invisible border-transparent"
                 }
               `}
@@ -259,7 +259,7 @@ function DropdownLink({ to, isOpen, isFirst, children }: DropdownLinkProps) {
         my-2 px-1 pb-1
         transition-all duration-500
         ${isOpen ? "opacity-100 blur-0" : "opacity-0 blur-md pointer-events-none"}
-        ${isFirst ? "mt-11 pt-2 border-t border-ui-line-gray3" : ""}
+        ${isFirst ? "mt-11 pt-2 border-t border-ui-line-gray-3" : ""}
       `}
     >
       {children}
