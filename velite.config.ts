@@ -1,3 +1,4 @@
+import { buildMemoCsrData, splitMemo } from 'lib/data/server/memos'
 import { rehypeHeadingsAddId } from 'lib/rehype/rehype-toc'
 import { remarkUnrwrapImages } from 'lib/remark/remark-unwrap-images'
 import rehypeHighlight from 'rehype-highlight'
@@ -8,10 +9,6 @@ import { defineConfig, s } from 'velite'
 // you can also import re-exported `z` from `velite` if you don't need these extension schemas.
 
 export default defineConfig({
-  mdx: {
-    remarkPlugins: [remarkGfm, remarkUnrwrapImages],
-    rehypePlugins: [rehypeHeadingsAddId, rehypeHighlight],
-  },
   collections: {
     posts: {
       name: 'Post', // collection type name
@@ -28,7 +25,10 @@ export default defineConfig({
           metadata: s.metadata(), // extract markdown reading-time, word-count, etc.
           excerpt: s.excerpt(), // excerpt of markdown content
           content_html: s.markdown(), // transform markdown to html
-          content_jsx: s.mdx(), // transform markdown to MDX component
+          content_jsx: s.mdx({
+            remarkPlugins: [remarkGfm, remarkUnrwrapImages],
+            rehypePlugins: [rehypeHeadingsAddId, rehypeHighlight],
+          }), // transform markdown to MDX component
           toc: s.toc({ maxDepth: 3 }), // generate table of contents from markdown headings
           tags: s.array(s.string()).default([]), // array of strings
           categories: s.string().optional(),
@@ -36,6 +36,27 @@ export default defineConfig({
         })
         // more additional fields (computed fields)
         .transform(data => ({ ...data, permalink: `/posts/${data.slug}` }))
+    },
+    memos: {
+      name: 'Memo',
+      pattern: 'memos/*.md',
+      schema: s.object({
+        title: s.string().max(99),
+        file_path: s.path(),
+        date: s.isodate(),
+        description: s.string().optional(),
+        draft: s.boolean().default(false),
+        memos: s.raw() // content to be split
+      }).transform(async (data, { addIssue }) => {
+        const memos = splitMemo(data.memos, data.file_path)
+        return {
+          ...data,
+          memos
+        }
+      }),
     }
-  }
+  },
+  complete(data, context) {
+    buildMemoCsrData(data.memos)
+  },
 })

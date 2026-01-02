@@ -6,3 +6,6 @@ type Collections = typeof __vc.collections
 
 export type Post = Collections['posts']['schema']['_output']
 export declare const posts: Post[]
+
+export type Memo = Collections['memos']['schema']['_output']
+export declare const memos: Memo[]

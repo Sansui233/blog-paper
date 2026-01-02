@@ -3,7 +3,7 @@ import { Link } from "react-router";
 import { CategoryTitle } from "~/components/categories/Timeline";
 import LayoutContainer, { OneColLayout } from "~/components/common/layout";
 import { siteInfo } from "../../site.config";
-import type { Route } from "./categories/+types/categories";
+import type { Route } from "./+types/categories";
 
 export function loader() {
   return {

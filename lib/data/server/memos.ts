@@ -1,220 +1,125 @@
-import fs from "fs";
+import { memos } from ".velite";
+import { writeJson } from "lib/fs/fs";
 import path from "path";
-import readline from "readline";
-import { dateToYMDMM, parseDate } from "../../date";
-import { getLastModTime, writeJson } from "../../fs/fs";
-import { INFOFILE, type MemoPost, type MemoTag } from "../memos.common";
-import type { MemoFileMap, MemoInfoExt, MemoPageMap } from "./type";
+import { INFOFILE, type MemoInfo, type MemoPost, type MemoTag } from "../memos.common";
 
-export const MEMOS_DIR = path.join(process.cwd(), 'source', 'memos')
 const MEMO_CSR_DATA_DIR = path.join(process.cwd(), 'public', 'data', 'memos')
+const PAGE_SIZE = 10
 
 /**
- * memos database
- * 构造函数返回一个 memo_db 对象
- * 
- * - memos 是所有的 memo 内容，会加载进内存  
- * - imgs 是所有的图片信息，之后建立相册用
+ * Velite Processor: 一整文件的 Memo markdown raw string，按二级标题分割成多条 MemoPost
+ * 1. 提取中其中的整行 Img，并且 content 中不记录此 img 行
+ * 2. 提取其中的 Tags
  */
-const memo_db = await (async function () {
-
-  /**
-   * Exported properies
-   */
-  const filenames = await ((async () => {
-    let fileNames = await fs.promises.readdir(MEMOS_DIR);
-    return fileNames.filter(f => {
-      return f.endsWith(".md")
-    }).sort((a, b) => {
-      return a < b ? 1 : -1 // Desc for latest first
-    })
-  })())
-
-  const tags: MemoTag[] = [];
+export function splitMemo(raw: string, sourceFile: string = ""): MemoPost[] {
   const memos: MemoPost[] = []
-  const imgs: MemoPost[] = []
-  const fileMap: MemoFileMap[] = []
-  const pageMap: MemoPageMap[] = []
+  const lines = raw.split("\n")
 
-  /**
-   * Get memos by page. SSR only
-   * @param page number from 0
-   */
-  const atPage = function (page: number) {
-    return memos.filter(m => {
-      return m.csrIndex[0] === page
-    })
-  }
+  for (const line of lines) {
+    if (line.startsWith("## ")) {
+      // Extract tags from previous memo before starting new one
+      if (memos.length > 0) {
+        const lastMemo = memos[memos.length - 1]
+        lastMemo.tags = extractTagsFromMarkdown(lastMemo.content)
+      }
 
-  /**
-   *   Core Initialize
-   **/
+      // Start new memo
+      memos.push({
+        id: line.slice(3), // title after ##
+        content: "",
+        tags: [],
+        imgs_md: [],
+        sourceFile,
+        csrIndex: [-1, -1], // TODO Will be set later by caller
+      })
+    } else {
+      if (memos.length === 0) continue // Ignore lines before first ##
 
-  console.log("[memos.ts] parsing memos...")
-
-  let csrPage = -1;
-  let csrIndex = 9;
-
-  for (const src_file of filenames) {
-
-    // state
-    let isFirstLine = true
-    let isFrontMatter = false
-    let isFirstMemo = true
-
-    const fileStream = fs.createReadStream(path.join(MEMOS_DIR, src_file))
-    const rl = readline.createInterface({
-      input: fileStream,
-      crlfDelay: Infinity
-    })
-
-    for await (const line of rl) {
-      if (line.startsWith("---") && isFirstLine) {
-        if (isFrontMatter) { // front matter end
-          isFrontMatter = false
-          isFirstLine = false
-          continue
-        } else {
-          isFrontMatter = true // front matter start
-          continue
-        }
-      } else if (isFrontMatter) {
-        continue; //ignore in front matter
-      } else if (line.startsWith("## ")) {
-
-        updateLastFile(memos, tags, imgs, fileMap)
-
-        // 更新索引状态
-        csrIndex += 1;
-        if (csrIndex === 10) {
-          if (pageMap.length > 0) {
-            pageMap[pageMap.length - 1].endDate = parseDate(memos[memos.length - 1].id).getTime()
-          }
-
-          csrPage += 1;
-          csrIndex = 0;
-
-          pageMap.push({
-            page: csrPage,
-            startDate: parseDate(line.slice(3)).getTime(),
-            endDate: -1,
-          })
-        }
-
-        /**
-         * add new memo
-         */
-
-        memos.push({
-          id: line.slice(3),
-          content: "",
-          tags: [],
-          imgsmd: [],
-          sourceFile: src_file,
-          csrIndex: [csrPage, csrIndex],
-        })
-
-        // add new info
-        if (isFirstMemo) {
-          fileMap.push({
-            srcName: src_file,
-            lastModified: (await getLastModTime(path.join(MEMOS_DIR, src_file))).getTime(),
-            dateRange: { start: dateToYMDMM(parseDate(memos[memos.length - 1].id)), end: "" },
-            startAt: {
-              page: csrPage,
-              index: csrIndex,
-            },
-            endAt: {
-              page: -1,
-              index: -1,
-            }
-          })
-          isFirstMemo = false
-        }
-
+      // Detect images (whole line)
+      const imgreg = /^\!\[.*\]\(.+\)$/
+      if (imgreg.test(line.trim())) {
+        memos[memos.length - 1].imgs_md.push(line.trim())
       } else {
-
-        // detect imgs
-        const imgreg = /\!\[.*\]\(.+\)/g;
-        const matches = line.match(imgreg);
-        if (matches) {
-          // console.debug("%%", memos[memos.length - 1].id, matches),
-          memos[memos.length - 1].imgsmd.push(...matches)
-        } else {
-          // update memo content
-          if (memos.length === 0) continue // 忽略 frontmatter 和 ## 之间的空行
-          const m = memos[memos.length - 1]
-          m.content += line + "\n"
-        }
+        // Add to content
+        memos[memos.length - 1].content += line + "\n"
       }
     }
-
-    rl.close()
-    fileStream.close()
   }
 
-  // 文件遍历结束时更新最后一条信息
-  updateLastFile(memos, tags, imgs, fileMap)
-  const info: MemoInfoExt = {
-    pages: csrPage,
-    memos: memos.length,
+  // Extract tags from last memo
+  if (memos.length > 0) {
+    const lastMemo = memos[memos.length - 1]
+    lastMemo.tags = extractTagsFromMarkdown(lastMemo.content)
+  }
+
+  return memos
+}
+
+/**
+ * Memo CSR Public Folder:
+ * 1. paged MemoPost[] json files
+ * 2. imgs.json: array of MemoPost with imgs_md not empty
+ * 3. tags.json: array of MemoTag
+*/
+export async function buildMemoCsrData(veliteData: typeof import('.velite').memos) {
+  // 1. Read all memos from pre-built velite json files
+  const memoPosts = memos
+
+  // 2. Sort by source file name desc, flatten and keep order within each file
+  const sortedFiles = [...memoPosts].sort((a, b) =>
+    a.file_path < b.file_path ? 1 : -1
+  )
+  const allMemos = sortedFiles.flatMap(file => file.memos)
+
+  // 3. Pagination: update csrIndex [page, indexInPage]
+  allMemos.forEach((memo, index) => {
+    memo.csrIndex = [Math.floor(index / PAGE_SIZE), index % PAGE_SIZE]
+  })
+
+  // 4. Build auxiliary data
+  const tags = buildTags(allMemos)
+  const imgs = allMemos.filter(m => m.imgs_md.length > 0)
+  const info: MemoInfo = {
+    memos: allMemos.length,
     tags: tags.length,
     imgs: imgs.length,
-    fileMap,
-    pageMap,
   }
 
-  console.log(`[memos.ts] ${memos.length} memos in total`)
-
-  return {
-    filenames,
-    memos,
-    tags,
-    info,
-    imgs,
-    atPage,
+  // 5. Write paged json files
+  const pageCount = Math.ceil(allMemos.length / PAGE_SIZE)
+  for (let page = 0; page < pageCount; page++) {
+    const pageMemos = allMemos.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
+    await writeJson(path.join(MEMO_CSR_DATA_DIR, `${page}.json`), pageMemos)
   }
-})()
 
+  // 6. Write other CSR files
+  await Promise.all([
+    writeJson(path.join(MEMO_CSR_DATA_DIR, INFOFILE), info),
+    writeJson(path.join(MEMO_CSR_DATA_DIR, 'tags.json'), tags),
+    writeJson(path.join(MEMO_CSR_DATA_DIR, 'imgs.json'), imgs),
+  ])
 
-// 根据 memoPost 内容，提取 tags, imgs, fileMap 的状态信息，记录至 MemPost
-// 如果有图片，也记录至 imgs
-function updateLastFile(memos: MemoPost[], tags: MemoTag[], imgs: MemoPost[], fileMap: MemoFileMap[]) {
-  if (memos.length > 0) {
+  console.log(`[memos.ts] Built CSR data: ${allMemos.length} memos, ${pageCount} pages`)
+}
 
-    const lastMemo = memos[memos.length - 1]
-    const text = lastMemo.content
+/**
+ * Build MemoTag[] from all memos
+ */
+function buildTags(memos: MemoPost[]): MemoTag[] {
+  const tagMap = new Map<string, string[]>()
 
-    // update tags
-    const matches = extractTagsFromMarkdown(text)
-    matches.map(t => {
-
-      const target = tags.find((v) => v.name === t)
-
-      if (target) {
-        target.memoIds.push(lastMemo.id)
+  for (const memo of memos) {
+    for (const tag of memo.tags) {
+      const ids = tagMap.get(tag)
+      if (ids) {
+        ids.push(memo.id)
       } else {
-        tags.push({
-          name: t,
-          memoIds: [lastMemo.id]
-        })
+        tagMap.set(tag, [memo.id])
       }
-
-      if (!lastMemo.tags.includes(t)) lastMemo.tags.push(t)
-    })
-
-    // update imgs
-    if (lastMemo.imgsmd.length !== 0) {
-      imgs.push(lastMemo)
     }
-
-
-    // update last info
-    const lastInfo = fileMap[fileMap.length - 1]
-    lastInfo.dateRange.end = dateToYMDMM(parseDate(lastMemo.id))
-    lastInfo.endAt = { page: lastMemo.csrIndex[0], index: lastMemo.csrIndex[1] }
-
   }
+
+  return Array.from(tagMap.entries()).map(([name, memoIds]) => ({ name, memoIds }))
 }
 
 /**
@@ -255,36 +160,4 @@ function extractTagsFromMarkdown(markdown: string) {
 
   return tags;
 }
-
-
-function writeMemoJson() {
-
-  // CSR page
-  // Map<page, postlist>
-  const groupByPage = new Map<number, MemoPost[]>()
-  let maxpage = 0;
-
-  //group by page
-  memo_db.memos.forEach(m => {
-    const p = m.csrIndex[0]
-    if (groupByPage.has(p)) {
-      groupByPage.get(p)?.push(m)
-    } else {
-      groupByPage.set(p, [m])
-    }
-    maxpage = p > maxpage ? p : maxpage;
-  })
-
-  // write by page
-  groupByPage.forEach((memos, page) => {
-    writeJson(path.join(MEMO_CSR_DATA_DIR, `${page}.json`), memos)
-  })
-
-  //write other csr file
-  writeJson(path.join(MEMO_CSR_DATA_DIR, INFOFILE), memo_db.info)
-  writeJson(path.join(MEMO_CSR_DATA_DIR, `tags.json`), memo_db.tags)
-  writeJson(path.join(MEMO_CSR_DATA_DIR, `imgs.json`), memo_db.imgs)
-}
-
-export { memo_db, writeMemoJson };
 

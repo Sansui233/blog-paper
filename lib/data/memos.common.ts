@@ -12,10 +12,10 @@ export interface MemoInfo {
 export const INFOFILE = "status.json"
 
 export interface MemoPost {
-  id: string;
+  id: string; // Heading2 title
   content: string;
   tags: string[];
-  imgsmd: string[];
+  imgs_md: string[];
   sourceFile: string;
   csrIndex: [number, number]; // page index
 };
