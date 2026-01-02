@@ -1,10 +1,10 @@
 import { ChevronDown, Search } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router";
-import { siteInfo } from "../../site.config";
-import MenuIcon from "./topbar/menuicon";
-import NekoIcon from "./topbar/nekoicon";
-import Sidebar from "./topbar/sidebar";
+import { siteInfo } from "site.config";
+import MenuIcon from "./menuicon";
+import NekoIcon from "./nekoicon";
+import Sidebar from "./sidebar";
 
 type Props = React.HTMLProps<HTMLElement> & {
   placeHolder?: boolean;

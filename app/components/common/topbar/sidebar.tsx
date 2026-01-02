@@ -1,8 +1,8 @@
 import { Github, Mail, Rss } from "lucide-react";
 import React, { useMemo } from "react";
 import { Link } from "react-router";
+import { siteInfo } from "site.config";
 import { useTheme, type ThemeMode } from "~/hooks/use-theme";
-import { siteInfo } from "../../../site.config";
 import MenuIcon from "./menuicon";
 
 type Props = {

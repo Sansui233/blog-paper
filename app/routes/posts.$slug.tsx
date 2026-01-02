@@ -1,13 +1,13 @@
 import { posts_db } from 'lib/data/server/posts';
 import { useRef, useState } from 'react';
-import LayoutContainer from '~/components/layout';
+import LayoutContainer from '~/components/common/layout';
 import { MDImg } from '~/components/markdown/MDImg';
 import { MDXContent } from '~/components/markdown/MDXComponent';
 import { FloatButtons } from '~/components/post/FloatButtons';
 import { Pagination } from '~/components/post/Pagination';
 import { PostMeta } from '~/components/post/PostMeta';
 import { TableOfContents } from '~/components/post/TableOfContents';
-import { useTocHighlight } from '~/hooks/useTocHighlight';
+import { useTocHighlight } from '~/hooks/use-toc-highlight';
 import type { Route } from './+types/posts.$slug';
 
 

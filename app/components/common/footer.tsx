@@ -1,6 +1,6 @@
 import { Github, Mail, Rss } from 'lucide-react'
 import React from 'react'
-import { siteInfo } from '../../site.config'
+import { siteInfo } from 'site.config'
 
 type Props = React.HTMLProps<HTMLDivElement>
 

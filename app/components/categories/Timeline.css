@@ -1,0 +1,8 @@
+/* Timeline posts container styles */
+.tl-posts-container a {
+  transition: box-shadow 0.3s ease;
+}
+
+.tl-posts-container a:hover {
+  box-shadow: inset 0 -0.3em 0 var(--shadow-bg);
+}

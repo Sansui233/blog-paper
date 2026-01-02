@@ -1,8 +1,8 @@
 import { posts_db } from "lib/data/server/posts";
 import { useMemo, useState } from "react";
+import LayoutContainer, { OneColLayout } from "~/components/common/layout";
 import ArticleItem from "~/components/home/ArticleItem";
 import NavCat from "~/components/home/NavCat";
-import LayoutContainer, { OneColLayout } from "~/components/layout";
 import { siteInfo } from "../../site.config";
 import type { Route } from "./+types/home";
 

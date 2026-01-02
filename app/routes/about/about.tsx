@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import LayoutContainer, { OneColLayout } from "~/components/layout";
+import LayoutContainer, { OneColLayout } from "~/components/common/layout";
 import { siteInfo } from "../../../site.config";
 import type { Route } from "./+types/about";
 import "./about.css";
