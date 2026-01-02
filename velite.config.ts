@@ -31,7 +31,8 @@ export default defineConfig({
           content_jsx: s.mdx(), // transform markdown to MDX component
           toc: s.toc({ maxDepth: 3 }), // generate table of contents from markdown headings
           tags: s.array(s.string()).default([]), // array of strings
-          categories: s.string().optional()
+          categories: s.string().optional(),
+          keywords: s.string().optional().transform(s => s?.split(',').map(k => k.trim()) || []),
         })
         // more additional fields (computed fields)
         .transform(data => ({ ...data, permalink: `/posts/${data.slug}` }))

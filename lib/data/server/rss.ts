@@ -215,7 +215,7 @@ async function writeSiteMap() {
     <loc>${siteInfo.domain}/memos</loc>
     <changefreq>always</changefreq>
   </url>
-    ${posts_db.metas
+    ${posts_db.velite
       .map(({ id }) => {
         return `
   <url>

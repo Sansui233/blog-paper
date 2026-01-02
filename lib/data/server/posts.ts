@@ -1,209 +1,151 @@
-import fs from 'fs';
-import matter from 'gray-matter';
-import path from 'path';
-import { dateToYMDMM } from '../../date';
-import { grayMatter2PostMeta } from '../../markdown/frontmatter';
+import { dateToYMDMM } from 'lib/date'
+import { posts, type Post } from '../../../.velite'
 
-export const POST_DIR = path.join(process.cwd(), 'source', 'posts')
 const CATEGORY_ALL = 'All Posts'
 const TAG_UNTAGGED = 'Untagged'
 
 /**
- * posts database
- * 构造函数返回一个 posts_db 对象
- * 
- * - 数据集中存储于 metas，其他的字段信息从 metas 动态获取
- * - 不存储正文内容本身，需要单独 parse
+ * Posts database built from Velite pre-processed data
+ *
+ * - metas: post metadata sorted by date (newest first)
+ * - slugs: array of slugs for pre-rendering
+ * - categories: Map of category name to post count
+ * - tags: Map of tag name to post count
  */
-const posts_db = await (async function () {
-
-  console.log("[posts.ts] building posts database...")
-
-  /*
-  * source file names
-  */
-  const filenames = await ((async () => {
-    let fileNames = await fs.promises.readdir(POST_DIR);
-    fileNames = fileNames.filter(f => {
-      return f.endsWith(".md") || f.endsWith(".mdx")
-    })
-    return fileNames
-  })())
+const posts_db = (function () {
+  console.log("[posts.ts] building posts database from Velite...")
 
   /**
- * metas sorted by date
- */
-  const metas = await (async function () {
-    const promises = filenames.map(async fileName => {
-      const id = fileName.replace(/\.mdx?$/, '')
+   * metas sorted by date (newest first)
+   */
+  const velite = [...posts].sort((a, b) => {
+    return new Date(b.date).getTime() - new Date(a.date).getTime()
+  })
 
-      const frontMatter = grayMatter2PostMeta((await getFrontMatter(fileName)))
-      return {
-        id,
-        ...frontMatter,
+  /**
+   * slugs array for pre-rendering
+   */
+  const slugs = velite.map(p => p.slug)
+
+  /**
+   * categories with post counts
+   */
+  const categories = (function () {
+    const cats = new Map<string, number>()
+    cats.set(CATEGORY_ALL, velite.length)
+
+    velite.forEach(p => {
+      if (p.categories) {
+        const c = p.categories
+        cats.set(c, (cats.get(c) || 0) + 1)
       }
     })
 
-    const allPosts = await Promise.all(promises)
-    return allPosts.sort((a, b) => {
-      return a.date < b.date ? 1 : -1
-    })
+    return cats
   })()
 
   /**
-   * used in url
+   * tags with post counts
    */
-  const ids = function () {
-    return filenames.map(f => {
-      return {
-        params: {
-          id: f.replace(/\.mdx?$/, '').replaceAll(" ", "-")
-        }
-      };
-    });
-  }
+  const tags = (function () {
+    const tagMap = new Map<string, number>()
+    let untaggedCount = 0
 
-  const categories = function () {
-    const categories = new Map<string, number>()
-    const p = filenames
-    categories.set(CATEGORY_ALL, p.length)
-
-    metas.forEach(p => {
-      if (p.categories) {
-        const c = p.categories
-        if (categories.has(c)) {
-          categories.set(c, categories.get(c)! + 1)
-        } else {
-          categories.set(c, 1)
-        }
-      }
-    })
-
-    return categories
-  }
-
-
-
-  const tags = function () {
-    const tags = new Map<string, number>()
-    tags.set(TAG_UNTAGGED, 0)
-
-    metas.forEach(p => {
-      if (p.tags) {
-        let fileTags = p.tags
-        fileTags = typeof (fileTags) === 'string' ? [fileTags] : fileTags
-        fileTags.forEach((t: string) => {
-          if (tags.has(t)) {
-            tags.set(t, tags.get(t)! + 1)
-          } else {
-            tags.set(t, 1)
-          }
+    velite.forEach(p => {
+      if (p.tags && p.tags.length > 0) {
+        p.tags.forEach(t => {
+          tagMap.set(t, (tagMap.get(t) || 0) + 1)
         })
       } else {
-        tags.set(TAG_UNTAGGED, tags.get(TAG_UNTAGGED)! + 1)
+        untaggedCount++
       }
     })
 
-    return tags
-  }
+    if (untaggedCount > 0) {
+      tagMap.set(TAG_UNTAGGED, untaggedCount)
+    }
+
+    return tagMap
+  })()
 
   /**
- * return posts in tag t, sorted by date
- */
-  const inTag = async function (t: string) {
-
-    const posts: { id: string, title: string, date: Date }[] = []
-
-    metas.forEach(p => {
-      if (p.tags.some((ft: string) => ft === t)) {
-        posts.push({
-          id: p.id,
-          title: p.title,
-          date: new Date(p.date)
-        })
-      }
-    })
-
-    return posts.sort((a, b) => a.date < b.date ? 1 : -1)
+   * return posts in tag t, sorted by date
+   */
+  function inTag(t: string) {
+    return velite
+      .filter(p => p.tags.includes(t) || (t === TAG_UNTAGGED && p.tags.length === 0))
+      .map(p => ({
+        slug: p.slug,
+        title: p.title,
+        date: new Date(p.date)
+      }))
   }
 
   /**
    * return posts in category c, sorted by date
    */
-  const inCategory = async function (c: string) {
-    const posts: { id: string, title: string, date: Date }[] = []
+  function inCategory(c: string) {
+    return velite
+      .filter(p => c === CATEGORY_ALL || p.categories === c)
+      .map(p => ({
+        slug: p.slug,
+        title: p.title,
+        date: new Date(p.date)
+      }))
+  }
 
-    metas.forEach(p => {
-      if (c === CATEGORY_ALL || (p.categories && p.categories === c)) {
-        posts.push({
-          id: p.id,
-          title: p.title,
-          date: new Date(p.date)
-        })
-      }
-
-    })
-
-    return posts.sort((a, b) => a.date < b.date ? 1 : -1)
+  /**
+   * get a single post by slug
+   */
+  function getBySlug(slug: string): Post | undefined {
+    return velite.find(p => p.slug === slug)
   }
 
   return {
-    filenames,
-    metas,
-    ids,
+    velite,
+    slugs,
     categories,
     tags,
     inTag,
-    inCategory
+    inCategory,
+    getBySlug,
   }
 })()
-
-
-
-/**
- * Get front matter info from a local markdown file
- */
-async function getFrontMatter(fileName: string, dir = POST_DIR) {
-  const fullPath = path.join(dir, fileName)
-  const fileContents = await fs.promises.readFile(fullPath, 'utf8')
-  return matter(fileContents)
-}
-
 
 /**
  * Group posts data by year in an Object
  */
 function groupByYear(posts: {
-  id: string,
+  slug: string,
   title: string,
   date: Date,
 }[]): {
   [year: string]: {
-    id: string;
+    slug: string;
     title: string;
     date: string;
   }[];
 } {
-  const postsTree = new Map<number, { id: string, title: string, date: string }[]>() //<year,post[]>
+  const postsTree = new Map<number, { slug: string, title: string, date: string }[]>()
+
   posts.forEach(p => {
     const y = p.date.getFullYear()
+    const entry = {
+      slug: p.slug,
+      title: p.title,
+      date: dateToYMDMM(p.date)
+    }
+
     if (postsTree.has(y)) {
-      postsTree.get(y)!.push({
-        id: p.id,
-        title: p.title,
-        date: dateToYMDMM(p.date)
-      })
+      postsTree.get(y)!.push(entry)
     } else {
-      postsTree.set(y, [{
-        id: p.id,
-        title: p.title,
-        date: dateToYMDMM(p.date)
-      }])
+      postsTree.set(y, [entry])
     }
   })
 
   return Object.fromEntries(postsTree)
 }
 
-export { getFrontMatter, groupByYear, posts_db };
+export { groupByYear, posts_db }
+export type { Post }
 

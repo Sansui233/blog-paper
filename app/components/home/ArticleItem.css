@@ -1,0 +1,36 @@
+.article-card .post-container {
+  transform: translateX(0);
+  transition: transform 0.5s ease;
+}
+
+.article-card .post-container::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  width: 0;
+  height: 2.25rem;
+  background: var(--text-primary);
+  transform: translateX(0);
+  transition: transform 0.5s ease, width 0.1s linear;
+  border-radius: 3px;
+}
+
+.article-card .title {
+  transition: box-shadow 0.5s ease;
+}
+
+@media (any-hover: hover) {
+  .article-card:hover .post-container {
+    transform: translateX(16px);
+  }
+
+  .article-card:hover .post-container::before {
+    width: 6px;
+    transform: translateX(-16px);
+    transition: transform 0.5s ease, width 0.1s linear 0.2s;
+  }
+
+  .article-card:hover .title {
+    box-shadow: inset 0 -0.5em 0 var(--accent-hover);
+  }
+}

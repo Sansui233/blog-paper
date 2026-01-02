@@ -1,3 +1,4 @@
+import { posts_db } from 'lib/data/server/posts';
 import { useRef, useState } from 'react';
 import LayoutContainer from '~/components/layout';
 import { MDImg } from '~/components/markdown/MDImg';
@@ -7,26 +8,21 @@ import { Pagination } from '~/components/post/Pagination';
 import { PostMeta } from '~/components/post/PostMeta';
 import { TableOfContents } from '~/components/post/TableOfContents';
 import { useTocHighlight } from '~/hooks/useTocHighlight';
-import { posts } from '../../.velite';
 import type { Route } from './+types/posts.$slug';
 
-// Sort posts by date (newest first) for consistent prev/next navigation
-const sortedPosts = [...posts].sort(
-  (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-);
 
 export async function loader({ params }: Route.LoaderArgs) {
-  const currentIndex = sortedPosts.findIndex(p => p.slug === params.slug);
+  const currentIndex = posts_db.velite.findIndex(p => p.slug === params.slug);
   if (currentIndex === -1) throw new Response('Not Found', { status: 404 });
 
-  const post = sortedPosts[currentIndex];
+  const post = posts_db.velite[currentIndex];
 
   // Prev = newer post (lower index), Next = older post (higher index)
   const prevPost = currentIndex > 0
-    ? { title: sortedPosts[currentIndex - 1].title, slug: sortedPosts[currentIndex - 1].slug }
+    ? { title: posts_db.velite[currentIndex - 1].title, slug: posts_db.velite[currentIndex - 1].slug }
     : null;
-  const nextPost = currentIndex < sortedPosts.length - 1
-    ? { title: sortedPosts[currentIndex + 1].title, slug: sortedPosts[currentIndex + 1].slug }
+  const nextPost = currentIndex < posts_db.velite.length - 1
+    ? { title: posts_db.velite[currentIndex + 1].title, slug: posts_db.velite[currentIndex + 1].slug }
     : null;
 
   return { post, prevPost, nextPost };
