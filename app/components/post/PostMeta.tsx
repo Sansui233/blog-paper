@@ -3,8 +3,8 @@ import { Link } from 'react-router';
 
 type Props = {
   date: string;
-  categories?: string;
-  tags?: string[];
+  categories?: string | null;
+  tags?: string[] | null;
 };
 
 export function PostMeta({ date, categories, tags = [] }: Props) {
@@ -42,7 +42,7 @@ export function PostMeta({ date, categories, tags = [] }: Props) {
           )}
 
           {/* Tags */}
-          {tags.length > 0 && (
+          {tags && tags.length > 0 && (
             <span className="text-sm leading-none">
               {tags.map((tag) => (
                 <Link

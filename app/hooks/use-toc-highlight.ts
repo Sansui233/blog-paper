@@ -1,3 +1,4 @@
+import { throttle } from 'lib/throttle';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 type TocItem = {
@@ -24,17 +25,6 @@ function flattenToc(items: TocItem[], depth = 1): Array<{ title: string; id: str
   return result;
 }
 
-// Throttle helper
-function throttle<T extends (...args: unknown[]) => void>(fn: T, wait: number): T {
-  let lastTime = 0;
-  return ((...args: unknown[]) => {
-    const now = Date.now();
-    if (now - lastTime >= wait) {
-      lastTime = now;
-      fn(...args);
-    }
-  }) as T;
-}
 
 export function useTocHighlight(toc: TocItem[], contentRef: React.RefObject<HTMLDivElement | null>) {
   const [currentIndex, setCurrentIndex] = useState(-1);

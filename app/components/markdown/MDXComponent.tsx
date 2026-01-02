@@ -12,7 +12,7 @@ const useMDXComponent = (code: string) => {
 
 interface MDXProps {
   code: string
-  components?: Record<string, React.ComponentType>
+  components?: Record<string, React.ComponentType<any>>
 }
 
 // MDXContent component

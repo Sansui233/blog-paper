@@ -1,7 +1,10 @@
-import { memos } from ".velite";
 import { writeJson } from "lib/fs/fs";
+import { toMdxCode } from "lib/md-compile/compile";
+import { remarkTag } from "lib/remark/remark-tag";
 import path from "path";
-import { INFOFILE, type MemoInfo, type MemoPost, type MemoTag } from "../memos.common";
+import rehypeHighlight from "rehype-highlight";
+import remarkGfm from "remark-gfm";
+import { INFOFILE, type MemoInfo, type MemoPost, type MemoPostJsx, type MemoTag } from "../memos.common";
 
 const MEMO_CSR_DATA_DIR = path.join(process.cwd(), 'public', 'data', 'memos')
 const PAGE_SIZE = 10
@@ -30,7 +33,7 @@ export function splitMemo(raw: string, sourceFile: string = ""): MemoPost[] {
         tags: [],
         imgs_md: [],
         sourceFile,
-        csrIndex: [-1, -1], // TODO Will be set later by caller
+        csrIndex: [-1, -1], // Will be set later
       })
     } else {
       if (memos.length === 0) continue // Ignore lines before first ##
@@ -61,7 +64,7 @@ export function splitMemo(raw: string, sourceFile: string = ""): MemoPost[] {
  * 2. imgs.json: array of MemoPost with imgs_md not empty
  * 3. tags.json: array of MemoTag
 */
-export async function buildMemoCsrData(veliteData: typeof import('.velite').memos) {
+export async function buildMemoCsrData(memos: typeof import('.velite').memos) {
   // 1. Read all memos from pre-built velite json files
   const memoPosts = memos
 
@@ -85,10 +88,23 @@ export async function buildMemoCsrData(veliteData: typeof import('.velite').memo
     imgs: imgs.length,
   }
 
+  // 5-pre. Compile Memopost.content into JSX.
+  // Modify content in place.
+  const compiled: MemoPostJsx[] = await Promise.all(allMemos.map(async memo => {
+    const { content, ...rest } = memo
+    return {
+      ...rest,
+      content_jsx: await toMdxCode(content, {
+        remarkPlugins: [remarkGfm, remarkTag],
+        rehypePlugins: [rehypeHighlight],
+      }).then(res => res.code),
+    }
+  }))
+
   // 5. Write paged json files
-  const pageCount = Math.ceil(allMemos.length / PAGE_SIZE)
+  const pageCount = Math.ceil(compiled.length / PAGE_SIZE)
   for (let page = 0; page < pageCount; page++) {
-    const pageMemos = allMemos.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
+    const pageMemos = compiled.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
     await writeJson(path.join(MEMO_CSR_DATA_DIR, `${page}.json`), pageMemos)
   }
 

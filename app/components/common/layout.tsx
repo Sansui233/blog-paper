@@ -7,21 +7,27 @@ const cn = (...classes: (string | undefined | false | null)[]) => classes.filter
 
 type Props = React.HTMLProps<HTMLDivElement> & {
   hidesearch?: boolean;
+  hideFooter?: boolean;
+  hidePlaceholder?: boolean;
+  topBarClassName?: string;
 };
 
 const LayoutContainer: React.FC<Props> = ({
   children,
   hidesearch = false,
+  hideFooter = false,
+  hidePlaceholder = false,
+  topBarClassName,
   className,
   ...otherProps
 }) => {
   return (
     <>
-      <Topbar hideSearch={hidesearch} />
+      <Topbar hideSearch={hidesearch} placeHolder={!hidePlaceholder} className={topBarClassName} />
       <main className={className} {...otherProps}>
         {children}
       </main>
-      <Footer />
+      {!hideFooter && <Footer />}
     </>
   );
 };

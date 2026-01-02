@@ -1,4 +1,5 @@
 import { X } from 'lucide-react';
+import './TableOfContents.css';
 
 type TocItem = {
   title: string;
@@ -96,22 +97,7 @@ export function TableOfContents({
                   onScrollTo(i);
                 }}
                 style={{ paddingLeft: `${(item.depth - 1)}em` }}
-                className={`
-                  block relative text-sm leading-8 text-text-secondary
-                  transition-all duration-300
-                  max-lg:text-base
-
-                  before:content-[''] before:absolute before:w-[3px] before:h-4
-                  before:top-2 before:-left-3 before:bg-text-primary
-                  before:opacity-0 before:transition-opacity before:duration-300
-
-                  hover:[&>span]:shadow-[inset_0_-0.5em_0_var(--accent-hover)]
-
-                  ${currentIndex === i
-                    ? 'font-bold text-text-primary before:opacity-100 [&>span]:shadow-[inset_0_-0.5em_0_var(--accent-hover)]'
-                    : ''
-                  }
-                `}
+                className={`toc-link ${currentIndex === i ? 'active' : ''}`}
               >
                 <span className="transition-shadow duration-500">{item.title}</span>
               </a>

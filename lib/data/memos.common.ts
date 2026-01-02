@@ -20,6 +20,15 @@ export interface MemoPost {
   csrIndex: [number, number]; // page index
 };
 
+export interface MemoPostJsx {
+  id: string; // Heading2 title
+  content_jsx?: string; // compiled jsx code
+  tags: string[];
+  imgs_md: string[];
+  sourceFile: string;
+  csrIndex: [number, number]; // page index
+};
+
 
 export type MemoTag = {
   name: string,

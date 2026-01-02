@@ -28,6 +28,7 @@ export default function Topbar({
   placeHolder = true,
   scrollElem,
   hideSearch,
+  className,
   ...otherProps
 }: Props) {
   const [isHidden, setIsHidden] = useState(false);
@@ -111,7 +112,7 @@ export default function Topbar({
           bg-bg/60 backdrop-blur-[6px]
           transition-transform duration-500 ease-out
           ${isHidden ? "-translate-y-full" : "translate-y-0"}
-        `}
+        ` + (className ? ` ${className}` : "")}
         {...otherProps}
       >
         {/* Avatar / Logo */}

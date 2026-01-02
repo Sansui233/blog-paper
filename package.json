@@ -24,7 +24,8 @@
     "remark-gfm": "^4.0.1",
     "stopwords-zh": "^0.4.0",
     "unist-util-visit": "^5.0.0",
-    "utility-types": "^3.11.0"
+    "utility-types": "^3.11.0",
+    "zustand": "^5.0.9"
   },
   "devDependencies": {
     "@react-router/dev": "7.10.1",

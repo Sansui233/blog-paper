@@ -19,8 +19,8 @@ export default defineConfig({
           slug: s.path().transform(p => encodeURI(p.split('/').pop()!)), // url
           // slug: s.path(), // auto generate slug from file path
           date: s.isodate(), // input Date-like string, output ISO Date string.
-          description: s.string().optional(),
-          cover: s.image().optional(), // input image relative path, output image object with blurImage.
+          description: s.string().nullish(),
+          cover: s.image().nullish(), // input image relative path, output image object with blurImage.
           draft: s.boolean().default(false),
           metadata: s.metadata(), // extract markdown reading-time, word-count, etc.
           excerpt: s.excerpt(), // excerpt of markdown content
@@ -30,9 +30,9 @@ export default defineConfig({
             rehypePlugins: [rehypeHeadingsAddId, rehypeHighlight],
           }), // transform markdown to MDX component
           toc: s.toc({ maxDepth: 3 }), // generate table of contents from markdown headings
-          tags: s.array(s.string()).default([]), // array of strings
-          categories: s.string().optional(),
-          keywords: s.string().optional().transform(s => s?.split(',').map(k => k.trim()) || []),
+          tags: s.array(s.string()).default([]).nullish(), // array of strings
+          categories: s.string().nullish(),
+          keywords: s.string().nullish().transform(s => s?.split(',').map(k => k.trim()) || []),
         })
         // more additional fields (computed fields)
         .transform(data => ({ ...data, permalink: `/posts/${data.slug}` }))
@@ -44,7 +44,7 @@ export default defineConfig({
         title: s.string().max(99),
         file_path: s.path(),
         date: s.isodate(),
-        description: s.string().optional(),
+        description: s.string().nullish(),
         draft: s.boolean().default(false),
         memos: s.raw() // content to be split
       }).transform(async (data, { addIssue }) => {

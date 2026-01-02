@@ -1,7 +1,7 @@
 import type { Root } from "mdast"
 import { visit } from "unist-util-visit"
 
-// 将 #标签 替换为 <Tag text={"#标签"} /> ，以解决与react hook的交互问题和事件绑定问题
+// 将 #标签 替换为 <Tag text={"标签"} /> ，以解决与react hook的交互问题和事件绑定问题
 export function remarkTag() {
   return function (tree: Root) {
     visit(tree, "paragraph", function (node, index, parent) {
