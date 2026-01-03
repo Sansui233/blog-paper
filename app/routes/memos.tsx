@@ -3,7 +3,7 @@ import type { MemoInfoExt } from "lib/data/server/type";
 import { loadJson } from "lib/fs/fs";
 import { MenuSquare } from "lucide-react";
 import path from "path";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "react-router";
 import { siteInfo } from "site.config";
 import { FloatButton } from "~/components/common/FloatButton";
@@ -62,7 +62,8 @@ export async function clientLoader({
     ]);
 
     // Fetch all pages to filter by tag
-    const pageCount = info.pages + 1;
+    // TODO: optimize later 应该有专用的 Index 文件做 Search 和 Query
+    const pageCount = info.pages;
     const pagePromises = Array.from({ length: pageCount }, (_, i) =>
       fetch(`${MEMO_CSR_API}/${i}.json`).then((r) => r.json()) as Promise<MemoPostJsx[]>
     );
@@ -71,6 +72,7 @@ export async function clientLoader({
 
     // Filter by tag
     const filtered = allMemos.filter((m) => m.tags.includes(tag));
+    console.debug("%% memos by tag count", tag, ":", filtered.length);
 
     return {
       memos: filtered,
@@ -103,10 +105,15 @@ export function meta({ }: Route.MetaArgs) {
 
 // --- 6. Main Component ---
 export default function MemosPage({ loaderData }: Route.ComponentProps) {
-  const { memos: initialMemos, info, tags, source, filterTag } = loaderData;
+  const { memos: loaderMemos, info, tags, source, filterTag } = loaderData;
   const [searchParams, setSearchParams] = useSearchParams();
-  const [memos, setMemos] = useState<TMemo[]>(initialMemos);
+  const [memos, setMemos] = useState<TMemo[]>(loaderMemos);
   const [isMobileSider, setIsMobileSider] = useState(false);
+
+  // Sync memos state when loaderData changes (e.g., after clientLoader runs)
+  useEffect(() => {
+    setMemos(loaderMemos);
+  }, [loaderData]);
 
   const selectedTag = searchParams.get("tag") || filterTag;
   const isFiltered = source === "CSR" && !!filterTag;
@@ -135,12 +142,6 @@ export default function MemosPage({ loaderData }: Route.ComponentProps) {
       const pageEnd = Math.floor((start + batchsize - 1) / 10);
       const indexStart = start % 10;
       const indexEnd = (start + batchsize - 1) % 10;
-
-      console.debug("%% info.pages:", info.pages);
-      // print pageStart and pageEnd and indexStart and indexEnd
-      console.debug("%% fetchFrom called with start:", start, "batchsize:", batchsize);
-      console.debug("%% Calculated pageStart:", pageStart, "pageEnd:", pageEnd);
-      console.debug("%% Calculated indexStart:", indexStart, "indexEnd:", indexEnd);
 
       // Check bounds
       if (pageStart > info.pages) return undefined;
@@ -196,11 +197,10 @@ export default function MemosPage({ loaderData }: Route.ComponentProps) {
                 relative flex flex-col
                 flex-[3_1_0] max-[780px]:flex-[1_1_0]
                 w-full
-                px-4 max-[780px]:px-0
-                pt-[73px] pb-12
-                self-end
+                pt-[73px] pb-12 px-4 max-[580px]:px-0
                 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden
                 min-[1080px]:max-w-[680px]
+
               `}
             >
               {/* Filter status - right aligned like PageDescription */}
@@ -220,7 +220,7 @@ export default function MemosPage({ loaderData }: Route.ComponentProps) {
 
               {/* Memo list container */}
               <div
-                className="rounded-lg border border-ui-line-gray-2 bg-bg shadow-[0_0_12px_0_var(--shadow-bg)] max-[780px]:rounded-none max-[780px]:border-x-0"
+                className="rounded-lg border border-ui-line-gray-2 bg-bg shadow-[0_0_12px_0_var(--shadow-bg)] max-[580px]:rounded-none max-[580px]:border-x-0"
                 style={{ marginTop: "0.625rem" }}
               >
                 {isFiltered ? (
@@ -229,13 +229,14 @@ export default function MemosPage({ loaderData }: Route.ComponentProps) {
                     className="virtualist"
                     sources={memos}
                     setSources={setMemos}
+                    key={loaderData.filterTag}
                     Elem={(props) => (
                       <div
                         className={`${props.source === memos[0]
-                          ? "[&>section]:rounded-t-lg max-[780px]:[&>section]:rounded-none"
+                          ? "[&>section]:rounded-t-lg max-[580px]:[&>section]:rounded-none"
                           : ""
                           } ${props.source === memos[memos.length - 1]
-                            ? "[&>section]:rounded-b-lg max-[780px]:[&>section]:rounded-none"
+                            ? "[&>section]:rounded-b-lg max-[580px]:[&>section]:rounded-none"
                             : "[&>section]:border-b [&>section]:border-ui-line-gray-2"
                           }`}
                       >
@@ -257,10 +258,10 @@ export default function MemosPage({ loaderData }: Route.ComponentProps) {
                     Elem={(props) => (
                       <div
                         className={`${props.source === memos[0]
-                          ? "[&>section]:rounded-t-lg max-[780px]:[&>section]:rounded-none"
+                          ? "[&>section]:rounded-t-lg max-[580px]:[&>section]:rounded-none"
                           : ""
                           } ${props.source === memos[memos.length - 1]
-                            ? "[&>section]:rounded-b-lg max-[780px]:[&>section]:rounded-none"
+                            ? "[&>section]:rounded-b-lg max-[580px]:[&>section]:rounded-none"
                             : "[&>section]:border-b [&>section]:border-ui-line-gray-2"
                           }`}
                       >

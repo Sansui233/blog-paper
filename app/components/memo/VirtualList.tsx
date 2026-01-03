@@ -50,10 +50,14 @@ const VirtualList: VirtualListType = ({
   const [isLoading, setIsLoading] = useState(false);
   const scrollLock = useRef({ enable: true });
 
+  // TODO 高度无法从外部同步
+
   const minHeight = useMemo(
     () => placeHolder.reduce((sum, height) => (sum += height), 0) + 2, // 2px for border
     [placeHolder]
   );
+
+  console.debug("%% PlaceHolder heights:", placeHolder);
 
   const transformOnIndex = useCallback(
     (i: number) => {
@@ -171,7 +175,9 @@ const VirtualList: VirtualListType = ({
             const additional = new Array(
               nextActiveIndex[nextActiveIndex.length - 1] - placeHolder.length + 1
             ).fill(300);
-            setPlaceHolder(placeHolder.concat(additional));
+            requestAnimationFrame(() => {
+              setPlaceHolder(placeHolder.concat(additional));
+            })
           }
 
           const fullIndex = activeIndex.concat(nextActiveIndex);
@@ -276,12 +282,14 @@ function ListItem<T extends { id: string | number }>({
   const handler = useCallback(() => {
     if (ref.current) {
       const height = ref.current.offsetHeight;
-      setPlaceHolder((placeHolder) => {
-        if (placeHolder[index] === height || height === 0) return placeHolder;
-        const newPlaceHolder = [...placeHolder];
-        newPlaceHolder[index] = height;
-        return newPlaceHolder;
-      });
+      requestAnimationFrame(() => {
+        setPlaceHolder((placeHolder) => {
+          if (placeHolder[index] === height || height === 0) return placeHolder;
+          const newPlaceHolder = [...placeHolder];
+          newPlaceHolder[index] = height;
+          return newPlaceHolder;
+        });
+      })
     }
   }, [ref, setPlaceHolder, index]);
 

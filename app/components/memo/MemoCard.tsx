@@ -36,7 +36,7 @@ export function MemoCard({
   const { theme } = useAppState();
 
   const contentLength = source.length ?? undefined;
-  const shouldCollapse = contentLength && contentLength > 200;
+  const shouldCollapse = (contentLength && contentLength > 200) || source.content_jsx!.length > 2000;
 
   // Parse date from memo id
   const date = useMemo(() => {
