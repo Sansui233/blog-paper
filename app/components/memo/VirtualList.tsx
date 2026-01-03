@@ -16,7 +16,7 @@ type Props<T extends { id: string | number }> = React.HTMLProps<HTMLDivElement> 
   sources: T[];
   setSources: Dispatch<SetStateAction<T[]>>;
   fetchFrom?: (i: number, batchsize: number) => Promise<T[] | undefined>;
-  batchsize: number;
+  batchsize?: number;
   Elem: (props: {
     source: T;
     triggerHeightChange: Dispatch<SetStateAction<boolean>>;
@@ -35,7 +35,7 @@ const VirtualList: VirtualListType = ({
   Elem,
   scrollRef,
   fetchFrom,
-  batchsize,
+  batchsize = 10,
   Loading,
   style,
   ...otherprops

@@ -9,7 +9,7 @@ import type { Route } from "./+types/home";
 export function loader() {
   return {
     posts: posts_db.velite.map((p) => ({
-      id: p.slug,
+      slug: p.slug,
       date: p.date,
       title: p.title,
       categories: p.categories,
@@ -54,7 +54,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           "
         >
           {filteredPosts.map((post, i) => (
-            <ArticleItem key={post.id} post={post} index={i} />
+            <ArticleItem key={post.slug} post={post} index={i} />
           ))}
         </section>
       </OneColLayout>

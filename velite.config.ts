@@ -16,7 +16,7 @@ export default defineConfig({
       schema: s
         .object({
           title: s.string().max(99), // Zod primitive type
-          slug: s.path().transform(p => encodeURI(p.split('/').pop()!)), // url
+          slug: s.path().transform(p => p.split('/').pop()!), // url
           // slug: s.path(), // auto generate slug from file path
           date: s.isodate(), // input Date-like string, output ISO Date string.
           description: s.string().nullish(),

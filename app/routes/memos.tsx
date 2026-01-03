@@ -136,6 +136,12 @@ export default function MemosPage({ loaderData }: Route.ComponentProps) {
       const indexStart = start % 10;
       const indexEnd = (start + batchsize - 1) % 10;
 
+      console.debug("%% info.pages:", info.pages);
+      // print pageStart and pageEnd and indexStart and indexEnd
+      console.debug("%% fetchFrom called with start:", start, "batchsize:", batchsize);
+      console.debug("%% Calculated pageStart:", pageStart, "pageEnd:", pageEnd);
+      console.debug("%% Calculated indexStart:", indexStart, "indexEnd:", indexEnd);
+
       // Check bounds
       if (pageStart > info.pages) return undefined;
 
@@ -173,9 +179,9 @@ export default function MemosPage({ loaderData }: Route.ComponentProps) {
   return (
     <LayoutContainer hidesearch hideFooter hidePlaceholder topBarClassName="border-b border-ui-line-gray-2">
       <div className="min-h-screen bg-bg-2">
-        {/* OneColLayout: max-width 1080px, centered, mobile full width */}
+        {/* OneColLayout: max-width 1080px, centered, mobile and tablet full width */}
         <div className="mx-auto max-w-[1080px] max-[780px]:max-w-full">
-          {/* Float button - hidden on desktop (>=780px), shown on mobile */}
+          {/* Float button - hidden on desktop or tablet (>=780px), shown on mobile */}
           <FloatButton
             Icon={MenuSquare}
             onClick={() => setIsMobileSider((v) => !v)}
@@ -190,7 +196,7 @@ export default function MemosPage({ loaderData }: Route.ComponentProps) {
                 relative flex flex-col
                 flex-[3_1_0] max-[780px]:flex-[1_1_0]
                 w-full
-                px-4 max-[580px]:px-0
+                px-4 max-[780px]:px-0
                 pt-[73px] pb-12
                 self-end
                 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden
@@ -214,25 +220,34 @@ export default function MemosPage({ loaderData }: Route.ComponentProps) {
 
               {/* Memo list container */}
               <div
-                className="rounded-lg border border-ui-line-gray-2 bg-bg shadow-[0_0_12px_0_var(--shadow-bg)] max-[580px]:rounded-none max-[580px]:border-x-0"
+                className="rounded-lg border border-ui-line-gray-2 bg-bg shadow-[0_0_12px_0_var(--shadow-bg)] max-[780px]:rounded-none max-[780px]:border-x-0"
                 style={{ marginTop: "0.625rem" }}
               >
                 {isFiltered ? (
                   // Filtered view - simple list without virtual scroll
-                  <div>
-                    {memos.map((memo, i) => (
+                  <VirtualList<TMemo>
+                    className="virtualist"
+                    sources={memos}
+                    setSources={setMemos}
+                    Elem={(props) => (
                       <div
-                        key={memo.id}
-                        className={`${i === 0 ? "[&>section]:rounded-t-lg [&>section]:max-[580px]:rounded-none" : ""
-                          } ${i === memos.length - 1
-                            ? "[&>section]:rounded-b-lg max-[580px]:[&>section]:rounded-none"
+                        className={`${props.source === memos[0]
+                          ? "[&>section]:rounded-t-lg max-[780px]:[&>section]:rounded-none"
+                          : ""
+                          } ${props.source === memos[memos.length - 1]
+                            ? "[&>section]:rounded-b-lg max-[780px]:[&>section]:rounded-none"
                             : "[&>section]:border-b [&>section]:border-ui-line-gray-2"
                           }`}
                       >
-                        <MemoCard source={memo} onTagClick={handleTagClick} />
+                        <MemoCard
+                          source={props.source}
+                          onTagClick={handleTagClick}
+                          triggerHeightChange={props.triggerHeightChange}
+                        />
                       </div>
-                    ))}
-                  </div>
+                    )}
+                  />
+
                 ) : (
                   // Normal view - virtual list with infinite scroll
                   <VirtualList<TMemo>
@@ -242,10 +257,10 @@ export default function MemosPage({ loaderData }: Route.ComponentProps) {
                     Elem={(props) => (
                       <div
                         className={`${props.source === memos[0]
-                          ? "[&>section]:rounded-t-lg max-[580px]:[&>section]:rounded-none"
+                          ? "[&>section]:rounded-t-lg max-[780px]:[&>section]:rounded-none"
                           : ""
                           } ${props.source === memos[memos.length - 1]
-                            ? "[&>section]:rounded-b-lg max-[580px]:[&>section]:rounded-none"
+                            ? "[&>section]:rounded-b-lg max-[780px]:[&>section]:rounded-none"
                             : "[&>section]:border-b [&>section]:border-ui-line-gray-2"
                           }`}
                       >

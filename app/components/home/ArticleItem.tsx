@@ -4,7 +4,7 @@ import { Link } from "react-router";
 import "./ArticleItem.css";
 
 type PostType = {
-  id: string;
+  slug: string;
   date: string;
   title?: string;
   categories?: string | null;
@@ -17,10 +17,9 @@ type Props = {
 };
 
 export default function ArticleItem({ post, index }: Props) {
-  console.debug(post.date);
   return (
     <Link
-      to={`/posts/${post.id}`}
+      to={`/posts/${post.slug}`}
       className="article-card group block min-h-24 cursor-pointer relative max-md:min-h-21"
     >
       <div className="py-4 pb-10 relative">

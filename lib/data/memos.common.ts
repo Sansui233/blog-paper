@@ -6,6 +6,7 @@ export interface MemoInfo {
   memos: number,
   tags: number,
   imgs: number,
+  pages: number,
 }
 
 

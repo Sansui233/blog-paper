@@ -79,6 +79,7 @@ export async function buildMemoCsrData(memos: typeof import('.velite').memos) {
     memo.csrIndex = [Math.floor(index / PAGE_SIZE), index % PAGE_SIZE]
   })
 
+  const pageCount = Math.ceil(allMemos.length / PAGE_SIZE)
   // 4. Build auxiliary data
   const tags = buildTags(allMemos)
   const imgs = allMemos.filter(m => m.imgs_md.length > 0)
@@ -86,6 +87,7 @@ export async function buildMemoCsrData(memos: typeof import('.velite').memos) {
     memos: allMemos.length,
     tags: tags.length,
     imgs: imgs.length,
+    pages: Math.ceil(allMemos.length / PAGE_SIZE),
   }
 
   // 5-pre. Compile Memopost.content into JSX.
@@ -102,7 +104,6 @@ export async function buildMemoCsrData(memos: typeof import('.velite').memos) {
   }))
 
   // 5. Write paged json files
-  const pageCount = Math.ceil(compiled.length / PAGE_SIZE)
   for (let page = 0; page < pageCount; page++) {
     const pageMemos = compiled.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
     await writeJson(path.join(MEMO_CSR_DATA_DIR, `${page}.json`), pageMemos)
