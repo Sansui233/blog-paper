@@ -1,5 +1,4 @@
-import type { MemoPostJsx, MemoTag } from "lib/data/memos.common";
-import type { MemoInfoExt } from "lib/data/server/type";
+import type { MemoInfo, MemoPostJsx, MemoTag } from "lib/data/memos.common";
 import { loadJson } from "lib/fs/fs";
 import { MenuSquare } from "lucide-react";
 import path from "path";
@@ -20,7 +19,7 @@ const MEMO_CSR_API = "/data/memos";
 // --- Type Definitions ---
 type LoaderData = {
   memos: MemoPostJsx[];
-  info: MemoInfoExt;
+  info: MemoInfo;
   tags: MemoTag[];
   source: "SSG" | "CSR";
   filterTag?: string;
@@ -32,7 +31,7 @@ export async function loader(): Promise<LoaderData> {
 
   const [memos, info, tags] = await Promise.all([
     loadJson(path.join(dataDir, "0.json")) as Promise<MemoPostJsx[]>,
-    loadJson(path.join(dataDir, "status.json")) as Promise<MemoInfoExt>,
+    loadJson(path.join(dataDir, "status.json")) as Promise<MemoInfo>,
     loadJson(path.join(dataDir, "tags.json")) as Promise<MemoTag[]>,
   ]);
 
@@ -66,7 +65,7 @@ export async function clientLoader({
     const [info, tags] = await Promise.all([
       fetch(`${MEMO_CSR_API}/status.json`).then((r) =>
         r.json(),
-      ) as Promise<MemoInfoExt>,
+      ) as Promise<MemoInfo>,
       fetch(`${MEMO_CSR_API}/tags.json`).then((r) => r.json()) as Promise<
         MemoTag[]
       >,

@@ -62,6 +62,6 @@ export default defineConfig({
     await buildMemoCsrData(data.memos)
     await buildRss(data.posts, data.memos)
     await buildSiteMap(data.posts)
-    await buildSearchIndex(data.posts)
+    await buildSearchIndex(data.posts, data.memos)
   },
 })

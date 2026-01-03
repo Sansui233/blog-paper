@@ -9,7 +9,6 @@ export interface MemoInfo {
   pages: number,
 }
 
-
 export const INFOFILE = "status.json"
 
 export interface MemoPost {
