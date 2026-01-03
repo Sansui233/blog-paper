@@ -1,8 +1,8 @@
 import type { Memo } from '.velite';
 import { Feed, type Item } from "feed";
 import fs from 'fs';
+import { toHTML } from "lib/md-compile/compile";
 import { siteInfo } from "site.config";
-import { toHTML } from "../../md-compile/compile";
 import { buildPostsDB, type Post } from './posts';
 
 /**

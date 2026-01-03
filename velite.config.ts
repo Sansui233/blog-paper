@@ -1,5 +1,6 @@
 import { buildMemoCsrData, splitMemo } from 'lib/data/server/memos'
 import { buildRss, buildSiteMap } from 'lib/data/server/rss'
+import { buildSearchIndex } from 'lib/data/server/searchindex'
 import { remarkUnrwrapImages } from 'lib/remark/remark-unwrap-images'
 import rehypeHighlight from 'rehype-highlight'
 import rehypeSlug from 'rehype-slug'
@@ -61,5 +62,6 @@ export default defineConfig({
     await buildMemoCsrData(data.memos)
     await buildRss(data.posts, data.memos)
     await buildSiteMap(data.posts)
+    await buildSearchIndex(data.posts)
   },
 })

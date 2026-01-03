@@ -1,43 +1,52 @@
+import { createNaive, type Match, type Naive, type Result, type SearchObj } from 'lib/search'
 import React, { useCallback, useState } from 'react'
-import type { Naive, Result, SearchObj } from '../search'
 
 export type SearchStatus = {
   isSearch: "ready" | "searching" | "done",
   searchText: string,
 }
 
-type Props<R> = {
+type Props<T extends SearchObj, R extends Result> = {
   /**
    * html input element reference
    */
-  inputRef: React.RefObject<HTMLInputElement>,
+  inputRef: React.RefObject<HTMLInputElement | null>,
   /**
    * once search is done, the engine call this function with search result in argument.
    */
   setRes: React.Dispatch<React.SetStateAction<R[]>>
   /**
-   * configure source data
-   * and the function about convert engine result format into your search result format
+   * configure source data and result builder
    */
   initData: () => Promise<{
-    searchObj: SearchObj[]
-    filterRes: (searchres: Required<Result>[]) => R[] | Promise<R>[]
+    /** Search data source */
+    data: T[]
+    /** Fields to search in */
+    fields: Array<keyof T>
+    /** Build result object from source object and matches */
+    buildResult: (obj: T, matches: Match[]) => R
   }>
 }
 
 /**
  * Here are 2 ways to use search:
- * 
+ *
  * 1. `setTextAndSearch(str, true)` This will put search text into your inputRef and automatically init search engine and doing search
  * 2. `search()` This will init search engine and do search according to the content in your inputRef
- * 
+ *
  * If you want init search engine on your demand, you can use `initSearch()`
- * 
+ *
  */
-function useSearch<R>({ inputRef, setRes, initData }: Props<R>): {
+function useSearch<T extends SearchObj, R extends Result>({
+  inputRef,
+  setRes,
+  initData
+}: Props<T, R>): {
   searchStatus: SearchStatus;
   resetSearchStatus: () => void;
+  /**  put text into input ref element and call search */
   setTextAndSearch: (text: string, immediateSearch?: boolean) => void // put text into input ref element and (optinal) search immediately.
+  /** instant search with input ref content*/
   search: () => Promise<void>
   initSearch: () => Promise<Naive>
 } {
@@ -49,7 +58,7 @@ function useSearch<R>({ inputRef, setRes, initData }: Props<R>): {
 
   /**
    * init search engine when you want.
-   * 
+   *
    * this will execute initData() which may take long time on first time
    * or search engine will automatically init on first search
    */
@@ -58,29 +67,22 @@ function useSearch<R>({ inputRef, setRes, initData }: Props<R>): {
     if (engine) return engine
 
     console.log("init search...")
-    let newEngine: Naive | undefined = undefined;
-    const { searchObj, filterRes } = await initData()
+    const { data, fields, buildResult } = await initData()
 
-    // 过滤结果
-    // 这个函数也会持久化下载数据
-    function notifier(searchres: Required<Result>[]) {
-      const filtered = filterRes(searchres)
-      Promise.all(filtered).then(
-        res => {
-          setRes(res)
-          setsearchStatus(status => ({
-            ...status,
-            isSearch: "done",
-          }))
-        }
-      )
+    function notifier(results: R[]) {
+      setRes(results)
+      setsearchStatus(status => ({
+        ...status,
+        isSearch: "done",
+      }))
     }
 
-    newEngine = (await import("../search")).createNaive({
-      data: searchObj,
-      field: ["tags", "content"],
+    const newEngine = createNaive<T, R>({
+      data,
+      field: fields,
       notifier,
       disableStreamNotify: true,
+      buildResult,
     })
 
     setEngine(newEngine)
@@ -139,7 +141,7 @@ function useSearch<R>({ inputRef, setRes, initData }: Props<R>): {
     searchStatus,
     resetSearchStatus,
     setTextAndSearch,
-    search,
+    search, // 
     initSearch,
   }
 }
