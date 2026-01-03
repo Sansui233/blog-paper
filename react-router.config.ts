@@ -1,11 +1,15 @@
 import type { Config } from "@react-router/dev/config";
+import { getDynamicPaths } from "utils/dynamic-path";
+
 
 export default {
   // Config options...
-  // Server-side render by default, to enable SPA mode set this to `false`
-  ssr: true,
+  // ssr-false to no-server SSG
+  ssr: false,
   prerender: async ({ getStaticPaths }) => {
     const paths = await getStaticPaths();
-    return ["/", ...paths];
+    const dyn_paths = await getDynamicPaths();
+
+    return ["/", "/test/a",...paths, ...dyn_paths];
   },
 } satisfies Config;

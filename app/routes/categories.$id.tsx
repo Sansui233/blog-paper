@@ -1,9 +1,9 @@
-import { groupByYear, posts_db } from "lib/data/server/posts";
 import TLContent from "~/components/categories/Timeline";
 import LayoutContainer from "~/components/common/layout";
 import type { Route } from "./+types/categories.$id";
 
-export function loader({ params }: Route.LoaderArgs) {
+export async function loader({ params }: Route.LoaderArgs) {
+  const { posts_db, groupByYear } = await import("lib/data/server/posts");
   const category = params.id;
   const posts = posts_db.inCategory(category);
 
@@ -13,10 +13,13 @@ export function loader({ params }: Route.LoaderArgs) {
   };
 }
 
-export function meta({ data }: Route.MetaArgs) {
+export function meta({ loaderData }: Route.MetaArgs) {
   return [
-    { title: `Category - ${data.category}` },
-    { name: "description", content: `Posts in category: ${data.category}` },
+    { title: `Category - ${loaderData.category}` },
+    {
+      name: "description",
+      content: `Posts in category: ${loaderData.category}`,
+    },
   ];
 }
 

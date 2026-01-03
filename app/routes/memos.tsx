@@ -1,7 +1,5 @@
 import type { MemoInfo, MemoPostJsx, MemoTag } from "lib/data/memos.common";
-import { loadJson } from "lib/fs/fs";
 import { MenuSquare } from "lucide-react";
-import path from "path";
 import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "react-router";
 import { siteInfo } from "site.config";
@@ -27,6 +25,9 @@ type LoaderData = {
 
 // --- 1. SSG Loader (Server/Build Time) ---
 export async function loader(): Promise<LoaderData> {
+  const path = await import("path");
+  const { loadJson } = await import("lib/fs/fs");
+
   const dataDir = path.join(process.cwd(), "public", "data", "memos");
 
   const [memos, info, tags] = await Promise.all([

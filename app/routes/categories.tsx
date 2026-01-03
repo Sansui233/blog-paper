@@ -1,11 +1,12 @@
-import { posts_db } from "lib/data/server/posts";
 import { Link } from "react-router";
+import { siteInfo } from "site.config";
 import { CategoryTitle } from "~/components/categories/Timeline";
 import LayoutContainer, { OneColLayout } from "~/components/common/layout";
-import { siteInfo } from "../../site.config";
 import type { Route } from "./+types/categories";
 
-export function loader() {
+export async function loader() {
+  const { posts_db } = await import("lib/data/server/posts");
+
   return {
     categories: Object.fromEntries(posts_db.categories),
     tags: Object.fromEntries(posts_db.tags),

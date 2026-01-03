@@ -8,5 +8,6 @@ export default [
   route("categories", "routes/categories.tsx"),
   route("categories/:id", "routes/categories.$id.tsx"),
   route("tags/:id", "routes/tags.$id.tsx"),
-  route("test/:slug", "routes/test.$slug.tsx"),
+  route("test/:slug", "routes/test.tsx"),
 ] satisfies RouteConfig;
+

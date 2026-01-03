@@ -1,4 +1,3 @@
-import { posts_db } from "lib/data/server/posts";
 import { useMemo, useRef, useState } from "react";
 import LayoutContainer from "~/components/common/layout";
 import { MDImg } from "~/components/markdown/MDImg";
@@ -11,6 +10,7 @@ import { useTocHighlight } from "~/hooks/use-toc-highlight";
 import type { Route } from "./+types/posts.$slug";
 
 export async function loader({ params }: Route.LoaderArgs) {
+  const { posts_db } = await import("lib/data/server/posts");
   const currentIndex = posts_db.velite.findIndex((p) => p.slug === params.slug);
   if (currentIndex === -1) throw new Response("Not Found", { status: 404 });
 

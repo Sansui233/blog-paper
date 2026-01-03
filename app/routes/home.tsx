@@ -1,12 +1,12 @@
-import { posts_db } from "lib/data/server/posts";
 import { useMemo, useState } from "react";
+import { siteInfo } from "site.config";
 import LayoutContainer, { OneColLayout } from "~/components/common/layout";
 import ArticleItem from "~/components/home/ArticleItem";
 import NavCat from "~/components/home/NavCat";
-import { siteInfo } from "../../site.config";
 import type { Route } from "./+types/home";
 
-export function loader() {
+export async function loader() {
+  const { posts_db } = await import("lib/data/server/posts");
   return {
     posts: posts_db.velite.map((p) => ({
       slug: p.slug,

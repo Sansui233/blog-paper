@@ -123,8 +123,12 @@ keywords: Markdown, 测试
 
 
 ```sh
-$ npm build # 构建，导出静态页面到 out 文件夹
-$ npm start # 启动服务
+pnpm i # 安装依赖
+pnpm velite # 构建静态数据、rss、search-index 等
+pnpm build # 导出静态页面到 build/client 文件夹
+
+pnpm start # 启动服务（SSR渲染模式）
+npx serve build/client # 启动服务（预览SSG）
 ```
 
 ## 部署
@@ -136,7 +140,7 @@ $ npm start # 启动服务
 ## Progress
 
 - [x] 基本框架完成
-- [ ] rss 完成
+- [x] rss 完成
 - [x] Dark Mode
 - [x] 详细分类页
 - [ ] 分页渲染
@@ -146,6 +150,7 @@ $ npm start # 启动服务
 - [ ] 增加微博客内容(相册等)
 - [ ] UI语言切换
 - [ ] mdx 支持性测试
+- [ ] 打包代码优化分割
 
 
 ## Thanks

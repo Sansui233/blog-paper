@@ -39,6 +39,7 @@
     "feed": "^5.1.0",
     "prettier": "^3.7.4",
     "prettier-plugin-tailwindcss": "^0.7.2",
+    "rollup-plugin-visualizer": "^6.0.5",
     "tailwindcss": "^4.1.13",
     "typescript": "^5.9.2",
     "velite": "^0.3.1",
