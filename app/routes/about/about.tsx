@@ -4,7 +4,7 @@ import { siteInfo } from "../../../site.config";
 import type { Route } from "./+types/about";
 import "./about.css";
 
-export function meta({ }: Route.MetaArgs) {
+export function meta({}: Route.MetaArgs) {
   return [
     { title: `About ${siteInfo.author}` },
     { name: "description", content: "A personal blog about work and life" },
@@ -18,8 +18,7 @@ export default function About() {
     const img = new Image();
     img.src = "/imgs/bg.jpg";
     img.onload = () => setIsBgLoaded(true);
-    img.onerror = () => {
-    };
+    img.onerror = () => {};
 
     return () => {
       img.onload = null;
@@ -36,7 +35,7 @@ export default function About() {
 
       <OneColLayout>
         {/* Page Description */}
-        <div className="italic text-sm text-text-gray-2 text-right">
+        <div className="text-text-gray-2 text-right text-sm italic">
           / 记录一些思考和吐槽 /
         </div>
 
@@ -65,14 +64,17 @@ export default function About() {
           <p>这个博客算一个。其他大多由于各种原因弃坑。比如</p>
           <ul>
             <li>
-              <a href="https://github.com/Sansui233/fgomerlin">FGO素材规划工具</a>
+              <a href="https://github.com/Sansui233/fgomerlin">
+                FGO素材规划工具
+              </a>
               ：是可离线使用的 Web App
               <br />
               弃坑原因：不玩了。攒了大半年，抽卡太非，剧情无聊，立绘质量参差不齐
             </li>
             <li>
               <a href="https://github.com/Sansui233/fgo-airtest">FGO-Airtest</a>
-              ：ios 可用的游戏自动化刷本工具，俗称外挂，但其实是伪物理外挂，挂机模拟手刷。
+              ：ios
+              可用的游戏自动化刷本工具，俗称外挂，但其实是伪物理外挂，挂机模拟手刷。
               <br />
               弃坑原因：不玩了。而且后面安卓和 ios 互通了。
             </li>

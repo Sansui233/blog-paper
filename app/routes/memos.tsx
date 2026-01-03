@@ -40,7 +40,14 @@ export async function loader(): Promise<LoaderData> {
 
   return {
     memos: memos ?? [],
-    info: info ?? { memos: 0, tags: 0, imgs: 0, pages: 0, fileMap: [], pageMap: [] },
+    info: info ?? {
+      memos: 0,
+      tags: 0,
+      imgs: 0,
+      pages: 0,
+      fileMap: [],
+      pageMap: [],
+    },
     tags: tags ?? [],
     source: "SSG",
   };
@@ -57,15 +64,23 @@ export async function clientLoader({
   // A. If tag query param exists -> CSR filter (fetch all and filter)
   if (tag) {
     const [info, tags] = await Promise.all([
-      fetch(`${MEMO_CSR_API}/status.json`).then((r) => r.json()) as Promise<MemoInfoExt>,
-      fetch(`${MEMO_CSR_API}/tags.json`).then((r) => r.json()) as Promise<MemoTag[]>,
+      fetch(`${MEMO_CSR_API}/status.json`).then((r) =>
+        r.json(),
+      ) as Promise<MemoInfoExt>,
+      fetch(`${MEMO_CSR_API}/tags.json`).then((r) => r.json()) as Promise<
+        MemoTag[]
+      >,
     ]);
 
     // Fetch all pages to filter by tag
     // TODO: optimize later 应该有专用的 Index 文件做 Search 和 Query
     const pageCount = info.pages;
-    const pagePromises = Array.from({ length: pageCount }, (_, i) =>
-      fetch(`${MEMO_CSR_API}/${i}.json`).then((r) => r.json()) as Promise<MemoPostJsx[]>
+    const pagePromises = Array.from(
+      { length: pageCount },
+      (_, i) =>
+        fetch(`${MEMO_CSR_API}/${i}.json`).then((r) => r.json()) as Promise<
+          MemoPostJsx[]
+        >,
     );
     const allPages = await Promise.all(pagePromises);
     const allMemos = allPages.flat();
@@ -96,7 +111,7 @@ export function HydrateFallback() {
 }
 
 // --- 5. Meta ---
-export function meta({ }: Route.MetaArgs) {
+export function meta({}: Route.MetaArgs) {
   return [
     { title: `${siteInfo.author} - Memos` },
     { name: "description", content: "Micro-blogging and short thoughts" },
@@ -130,7 +145,7 @@ export default function MemosPage({ loaderData }: Route.ComponentProps) {
         return prev;
       });
     },
-    [setSearchParams]
+    [setSearchParams],
   );
 
   // Fetch more memos for infinite scroll (currently only when not filtered)
@@ -154,7 +169,7 @@ export default function MemosPage({ loaderData }: Route.ComponentProps) {
       console.debug("%% Fetching memos from:", urls);
       if (urls.length === 0) return undefined;
       const promises = urls.map((url) =>
-        fetch(url).then((res) => res.json() as Promise<MemoPostJsx[]>)
+        fetch(url).then((res) => res.json() as Promise<MemoPostJsx[]>),
       );
 
       const pages = await Promise.all(promises);
@@ -174,12 +189,17 @@ export default function MemosPage({ loaderData }: Route.ComponentProps) {
 
       return result.length > 0 ? result : undefined;
     },
-    [info.pages, isFiltered]
+    [info.pages, isFiltered],
   );
 
   return (
-    <LayoutContainer hidesearch hideFooter hidePlaceholder topBarClassName="border-b border-ui-line-gray-2">
-      <div className="min-h-screen bg-bg-2">
+    <LayoutContainer
+      hidesearch
+      hideFooter
+      hidePlaceholder
+      topBarClassName="border-b border-ui-line-gray-2"
+    >
+      <div className="bg-bg-2 min-h-screen">
         {/* OneColLayout: max-width 1080px, centered, mobile and tablet full width */}
         <div className="mx-auto max-w-[1080px] max-[780px]:max-w-full">
           {/* Float button - hidden on desktop or tablet (>=780px), shown on mobile */}
@@ -190,25 +210,17 @@ export default function MemosPage({ loaderData }: Route.ComponentProps) {
           />
 
           {/* TwoColLayout: flex row on desktop, column on mobile */}
-          <div className="flex flex-col min-[780px]:flex-row justify-center">
+          <div className="flex flex-col justify-center min-[780px]:flex-row">
             {/* Main column (Col) - flex: 3 1 0, stretches to fill available space */}
             <div
-              className={`
-                relative flex flex-col
-                flex-[3_1_0] max-[780px]:flex-[1_1_0]
-                w-full
-                pt-[73px] pb-12 px-4 max-[580px]:px-0
-                [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden
-                min-[1080px]:max-w-[680px]
-
-              `}
+              className={`relative flex w-full flex-[3_1_0] flex-col px-4 pt-[73px] pb-12 [-ms-overflow-style:none] [scrollbar-width:none] max-[780px]:flex-[1_1_0] max-[580px]:px-0 min-[1080px]:max-w-[680px] [&::-webkit-scrollbar]:hidden`}
             >
               {/* Filter status - right aligned like PageDescription */}
               {isFiltered && (
-                <div className="mr-4 text-text-gray-2 text-sm italic text-right">
+                <div className="text-text-gray-2 mr-4 text-right text-sm italic">
                   Results: {memos.length} memos
                   <span
-                    className="not-italic font-bold cursor-pointer ml-3.5 hover:text-accent"
+                    className="hover:text-accent ml-3.5 cursor-pointer font-bold not-italic"
                     onClick={() => {
                       setSearchParams({});
                     }}
@@ -219,10 +231,7 @@ export default function MemosPage({ loaderData }: Route.ComponentProps) {
               )}
 
               {/* Memo list container */}
-              <div
-                className="rounded-lg border border-ui-line-gray-2 bg-bg shadow-[0_0_12px_0_var(--shadow-bg)] max-[580px]:rounded-none max-[580px]:border-x-0"
-                style={{ marginTop: "0.625rem" }}
-              >
+              <div className="border-ui-line-gray-2 bg-bg mt-2.5 rounded-lg border shadow-[0_0_12px_0_var(--shadow-bg)] max-[580px]:rounded-none max-[580px]:border-x-0">
                 {isFiltered ? (
                   // Filtered view - simple list without virtual scroll
                   <VirtualList<TMemo>
@@ -232,13 +241,15 @@ export default function MemosPage({ loaderData }: Route.ComponentProps) {
                     key={loaderData.filterTag}
                     Elem={(props) => (
                       <div
-                        className={`${props.source === memos[0]
-                          ? "[&>section]:rounded-t-lg max-[580px]:[&>section]:rounded-none"
-                          : ""
-                          } ${props.source === memos[memos.length - 1]
+                        className={`${
+                          props.source === memos[0]
+                            ? "[&>section]:rounded-t-lg max-[580px]:[&>section]:rounded-none"
+                            : ""
+                        } ${
+                          props.source === memos[memos.length - 1]
                             ? "[&>section]:rounded-b-lg max-[580px]:[&>section]:rounded-none"
-                            : "[&>section]:border-b [&>section]:border-ui-line-gray-2"
-                          }`}
+                            : "[&>section]:border-ui-line-gray-2 [&>section]:border-b"
+                        }`}
                       >
                         <MemoCard
                           source={props.source}
@@ -248,7 +259,6 @@ export default function MemosPage({ loaderData }: Route.ComponentProps) {
                       </div>
                     )}
                   />
-
                 ) : (
                   // Normal view - virtual list with infinite scroll
                   <VirtualList<TMemo>
@@ -257,13 +267,15 @@ export default function MemosPage({ loaderData }: Route.ComponentProps) {
                     setSources={setMemos}
                     Elem={(props) => (
                       <div
-                        className={`${props.source === memos[0]
-                          ? "[&>section]:rounded-t-lg max-[580px]:[&>section]:rounded-none"
-                          : ""
-                          } ${props.source === memos[memos.length - 1]
+                        className={`${
+                          props.source === memos[0]
+                            ? "[&>section]:rounded-t-lg max-[580px]:[&>section]:rounded-none"
+                            : ""
+                        } ${
+                          props.source === memos[memos.length - 1]
                             ? "[&>section]:rounded-b-lg max-[580px]:[&>section]:rounded-none"
-                            : "[&>section]:border-b [&>section]:border-ui-line-gray-2"
-                          }`}
+                            : "[&>section]:border-ui-line-gray-2 [&>section]:border-b"
+                        }`}
                       >
                         <MemoCard
                           source={props.source}
@@ -281,7 +293,7 @@ export default function MemosPage({ loaderData }: Route.ComponentProps) {
             </div>
 
             {/* Sidebar wrapper - sized by content (max-w-60), not flex ratio */}
-            <div className="flex flex-col sticky top-0 max-h-screen">
+            <div className="sticky top-0 flex max-h-screen flex-col">
               <Sidebar
                 info={info}
                 tags={tags}

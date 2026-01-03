@@ -1,179 +1,108 @@
+import type { Memo } from '.velite';
 import { Feed, type Item } from "feed";
 import fs from 'fs';
-import matter from "gray-matter";
-import path from 'path';
-import readline from 'readline';
-import { siteInfo } from "../../../site.config";
-import { parseDate } from "../../date";
-import { grayMatter2PostMeta } from "../../markdown/frontmatter";
-import { compileMdxRss } from "../../markdown/mdx";
-import type { PostMeta } from "../posts.common";
-import { MEMOS_DIR } from "./memos";
-import { POST_DIR, getFrontMatter, posts_db } from './posts';
+import { siteInfo } from "site.config";
+import { toHTML } from "../../md-compile/compile";
+import { buildPostsDB, type Post } from './posts';
 
 /**
- * get recent 10 posts
+ * Build RSS feed items from posts and memos data
  */
-async function getPosts(): Promise<Item[]> {
-
+async function buildFeedItems(
+  postsData: Post[],
+  memosData: Memo[]
+): Promise<Item[]> {
   console.log("\n🌱 [rss.ts] generate post rss")
 
-  let fileNames = await fs.promises.readdir(POST_DIR);
-  fileNames = fileNames.filter(f => {
-    return f.endsWith(".md") // TODO MDX support
-  })
+  // Build posts DB from data
+  const db = buildPostsDB(postsData)
 
-  const readPromises = fileNames.map(async fileName => {
-
-    const fileContents = await fs.promises.readFile(path.join(POST_DIR, fileName), 'utf-8')
-    const mattered = matter(fileContents)
-    const frontmatter: PostMeta = grayMatter2PostMeta(mattered)
-
-    const parsed: PostMeta & { content: string, id: string, type: "md" | "mdx" } = {
-      id: fileName.replace(/\.mdx?$/, ''),
-      content: mattered.content,
-      type: "md", // TODO MDX support
-      ...frontmatter,
-    }
-
-    return parsed
-
-  })
-
-  const compilePromises = (await Promise.all(readPromises))
+  // Use velite pre-built posts, already sorted by date desc
+  const recentPosts = db.velite
     .filter(p => !p.draft)
-    .map(async p => {
+    .slice(0, 10)
 
-      const htmlcontent = await (compileMdxRss(p.content, p.type))
+  const postItems: Item[] = recentPosts.map(p => ({
+    title: p.title,
+    id: `${siteInfo.domain}/posts/${p.slug}`,
+    guid: `${siteInfo.domain}/posts/${p.slug}`,
+    link: `${siteInfo.domain}/posts/${p.slug}`,
+    published: new Date(p.date),
+    date: new Date(p.date),
+    description: p.description ?? '',
+    category: p.categories ? [{
+      name: p.categories,
+      domain: `${siteInfo.domain}/categories/${p.categories}`
+    }] : [],
+    content: p.content_html,
+  }))
 
-      return {
-        title: p.title,
-        id: `${siteInfo.domain}/posts/${p.id}`,
-        guid: `${siteInfo.domain}/posts/${p.id}`,
-        link: `${siteInfo.domain}/posts/${p.id}`,
-        published: parseDate(p.date),
-        date: parseDate(p.date), // TODO Bug may not be a real string?
-        description: p.description ? p.description : '',
-        category: [
-          {
-            name: p.categories,
-            domain: `${siteInfo.domain}/categories/${p.categories}`
-          }],
-        content: htmlcontent,
-      }
-    })
-
-  let allPosts: Item[] = await Promise.all(compilePromises)
-
-  const memo = await getMemo()
+  // Add memo item
+  const memo = await buildMemoItem(memosData)
   if (memo !== null) {
-    allPosts.push(memo)
+    postItems.push(memo)
   }
 
+  // Sort all items by date desc
+  postItems.sort((a, b) => b.date.getTime() - a.date.getTime())
 
-  allPosts = allPosts.sort((a, b) => {
-    return a.date > b.date ? -1 : 1
-  })
-
-  // Filter drafts
-  let res = []
-  for (let p of allPosts) {
-    if ('draft' in p && p.draft === true) {
-      continue
-    } else {
-      res.push(p)
-    }
-  }
-
-  res.splice(10)
-  return res
+  return postItems.slice(0, 10)
 }
 
-// 最新（名称最大）的 memo 文件中，最近 6 条生成 rss
-async function getMemo(): Promise<Item | null> {
-  const files = (await fs.promises.readdir(MEMOS_DIR)).filter(f => {
-    return f.endsWith(".md")
-  }).sort((a, b) => {
-    return a < b ? 1 : -1 // Desc for latest first
-  })
+/**
+ * Build memo RSS item from the newest (largest filename) memo file
+ */
+async function buildMemoItem(memosData: Memo[]): Promise<Item | null> {
+  // Sort memo files by file_path desc to get the latest file
+  const sortedMemoFiles = [...memosData]
+    .filter(m => !m.draft)
+    .sort((a, b) => a.file_path < b.file_path ? 1 : -1)
 
-  // get recent non-draft memo files
-  let f = ""
-  for (let fileName of files) {
-    const fm = grayMatter2PostMeta(await getFrontMatter(fileName, MEMOS_DIR))
-    if ('draft' in fm && fm.draft === true) {
-      continue
-    } else {
-      f = fileName;
-      break;
-    }
-  }
-
-  if (f === "") {
+  if (sortedMemoFiles.length === 0) {
     return null
   }
 
+  const latestFile = sortedMemoFiles[0]
+  const recentMemos = latestFile.memos.slice(0, 6)
+
+  if (recentMemos.length === 0) {
+    return null
+  }
 
   console.log("🌱 [rss.ts] generate memo rss")
 
-  const fileStream = fs.createReadStream(path.join(MEMOS_DIR, f))
-  const rl = readline.createInterface({
-    input: fileStream,
-    crlfDelay: Infinity
-  })
+  // Compile memo contents to HTML
+  const memoContents = await Promise.all(
+    recentMemos.map(m => toHTML(m.content, {}, "md"))
+  )
 
-  // get memo content
-  let count = 0
-  let content = ""
-  for await (const line of rl) {
-    if (line.startsWith("## ")) {
-      if (count === 7) break
-      count++
-    }
-    if (count != 0) content += line + "\n" // push content
-  }
+  const htmlContent = memoContents
+    .map((html, i) => `<h2>${recentMemos[i].id}</h2>\n${html}`)
+    .join('\n<hr/>\n')
 
-  rl.close()
-  fileStream.close()
-
-  // parse target file front matter
-  const matterResult = grayMatter2PostMeta(await getFrontMatter(f, MEMOS_DIR))
-  // convert markdown to html
-  const htmlcontent = await (compileMdxRss(content, "md"))
-
-  const res = {
-    title: matterResult.title,
-    id: `${siteInfo.domain}/memos?id=${matterResult.date}`, // 修改时间戳将触发 rss 对于本内容的更新
-    guid: `${siteInfo.domain}/memos?id=${matterResult.date}`, // 修改时间戳将触发 rss 对于本内容的更新
+  return {
+    title: latestFile.title,
+    id: `${siteInfo.domain}/memos?id=${latestFile.date}`,
+    guid: `${siteInfo.domain}/memos?id=${latestFile.date}`,
     link: `${siteInfo.domain}/memos`,
-    date: parseDate(matterResult.date),
-    published: parseDate(matterResult.date),
-    description: matterResult.description ? matterResult.description : '',
-    category: [
-      {
-        name: matterResult.categories
-      }],
-    content: htmlcontent
+    date: new Date(latestFile.date),
+    published: new Date(latestFile.date),
+    description: latestFile.description ?? '',
+    category: [],
+    content: htmlContent
   }
-
-  return res
 }
 
-async function createRss() {
-  /** File Info */
+function createFeed(items: Item[]) {
   const feed = new Feed({
     title: `${siteInfo.author}'s blog`,
     description: "记录学习和生活的个人博客",
     id: siteInfo.domain,
     link: siteInfo.domain,
-    language: "zh-CN", // optional, used only in RSS 2.0, possible values: http://www.w3.org/TR/REC-html40/struct/dirlang.html#langcodes
-    // image: `${SiteInfo.domain}/avatar-white.png`,
+    language: "zh-CN",
     favicon: `${siteInfo.domain}/favicon.ico`,
     copyright: `All rights reserved 2022, ${siteInfo.author}`,
-    // updated: new Date(2013, 6, 14), // optional, default = today
-    // generator: "awesome", // optional, default = 'Feed for Node.js'
     feedLinks: {
-      //   json: "https://example.com/json",
       json: `${siteInfo.domain}/feed.json`,
       atom: `${siteInfo.domain}/atom.xml`,
       rss: `${siteInfo.domain}/rss`,
@@ -181,28 +110,37 @@ async function createRss() {
     author: {
       name: siteInfo.author,
       email: siteInfo.social.email,
-      link: `${siteInfo.domain}/about.ico`
+      link: `${siteInfo.domain}/about`
     }
   });
 
-  const posts = await getPosts()
-
-  posts.forEach(p => {
-    feed.addItem(p)
-  })
-
+  items.forEach(p => feed.addItem(p))
   return feed
 }
 
-async function writeRss() {
-  const feed = await createRss()
+/**
+ * Build and write RSS files from velite pipeline data
+ * Called from velite.config.ts complete hook
+ */
+async function buildRss(postsData: Post[], memosData: Memo[]) {
+  const items = await buildFeedItems(postsData, memosData)
+  const feed = createFeed(items)
+
   console.log("🌱 [rss.ts] write rss")
-  fs.promises.writeFile("./public/atom.xml", feed.atom1());
-  fs.promises.writeFile("./public/rss", feed.rss2());
-  fs.promises.writeFile("./public/feed.json", feed.json1());
+  await Promise.all([
+    fs.promises.writeFile("./public/atom.xml", feed.atom1()),
+    fs.promises.writeFile("./public/rss", feed.rss2()),
+    fs.promises.writeFile("./public/feed.json", feed.json1()),
+  ])
 }
 
-async function writeSiteMap() {
+/**
+ * Build and write sitemap from velite pipeline data
+ * Called from velite.config.ts complete hook
+ */
+async function buildSiteMap(postsData: Post[]) {
+  const db = buildPostsDB(postsData)
+
   const content = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
@@ -215,38 +153,39 @@ async function writeSiteMap() {
     <loc>${siteInfo.domain}/memos</loc>
     <changefreq>always</changefreq>
   </url>
-    ${posts_db.velite
-      .map(({ id }) => {
-        return `
-  <url>
-    <loc>${`${siteInfo.domain}/posts/${encodeURIComponent(id)}`}</loc>
-  </url>
-    `;
-      })
-      .join('')}
-    ${Object.keys(posts_db.categories())
-      .map((c) => {
-        return `
-  <url>
-    <loc>${`${siteInfo.domain}/categories/${encodeURIComponent(c)}`}</loc>
-  </url>
-    `;
-      })
-      .join('')}
-    ${Object.keys(posts_db.tags())
-      .map((t) => {
-        return `
-  <url>
-    <loc>${`${siteInfo.domain}/tags/${encodeURIComponent(t)}`}</loc>
-  </url>
-    `;
-      })
-      .join('')}
+  ${db.velite
+    .map(p => `<url>
+    <loc>${siteInfo.domain}/posts/${encodeURIComponent(p.slug)}</loc>
+  </url>`)
+    .join('\n  ')}
+  ${Array.from(db.categories.keys())
+    .map(c => `<url>
+    <loc>${siteInfo.domain}/categories/${encodeURIComponent(c)}</loc>
+  </url>`)
+    .join('\n  ')}
+  ${Array.from(db.tags.keys())
+    .map(t => `<url>
+    <loc>${siteInfo.domain}/tags/${encodeURIComponent(t)}</loc>
+  </url>`)
+    .join('\n  ')}
 </urlset>
 `;
 
-  fs.promises.writeFile("./public/sitemap.xml", content);
+  console.log("🌱 [rss.ts] write sitemap.xml")
+
+  await fs.promises.writeFile("./public/sitemap.xml", content);
 }
 
-export { writeRss, writeSiteMap };
+// Legacy exports for backward compatibility (use static imports)
+async function writeRss() {
+  const { posts, memos } = await import('.velite')
+  await buildRss(posts, memos)
+}
+
+async function writeSiteMap() {
+  const { posts } = await import('.velite')
+  await buildSiteMap(posts)
+}
+
+export { buildRss, buildSiteMap, writeRss, writeSiteMap };
 

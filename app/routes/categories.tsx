@@ -12,7 +12,7 @@ export function loader() {
   };
 }
 
-export function meta({ }: Route.MetaArgs) {
+export function meta({}: Route.MetaArgs) {
   return [
     { title: `${siteInfo.author}'s Blog - Categories` },
     { name: "description", content: "Blog categories and tags" },
@@ -30,16 +30,12 @@ export default function CategoriesIndex({ loaderData }: Route.ComponentProps) {
           <span className="opacity-50">CATEGORIES</span>
           <h1 className="mt-2 mb-0">分类</h1>
         </CategoryTitle>
-        <div className="flex flex-wrap justify-center items-center content-start">
+        <div className="flex flex-wrap content-start items-center justify-center">
           {Object.keys(categories).map((k) => (
             <Link
               key={k}
               to={`/categories/${k}`}
-              className="
-                opacity-80 m-1.5 bg-tag-bg px-4 py-1.5 rounded-full
-                transition-all duration-300 text-sm
-                hover:opacity-100 hover:scale-115
-              "
+              className="bg-tag-bg m-1.5 rounded-full px-4 py-1.5 text-sm opacity-80 transition-all duration-300 hover:scale-115 hover:opacity-100"
             >
               {`${k}(${categories[k]})`}
             </Link>
@@ -51,18 +47,14 @@ export default function CategoriesIndex({ loaderData }: Route.ComponentProps) {
           <span className="opacity-50">TAGS</span>
           <h1 className="mt-2 mb-0">标签</h1>
         </CategoryTitle>
-        <div className="flex flex-wrap justify-center items-center content-start">
+        <div className="flex flex-wrap content-start items-center justify-center">
           {Object.keys(tags).map((k) => {
             if (tags[k] === 0) return null;
             return (
               <Link
                 key={k}
                 to={`/tags/${k}`}
-                className="
-                  opacity-80 m-1.5 bg-tag-bg px-4 py-1.5 rounded-full
-                  transition-all duration-300 text-sm
-                  hover:opacity-100 hover:scale-115
-                "
+                className="bg-tag-bg m-1.5 rounded-full px-4 py-1.5 text-sm opacity-80 transition-all duration-300 hover:scale-115 hover:opacity-100"
               >
                 {`${k}(${tags[k]})`}
               </Link>

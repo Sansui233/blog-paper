@@ -19,7 +19,7 @@ export function loader() {
   };
 }
 
-export function meta({ }: Route.MetaArgs) {
+export function meta({}: Route.MetaArgs) {
   return [
     { title: `${siteInfo.author} - Blog` },
     { name: "description", content: "A personal blog about work and life" },
@@ -45,14 +45,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           current={currCategory}
           setCurrent={setCurrCategory}
         />
-        <section
-          className="
-            grid justify-center
-            grid-cols-2 gap-x-16
-            animate-bottom-fade-in
-            max-md:grid-cols-1
-          "
-        >
+        <section className="animate-bottom-fade-in grid grid-cols-2 justify-center gap-x-16 max-md:grid-cols-1">
           {filteredPosts.map((post, i) => (
             <ArticleItem key={post.slug} post={post} index={i} />
           ))}

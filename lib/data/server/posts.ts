@@ -1,24 +1,21 @@
+import { posts, type Post } from '.velite'
 import { dateToYMDMM } from 'lib/date'
-import { posts, type Post } from '../../../.velite'
 
 const CATEGORY_ALL = 'All Posts'
 const TAG_UNTAGGED = 'Untagged'
 
+type PostsDB = ReturnType<typeof buildPostsDB>
+
 /**
- * Posts database built from Velite pre-processed data
- *
- * - metas: post metadata sorted by date (newest first)
- * - slugs: array of slugs for pre-rendering
- * - categories: Map of category name to post count
- * - tags: Map of tag name to post count
+ * Build posts database from velite data
  */
-const posts_db = (function () {
+function buildPostsDB(postsData: Post[]) {
   console.log("[posts.ts] building posts database from Velite...")
 
   /**
    * metas sorted by date (newest first)
    */
-  const velite = [...posts].sort((a, b) => {
+  const velite = [...postsData].sort((a, b) => {
     return new Date(b.date).getTime() - new Date(a.date).getTime()
   })
 
@@ -73,7 +70,7 @@ const posts_db = (function () {
    */
   function inTag(t: string) {
     return velite
-      .filter(p => p.tags.includes(t) || (t === TAG_UNTAGGED && p.tags.length === 0))
+      .filter(p => p.tags && p.tags.includes(t) || (t === TAG_UNTAGGED && p.tags && p.tags.length === 0))
       .map(p => ({
         slug: p.slug,
         title: p.title,
@@ -110,7 +107,13 @@ const posts_db = (function () {
     inCategory,
     getBySlug,
   }
-})()
+}
+
+/**
+ * Posts database built from Velite pre-processed data (static import)
+ * Used at runtime when velite data is already built
+ */
+const posts_db: PostsDB = buildPostsDB(posts)
 
 /**
  * Group posts data by year in an Object
@@ -146,6 +149,5 @@ function groupByYear(posts: {
   return Object.fromEntries(postsTree)
 }
 
-export { groupByYear, posts_db }
-export type { Post }
-
+export { buildPostsDB, groupByYear, posts_db }
+export type { Post, PostsDB }
