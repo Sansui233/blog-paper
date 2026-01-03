@@ -1,103 +1,86 @@
-import { throttle } from 'lib/throttle';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-
-type TocItem = {
-  title: string;
-  url: string;
-  items: TocItem[];
-};
+import { debounce, throttle } from 'lib/throttle';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 const SCROLL_OFFSET = 93;
 
-// Flatten nested TOC items for easier tracking
-function flattenToc(items: TocItem[], depth = 1): Array<{ title: string; id: string; depth: number }> {
-  const result: Array<{ title: string; id: string; depth: number }> = [];
-  for (const item of items) {
-    result.push({
-      title: item.title,
-      id: item.url.replace('#', ''),
-      depth,
-    });
-    if (item.items?.length) {
-      result.push(...flattenToc(item.items, depth + 1));
-    }
-  }
-  return result;
-}
 
-
-export function useTocHighlight(toc: TocItem[], contentRef: React.RefObject<HTMLDivElement | null>) {
+export function useTocHighlight(headings: {
+  title: string;
+  id: string;
+  depth: number;
+}[], contentRef: React.RefObject<HTMLDivElement | null>) {
   const [currentIndex, setCurrentIndex] = useState(-1);
   const [isViewing, setIsViewing] = useState(false);
-  const headingsYRef = useRef<(number | undefined)[]>([]);
+  const headingsY = useRef<(number | undefined)[]>([])
 
-  const flatItems = useMemo(() => flattenToc(toc), [toc]);
-
-  // Calculate heading positions
-  const updateHeadingPositions = useCallback(() => {
-    const positions = flatItems.map(item => {
-      const el = document.getElementById(item.id);
-      return el ? el.getBoundingClientRect().top + window.scrollY - SCROLL_OFFSET : undefined;
-    });
-    headingsYRef.current = positions;
-  }, [flatItems]);
-
-  // Update positions on mount and content resize
+  // Update heading positions on mount and content resize(images loaded etc)
   useEffect(() => {
-    updateHeadingPositions();
-
-    const resizeObserver = new ResizeObserver(() => updateHeadingPositions());
-    if (contentRef.current) {
-      resizeObserver.observe(contentRef.current);
+    const handler = () => {
+      const y = headings.map(h => {
+        const ele = document.getElementById(h.id)
+        return ele ? ele.getBoundingClientRect().top + window.scrollY - SCROLL_OFFSET : undefined
+      })
+      headingsY.current = y // should be updated on window resize but I don't want it to be costy
     }
+    handler()
+    const debounced = debounce(handler, 200)
 
-    return () => resizeObserver.disconnect();
-  }, [updateHeadingPositions, contentRef]);
+    const heightObserver = new ResizeObserver(debounced)
+    if (contentRef.current) {
+      heightObserver.observe(contentRef.current)
+    }
+    return () => {
+      heightObserver.disconnect()
+    }
+  }, [contentRef])
 
-  // Scroll handler
+  // Bind scroll event
   useEffect(() => {
-    const handleScroll = throttle(() => {
-      const scrollY = window.scrollY;
-      setIsViewing(scrollY > 300);
-
-      const headingsY = headingsYRef.current;
-      const scrollAnchor = scrollY + 20;
-
-      for (let i = 0; i < headingsY.length; i++) {
-        const currentY = headingsY[i];
-        const nextY = headingsY[i + 1];
-
-        if (i === 0 && currentY !== undefined && scrollAnchor < currentY) {
-          setCurrentIndex(-1);
-          return;
+    const handler = throttle(() => {
+      if (!headingsY.current || headingsY.current.length === 0) {
+        return;
+      }
+      const scrollY = globalThis.scrollY
+      if (scrollY > 300) {
+        setIsViewing(true)
+      } else (
+        setIsViewing(false)
+      )
+      const scrollAnchor = scrollY + 20
+      for (let i = 0; i < headingsY.current.length; i++) {
+        if (i === 0 && scrollAnchor < headingsY.current[i]!) { // before first
+          setCurrentIndex(-1)
+          break
         }
-
-        if (currentY !== undefined) {
-          if (nextY !== undefined && scrollAnchor >= currentY && scrollAnchor < nextY) {
-            setCurrentIndex(i);
-            return;
+        if (headingsY.current[i] && i + 1 < headingsY.current.length && headingsY.current[i + 1]) { // normal
+          if (scrollAnchor >= headingsY.current[i]! && scrollAnchor < headingsY.current[i + 1]!) {
+            setCurrentIndex(i)
+            break
           }
-          if (i === headingsY.length - 1 && scrollAnchor >= currentY) {
-            setCurrentIndex(i);
-            return;
+        } else if (headingsY.current[i] && i + 1 === headingsY.current.length) { // last
+          if (scrollAnchor >= headingsY.current[i]!) {
+            setCurrentIndex(i)
+            break
           }
         }
       }
-    }, 50);
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+    }, 50)
+    window.addEventListener('scroll', handler)
+    return () => {
+      window.removeEventListener('scroll', handler)
+    }
+  }, [])
 
   const scrollTo = useCallback((index: number) => {
-    const y = headingsYRef.current[index];
-    if (y !== undefined) {
-      window.scrollTo({ top: y, behavior: 'smooth' });
+    if (headingsY.current[index]) {
+      window.scrollTo({
+        top: headingsY.current[index],
+        behavior: 'smooth',
+      });
     }
-  }, []);
+  }, [headingsY]);
 
   return {
-    flatItems,
     currentIndex,
     isViewing,
     scrollTo,

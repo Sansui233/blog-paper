@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useEffect } from "react";
 
 
 
@@ -20,6 +20,7 @@ export function useDocumentEvent<K extends keyof DocumentEventMap>(
     document.addEventListener(command, listener, options)
     return () => {
       document.removeEventListener(command, listener, options)
+
     }
     // there is an issue about deps in custom hook, I don't like ot
     // eslint-disable-next-line react-hooks/exhaustive-deps

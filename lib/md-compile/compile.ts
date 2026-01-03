@@ -27,7 +27,7 @@ export async function toMdxCode(src: string, options?: Partial<CompileOptions>) 
       code,
     }
   } catch (error) {
-    console.error("%% [mdx.ts]error occured when compiling:", error)
+    console.error("[mdx.ts]error occured when compiling:", error)
     return {
       code: "compile error",
     }
@@ -59,7 +59,7 @@ export async function toHTML(src: string, options?: Partial<CompileOptions>, typ
     }
   }
   catch (error) {
-    console.error("%% [mdx.ts ]error occured when compiling:", error)
+    console.error("[mdx.ts ]error occured when compiling:", error)
     return "compile error"
   }
 }

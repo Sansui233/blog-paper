@@ -1,20 +1,13 @@
 import { X } from 'lucide-react';
 import './TableOfContents.css';
 
-type TocItem = {
-  title: string;
-  url: string;
-  items: TocItem[];
-};
-
-type FlatItem = {
-  title: string;
-  id: string;
-  depth: number;
-};
 
 type Props = {
-  flatItems: FlatItem[];
+  flatItems: {
+    title: string;
+    id: string;
+    depth: number;
+  }[];
   currentIndex: number;
   isViewing: boolean;
   isMobileOpen: boolean;

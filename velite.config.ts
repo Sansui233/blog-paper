@@ -1,7 +1,7 @@
 import { buildMemoCsrData, splitMemo } from 'lib/data/server/memos'
-import { rehypeHeadingsAddId } from 'lib/rehype/rehype-toc'
 import { remarkUnrwrapImages } from 'lib/remark/remark-unwrap-images'
 import rehypeHighlight from 'rehype-highlight'
+import rehypeSlug from 'rehype-slug'
 import remarkGfm from 'remark-gfm'
 import { defineConfig, s } from 'velite'
 
@@ -27,7 +27,7 @@ export default defineConfig({
           content_html: s.markdown(), // transform markdown to html
           content_jsx: s.mdx({
             remarkPlugins: [remarkGfm, remarkUnrwrapImages],
-            rehypePlugins: [rehypeHeadingsAddId, rehypeHighlight],
+            rehypePlugins: [rehypeSlug, rehypeHighlight],
           }), // transform markdown to MDX component
           toc: s.toc({ maxDepth: 3 }), // generate table of contents from markdown headings
           tags: s.array(s.string()).default([]).nullish(), // array of strings

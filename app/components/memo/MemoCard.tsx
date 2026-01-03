@@ -8,8 +8,8 @@ import React, {
   useState,
 } from "react";
 import { siteInfo } from "site.config";
-import { MDXContent } from "~/components/markdown/MDXComponent";
 import useAppState from "~/hooks/use-appstate";
+import { MDXContent } from "../markdown/MDXComponent";
 import { ImageThumbs } from "./ImageThumbs";
 
 // Memo type with length for collapse calculation
@@ -128,9 +128,9 @@ export function MemoCard({
             [&_h1]:text-base [&_h2]:text-base [&_h3]:text-base [&_h4]:text-base [&_h5]:text-base [&_h6]:text-base
             [&_p]:leading-relaxed [&_ul]:leading-relaxed [&_ol]:leading-relaxed"
           >
-            {source.content_jsx && (
+            {source.content_jsx &&
               <MDXContent code={source.content_jsx} components={mdxComponents} />
-            )}
+            }
           </div>
         </div>
 

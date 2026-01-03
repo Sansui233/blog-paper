@@ -19,7 +19,6 @@ export default function About() {
     img.src = "/imgs/bg.jpg";
     img.onload = () => setIsBgLoaded(true);
     img.onerror = () => {
-      console.error("Failed to load image");
     };
 
     return () => {

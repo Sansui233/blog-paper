@@ -1,12 +1,12 @@
 import { posts_db } from 'lib/data/server/posts';
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import LayoutContainer from '~/components/common/layout';
 import { MDImg } from '~/components/markdown/MDImg';
-import { MDXContent } from '~/components/markdown/MDXComponent';
 import { FloatButtons } from '~/components/post/FloatButtons';
 import { Pagination } from '~/components/post/Pagination';
 import { PostMeta } from '~/components/post/PostMeta';
 import { TableOfContents } from '~/components/post/TableOfContents';
+import { useMdx } from '~/hooks/use-mdx';
 import { useTocHighlight } from '~/hooks/use-toc-highlight';
 import type { Route } from './+types/posts.$slug';
 
@@ -28,8 +28,8 @@ export async function loader({ params }: Route.LoaderArgs) {
   return { post, prevPost, nextPost };
 }
 
-export function meta({ data }: Route.MetaArgs) {
-  const { post } = data;
+export function meta({ loaderData }: Route.MetaArgs) {
+  const { post } = loaderData;
   const description = post.description || post.excerpt?.slice(0, 160) || '';
 
   return [
@@ -42,11 +42,15 @@ export default function BlogPost({ loaderData }: Route.ComponentProps) {
   const { post, prevPost, nextPost } = loaderData;
   const contentRef = useRef<HTMLDivElement>(null);
   const [isMobileTocOpen, setIsMobileTocOpen] = useState(false);
+  const headings = useMemo(() => flattenToc(post.toc || []), [post.toc]);
 
-  const { flatItems, currentIndex, isViewing, scrollTo } = useTocHighlight(
-    post.toc,
-    contentRef
-  );
+  // useTocHighlight hook
+  const { currentIndex, isViewing, scrollTo } = useTocHighlight(headings, contentRef);
+  const mdxComponents = useMemo(() => {
+    return {
+      img: MDImg,
+    }
+  }, []);
 
   return (
     <LayoutContainer>
@@ -67,12 +71,7 @@ export default function BlogPost({ loaderData }: Route.ComponentProps) {
           tags={post.tags}
         />
         <div ref={contentRef} className="markdown-wrapper">
-          <MDXContent
-            code={post.content_jsx}
-            components={{
-              img: MDImg,
-            }}
-          />
+          {useMdx(post.content_jsx, mdxComponents)}
         </div>
 
         <section>
@@ -85,7 +84,7 @@ export default function BlogPost({ loaderData }: Route.ComponentProps) {
       </article>
 
       <TableOfContents
-        flatItems={flatItems}
+        flatItems={headings}
         currentIndex={currentIndex}
         isViewing={isViewing}
         isMobileOpen={isMobileTocOpen}
@@ -100,4 +99,29 @@ export default function BlogPost({ loaderData }: Route.ComponentProps) {
       />
     </LayoutContainer>
   );
+}
+
+type TocItem = {
+  title: string;
+  url: string;
+  items: TocItem[];
+};
+// Flatten nested TOC items for easier tracking
+function flattenToc(items: {
+  title: string;
+  url: string;
+  items: TocItem[];
+}[], depth = 1): Array<{ title: string; id: string; depth: number }> {
+  const result: Array<{ title: string; id: string; depth: number }> = [];
+  for (const item of items) {
+    result.push({
+      title: item.title,
+      id: item.url.replace('#', ''),
+      depth,
+    });
+    if (item.items?.length) {
+      result.push(...flattenToc(item.items, depth + 1));
+    }
+  }
+  return result;
 }

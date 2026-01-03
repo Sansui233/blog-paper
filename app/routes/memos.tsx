@@ -36,6 +36,8 @@ export async function loader(): Promise<LoaderData> {
     loadJson(path.join(dataDir, "tags.json")) as Promise<MemoTag[]>,
   ]);
 
+  console.debug("%% SSG Loader loaded memos:", memos?.length ?? 0);
+
   return {
     memos: memos ?? [],
     info: info ?? { memos: 0, tags: 0, imgs: 0, pages: 0, fileMap: [], pageMap: [] },
