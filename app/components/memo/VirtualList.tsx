@@ -1,37 +1,33 @@
 import { throttle } from "lib/throttle";
-import type {
-  Dispatch,
-  SetStateAction,
-} from "react";
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import type { Dispatch, SetStateAction } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 // Source data type and element prop type
-type Props<T extends { id: string | number }> = React.HTMLProps<HTMLDivElement> & {
-  sources: T[];
-  setSources: Dispatch<SetStateAction<T[]>>;
-  fetchFrom?: (i: number, batchsize: number) => Promise<T[] | undefined>;
-  batchsize?: number;
-  Elem: (props: {
-    source: T;
-    triggerHeightChange: Dispatch<SetStateAction<boolean>>;
-  } & React.HTMLProps<HTMLDivElement>) => React.ReactNode;
-  Loading?: () => React.ReactNode;
-  scrollRef?: React.RefObject<HTMLElement | null>;
-};
+type Props<T extends { id: string | number }> =
+  React.HTMLProps<HTMLDivElement> & {
+    initialSources: T[];
+    fetchFrom?: (i: number, batchsize: number) => Promise<T[] | undefined>;
+    batchsize?: number;
+    Elem: (
+      props: {
+        source: T;
+        triggerHeightChange: Dispatch<SetStateAction<boolean>>;
+      } & React.HTMLProps<HTMLDivElement>,
+    ) => React.ReactNode;
+    Loading?: () => React.ReactNode;
+    scrollRef?: React.RefObject<HTMLElement | null>;
+    /** 外部的 hook，通知外部 source 变化*/
+    notifySourceChange?: (sources: T[]) => void;
+  };
 
 export type VirtualListType = <T extends { id: string | number }>(
-  props: Props<T>
+  props: Props<T>,
 ) => React.ReactNode;
 
 const VirtualList: VirtualListType = ({
-  sources,
-  setSources,
+  id,
+  initialSources,
+  notifySourceChange,
   Elem,
   scrollRef,
   fetchFrom,
@@ -40,24 +36,47 @@ const VirtualList: VirtualListType = ({
   style,
   ...otherprops
 }) => {
+  const [sources, setSources] = useState(initialSources);
   const [placeHolder, setPlaceHolder] = useState<number[]>(
-    new Array(sources.length).fill(300)
+    new Array(sources.length).fill(300),
   );
   const [activeIndex, setActiveIndex] = useState<number[]>(
-    new Array(sources.length).fill(0).map((_, i) => i)
+    new Array(sources.length).fill(0).map((_, i) => i),
   );
   const [winBreakPoint] = useState(sources.length * 3);
   const [isLoading, setIsLoading] = useState(false);
   const scrollLock = useRef({ enable: true });
+  const [lastKey, setLastKey] = useState(id); // 用于检测由外部触发的 source 变化，以解决高度没刷新的问题
 
-  // TODO 高度无法从外部同步
+  console.debug("%% render heights:", placeHolder);
+
+  // 高度从外部同步：当 id 变化或 sources.length 与 placeHolder.length 不匹配时重新初始化
+  useEffect(() => {
+    console.debug(
+      "⚠virtual-list-id on sources changed",
+      lastKey,
+      id,
+      "\ninitialSources长度为",
+      initialSources.length,
+      "\nsources长度为",
+      sources.length,
+      "\nplaceHolder长度为",
+      placeHolder.length,
+    );
+    if (id !== lastKey || sources.length !== placeHolder.length) {
+      console.debug("⚠从", placeHolder.length, "更新到长度", sources.length);
+      // setPlaceHolder(new Array(sources.length).fill(300));
+      // setActiveIndex(new Array(sources.length).fill(0).map((_, i) => i));
+      // setLastKey(id);
+    }
+  }, [initialSources, id, placeHolder.length]);
 
   const minHeight = useMemo(
-    () => placeHolder.reduce((sum, height) => (sum += height), 0) + 2, // 2px for border
-    [placeHolder]
+    () => placeHolder.reduce((sum, height) => (sum += height), 0),
+    [placeHolder],
   );
 
-  console.debug("%% PlaceHolder heights:", placeHolder);
+  // console.debug("%% PlaceHolder heights:", placeHolder);
 
   const transformOnIndex = useCallback(
     (i: number) => {
@@ -67,7 +86,7 @@ const VirtualList: VirtualListType = ({
       }
       return sum;
     },
-    [placeHolder]
+    [placeHolder],
   );
 
   // Scroll monitor: when < 20% or > 80%, fetch new source
@@ -115,22 +134,20 @@ const VirtualList: VirtualListType = ({
           }
 
           let prevActiveIndex = activeIndex.map(
-            (aci) => aci - activeIndex.length
+            (aci) => aci - activeIndex.length,
           );
           if (prevdata.length > activeIndex.length) {
-            const additional = new Array(
-              prevdata.length - activeIndex.length
-            )
+            const additional = new Array(prevdata.length - activeIndex.length)
               .fill(0)
               .map(
                 (_, i) =>
-                  i - prevdata.length + activeIndex.length + prevActiveIndex[0]
+                  i - prevdata.length + activeIndex.length + prevActiveIndex[0],
               );
             prevActiveIndex = additional.concat(prevActiveIndex);
           } else if (prevdata.length < activeIndex.length) {
             prevActiveIndex = prevActiveIndex.slice(
               activeIndex.length - prevdata.length,
-              activeIndex.length
+              activeIndex.length,
             );
           }
 
@@ -139,12 +156,16 @@ const VirtualList: VirtualListType = ({
 
           // Slide window
           if (fullIndex.length > winBreakPoint) {
-            fullIndex.splice(0 - prevActiveIndex.length, prevActiveIndex.length);
+            fullIndex.splice(
+              0 - prevActiveIndex.length,
+              prevActiveIndex.length,
+            );
             fulldata.splice(0 - prevActiveIndex.length, prevActiveIndex.length);
           }
 
           setActiveIndex(fullIndex);
           setSources(fulldata);
+          notifySourceChange?.(fulldata);
           scrollLock.current = { enable: true };
         });
       }
@@ -160,7 +181,7 @@ const VirtualList: VirtualListType = ({
           }
 
           let nextActiveIndex = activeIndex.map(
-            (aci) => aci + activeIndex.length
+            (aci) => aci + activeIndex.length,
           );
           if (nextdata.length > activeIndex.length) {
             const additional = new Array(nextdata.length - activeIndex.length)
@@ -171,13 +192,18 @@ const VirtualList: VirtualListType = ({
             nextActiveIndex = nextActiveIndex.slice(0, nextdata.length);
           }
 
-          if (nextActiveIndex[nextActiveIndex.length - 1] > placeHolder.length - 1) {
+          if (
+            nextActiveIndex[nextActiveIndex.length - 1] >
+            placeHolder.length - 1
+          ) {
             const additional = new Array(
-              nextActiveIndex[nextActiveIndex.length - 1] - placeHolder.length + 1
+              nextActiveIndex[nextActiveIndex.length - 1] -
+                placeHolder.length +
+                1,
             ).fill(300);
             requestAnimationFrame(() => {
-              setPlaceHolder(placeHolder.concat(additional));
-            })
+              setPlaceHolder((prev) => prev.concat(additional));
+            });
           }
 
           const fullIndex = activeIndex.concat(nextActiveIndex);
@@ -191,6 +217,7 @@ const VirtualList: VirtualListType = ({
 
           setActiveIndex(fullIndex);
           setSources(fulldata);
+          notifySourceChange?.(fulldata);
           scrollLock.current = { enable: true };
         });
       } else {
@@ -234,9 +261,11 @@ const VirtualList: VirtualListType = ({
           width: "100%",
           minHeight: `${minHeight}px`,
         },
-        style
+        style,
       )}
       className={otherprops.className}
+      id={id}
+      {...otherprops}
     >
       {sources.map((e, i) => (
         <ListItem
@@ -289,7 +318,7 @@ function ListItem<T extends { id: string | number }>({
           newPlaceHolder[index] = height;
           return newPlaceHolder;
         });
-      })
+      });
     }
   }, [ref, setPlaceHolder, index]);
 
@@ -320,7 +349,9 @@ function ListItem<T extends { id: string | number }>({
 
   // Calculate translateY
   const translateY = useMemo(() => {
-    return placeHolder.slice(0, index).reduce((sum, height) => (sum += height), 0);
+    return placeHolder
+      .slice(0, index)
+      .reduce((sum, height) => (sum += height), 0);
   }, [index, placeHolder]);
 
   return (

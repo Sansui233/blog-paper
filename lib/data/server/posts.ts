@@ -1,15 +1,18 @@
-import { posts, type Post } from '.velite'
-import { dateToYMDMM } from 'lib/date'
+import type veliteConfig from 'velite.config';
+type Collections = typeof veliteConfig.collections;
+type Post = Collections['posts']['schema']['_output'];
+
+import { dateToYMDMM } from 'lib/date';
 
 const CATEGORY_ALL = 'All Posts'
 const TAG_UNTAGGED = 'Untagged'
 
-type PostsDB = ReturnType<typeof buildPostsDB>
+export type PostsDB = ReturnType<typeof buildPostsDB>
 
 /**
  * Build posts database from velite data
  */
-function buildPostsDB(postsData: Post[]) {
+export function buildPostsDB(postsData: Post[]) {
   console.log("[posts.ts] building posts database from Velite...")
 
   /**
@@ -113,12 +116,20 @@ function buildPostsDB(postsData: Post[]) {
  * Posts database built from Velite pre-processed data (static import)
  * Used at runtime when velite data is already built
  */
-const posts_db: PostsDB = buildPostsDB(posts)
+export const posts_db: PostsDB = await (async () => {
+  try {
+    const mod = await import('.velite')
+    return buildPostsDB(mod.posts)
+  } catch (err) {
+    console.error("Failed to load Velite data for posts_db", err)
+    return buildPostsDB([])
+  }
+})()
 
 /**
  * Group posts data by year in an Object
  */
-function groupByYear(posts: {
+export function groupByYear(posts: {
   slug: string,
   title: string,
   date: Date,
@@ -148,7 +159,4 @@ function groupByYear(posts: {
 
   return Object.fromEntries(postsTree)
 }
-
-export { buildPostsDB, groupByYear, posts_db }
-export type { Post, PostsDB }
 

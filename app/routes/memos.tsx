@@ -1,7 +1,16 @@
 import type { MemoInfo, MemoPostJsx, MemoTag } from "lib/data/memos.common";
+import {
+  MEMO_SEARCH_INDEX_FILE,
+  type MemoSearchObj,
+} from "lib/data/search.common";
+import { toMdxCode } from "lib/md-compile/compile";
+import { remarkTag } from "lib/remark/remark-tag";
+import { createNaive, type Match, type Result } from "lib/search";
 import { MenuSquare } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { useSearchParams } from "react-router";
+import rehypeHighlight from "rehype-highlight";
+import remarkGfm from "remark-gfm";
 import { siteInfo } from "site.config";
 import { FloatButton } from "~/components/common/FloatButton";
 import LayoutContainer from "~/components/common/layout";
@@ -10,6 +19,7 @@ import { MemoCard, MemoLoading, type TMemo } from "~/components/memo/MemoCard";
 import { MemoSkeleton } from "~/components/memo/MemoSkeleton";
 import { Sidebar } from "~/components/memo/Sidebar";
 import VirtualList from "~/components/memo/VirtualList";
+import { parseSearchQuery } from "~/hooks/use-search";
 import type { Route } from "./+types/memos";
 
 const MEMO_CSR_API = "/data/memos";
@@ -21,6 +31,7 @@ type LoaderData = {
   tags: MemoTag[];
   source: "SSG" | "CSR";
   filterTag?: string;
+  searchQuery?: string;
 };
 
 // --- 1. SSG Loader (Server/Build Time) ---
@@ -35,8 +46,6 @@ export async function loader(): Promise<LoaderData> {
     loadJson(path.join(dataDir, "status.json")) as Promise<MemoInfo>,
     loadJson(path.join(dataDir, "tags.json")) as Promise<MemoTag[]>,
   ]);
-
-  console.debug("%% SSG Loader loaded memos:", memos?.length ?? 0);
 
   return {
     memos: memos ?? [],
@@ -60,9 +69,15 @@ export async function clientLoader({
 }: Route.ClientLoaderArgs): Promise<LoaderData> {
   const url = new URL(request.url);
   const tag = url.searchParams.get("tag");
+  const q = url.searchParams.get("q");
 
-  // A. If tag query param exists -> CSR filter (fetch all and filter)
-  if (tag) {
+  // No query params -> Reuse SSG data
+  if (!q && !tag) {
+    return (await serverLoader()) as LoaderData;
+  }
+
+  // Fetch common data for CSR operations
+  const fetchCommonData = async () => {
     const [info, tags] = await Promise.all([
       fetch(`${MEMO_CSR_API}/status.json`).then((r) =>
         r.json(),
@@ -71,35 +86,91 @@ export async function clientLoader({
         MemoTag[]
       >,
     ]);
+    return { info, tags };
+  };
 
-    // Fetch all pages to filter by tag
-    // TODO: optimize later 应该有专用的 Index 文件做 Search 和 Query
-    const pageCount = info.pages;
-    const pagePromises = Array.from(
-      { length: pageCount },
-      (_, i) =>
-        fetch(`${MEMO_CSR_API}/${i}.json`).then((r) => r.json()) as Promise<
-          MemoPostJsx[]
-        >,
-    );
-    const allPages = await Promise.all(pagePromises);
-    const allMemos = allPages.flat();
-
-    // Filter by tag
-    const filtered = allMemos.filter((m) => m.tags.includes(tag));
-    console.debug("%% memos by tag count", tag, ":", filtered.length);
-
-    return {
-      memos: filtered,
-      info,
-      tags,
-      source: "CSR",
-      filterTag: tag,
-    };
+  // Search result type
+  interface MemoSearchResult extends Result {
+    id: string;
+    content: string;
+    tags: string[];
+    imgs_md: string[];
+    matches: Match[];
   }
 
-  // B. No query params -> Reuse SSG data
-  return (await serverLoader()) as LoaderData;
+  const { info, tags } = await fetchCommonData();
+
+  // Fetch search index
+  const searchIndex = (await fetch(`/data/${MEMO_SEARCH_INDEX_FILE}`).then(
+    (r) => r.json(),
+  )) as MemoSearchObj[];
+
+  // Determine search patterns and config based on query type
+  let patterns: string[];
+  let searchConfig: { fields?: Array<keyof MemoSearchObj> } | undefined;
+
+  if (q) {
+    // Parse search query with field syntax support
+    const parsed = parseSearchQuery<MemoSearchObj>(q);
+    patterns = parsed.patterns;
+    searchConfig = parsed.config;
+  } else {
+    // Tag filter: search tags field with exact tag name
+    patterns = [tag!];
+    searchConfig = { fields: ["tags"] };
+  }
+
+  if (patterns.length === 0) {
+    return (await serverLoader()) as LoaderData;
+  }
+
+  // Create search engine and collect results
+  const results: MemoSearchResult[] = [];
+  const engine = createNaive<MemoSearchObj, MemoSearchResult>({
+    data: searchIndex,
+    field: ["tags", "content"],
+    notifier: (res) => {
+      results.length = 0;
+      results.push(...res);
+    },
+    disableStreamNotify: true,
+    buildResult: (obj, matches) => ({
+      id: obj.id,
+      content: obj.content,
+      tags: obj.tags,
+      imgs_md: obj.imgs_md,
+      matches,
+    }),
+  });
+
+  await engine.search(patterns, searchConfig);
+
+  // Convert search results to MemoPostJsx (compile markdown to jsx)
+  const memos: MemoPostJsx[] = await Promise.all(
+    results.map(async (r) => {
+      const { code } = await toMdxCode(r.content, {
+        remarkPlugins: [remarkGfm, remarkTag],
+        rehypePlugins: [rehypeHighlight],
+      });
+      return {
+        id: r.id,
+        content_jsx: code,
+        tags: r.tags,
+        imgs_md: r.imgs_md,
+        sourceFile: "",
+        csrIndex: [0, 0] as [number, number],
+      };
+    }),
+  );
+
+  return {
+    memos,
+    info,
+    tags,
+    source: "CSR",
+    filterTag: tag ?? undefined,
+    searchQuery: q ?? undefined,
+  };
 }
 
 // --- 3. Force clientLoader to run on hydration ---
@@ -120,18 +191,20 @@ export function meta({}: Route.MetaArgs) {
 
 // --- 6. Main Component ---
 export default function MemosPage({ loaderData }: Route.ComponentProps) {
-  const { memos: loaderMemos, info, tags, source, filterTag } = loaderData;
+  const {
+    memos: loaderMemos,
+    info,
+    tags,
+    source,
+    filterTag,
+    searchQuery,
+  } = loaderData;
   const [searchParams, setSearchParams] = useSearchParams();
-  const [memos, setMemos] = useState<TMemo[]>(loaderMemos);
   const [isMobileSider, setIsMobileSider] = useState(false);
 
-  // Sync memos state when loaderData changes (e.g., after clientLoader runs)
-  useEffect(() => {
-    setMemos(loaderMemos);
-  }, [loaderData]);
-
   const selectedTag = searchParams.get("tag") || filterTag;
-  const isFiltered = source === "CSR" && !!filterTag;
+  const currentSearchQuery = searchParams.get("q") || searchQuery;
+  const isFiltered = source === "CSR" && (!!filterTag || !!searchQuery);
 
   // Handle tag click - pure CSR navigation
   const handleTagClick = useCallback(
@@ -141,6 +214,23 @@ export default function MemosPage({ loaderData }: Route.ComponentProps) {
           prev.delete("tag"); // Toggle off
         } else {
           prev.set("tag", tagName);
+        }
+        prev.delete("q"); // Clear search when selecting tag
+        return prev;
+      });
+    },
+    [setSearchParams],
+  );
+
+  // Handle search - sets ?q= param which triggers clientLoader
+  const handleSearch = useCallback(
+    (query: string) => {
+      setSearchParams((prev) => {
+        if (query.trim()) {
+          prev.set("q", query.trim());
+          prev.delete("tag"); // Clear tag when searching
+        } else {
+          prev.delete("q");
         }
         return prev;
       });
@@ -218,7 +308,7 @@ export default function MemosPage({ loaderData }: Route.ComponentProps) {
               {/* Filter status - right aligned like PageDescription */}
               {isFiltered && (
                 <div className="text-text-gray-2 mr-4 text-right text-sm italic">
-                  Results: {memos.length} memos
+                  Results: {loaderData.memos.length} memos
                   <span
                     className="hover:text-accent ml-3.5 cursor-pointer font-bold not-italic"
                     onClick={() => {
@@ -235,54 +325,31 @@ export default function MemosPage({ loaderData }: Route.ComponentProps) {
                 {isFiltered ? (
                   // Filtered view - simple list without virtual scroll
                   <VirtualList<TMemo>
-                    className="virtualist"
-                    sources={memos}
-                    setSources={setMemos}
-                    key={loaderData.filterTag}
+                    key={`${loaderData.filterTag ?? ""}-${loaderData.searchQuery ?? ""}`}
+                    id={`${loaderData.filterTag ?? ""}-${loaderData.searchQuery ?? ""}`}
+                    className="virtualist *:border-ui-line-gray-2 *:border-b [&>*:first-child>section]:rounded-t-lg max-[580px]:[&>*:first-child>section]:rounded-none [&>*:last-child]:border-b-0 [&>*:last-child>section]:rounded-b-lg max-[580px]:[&>*:last-child>section]:rounded-none"
+                    initialSources={loaderData.memos}
                     Elem={(props) => (
-                      <div
-                        className={`${
-                          props.source === memos[0]
-                            ? "[&>section]:rounded-t-lg max-[580px]:[&>section]:rounded-none"
-                            : ""
-                        } ${
-                          props.source === memos[memos.length - 1]
-                            ? "[&>section]:rounded-b-lg max-[580px]:[&>section]:rounded-none"
-                            : "[&>section]:border-ui-line-gray-2 [&>section]:border-b"
-                        }`}
-                      >
-                        <MemoCard
-                          source={props.source}
-                          onTagClick={handleTagClick}
-                          triggerHeightChange={props.triggerHeightChange}
-                        />
-                      </div>
+                      <MemoCard
+                        source={props.source}
+                        onTagClick={handleTagClick}
+                        triggerHeightChange={props.triggerHeightChange}
+                      />
                     )}
                   />
                 ) : (
                   // Normal view - virtual list with infinite scroll
                   <VirtualList<TMemo>
-                    className="virtualist"
-                    sources={memos}
-                    setSources={setMemos}
+                    id={loaderData.source}
+                    key={loaderData.source}
+                    className="virtualist *:border-ui-line-gray-2 *:border-b [&>*:first-child>section]:rounded-t-lg max-[580px]:[&>*:first-child>section]:rounded-none [&>*:last-child]:border-b-0 [&>*:last-child>section]:rounded-b-lg max-[580px]:[&>*:last-child>section]:rounded-none"
+                    initialSources={loaderData.memos}
                     Elem={(props) => (
-                      <div
-                        className={`${
-                          props.source === memos[0]
-                            ? "[&>section]:rounded-t-lg max-[580px]:[&>section]:rounded-none"
-                            : ""
-                        } ${
-                          props.source === memos[memos.length - 1]
-                            ? "[&>section]:rounded-b-lg max-[580px]:[&>section]:rounded-none"
-                            : "[&>section]:border-ui-line-gray-2 [&>section]:border-b"
-                        }`}
-                      >
-                        <MemoCard
-                          source={props.source}
-                          onTagClick={handleTagClick}
-                          triggerHeightChange={props.triggerHeightChange}
-                        />
-                      </div>
+                      <MemoCard
+                        source={props.source}
+                        onTagClick={handleTagClick}
+                        triggerHeightChange={props.triggerHeightChange}
+                      />
                     )}
                     fetchFrom={fetchFrom}
                     batchsize={10}
@@ -298,7 +365,9 @@ export default function MemosPage({ loaderData }: Route.ComponentProps) {
                 info={info}
                 tags={tags}
                 onTagClick={handleTagClick}
+                onSearch={handleSearch}
                 selectedTag={selectedTag}
+                searchQuery={currentSearchQuery}
                 isMobileSider={isMobileSider}
                 onToggle={() => setIsMobileSider((v) => !v)}
               />

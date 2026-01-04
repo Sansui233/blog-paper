@@ -1,12 +1,7 @@
 import type { MemoPostJsx } from "lib/data/memos.common";
 import { dateToYMDMM } from "lib/date";
 import type { Dispatch, SetStateAction } from "react";
-import React, {
-  useCallback,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import { siteInfo } from "site.config";
 import useAppState from "~/hooks/use-appstate";
 import { MDXContent } from "../markdown/MDXComponent";
@@ -23,8 +18,6 @@ export type MemoCardProps = {
   triggerHeightChange?: Dispatch<SetStateAction<boolean>>;
 } & React.HTMLProps<HTMLElement>;
 
-
-
 export function MemoCard({
   source,
   onTagClick,
@@ -36,7 +29,8 @@ export function MemoCard({
   const { theme } = useAppState();
 
   const contentLength = source.length ?? undefined;
-  const shouldCollapse = (contentLength && contentLength > 200) || source.content_jsx!.length > 2000;
+  const shouldCollapse =
+    (contentLength && contentLength > 200) || source.content_jsx!.length > 2000;
 
   // Parse date from memo id
   const date = useMemo(() => {
@@ -74,7 +68,7 @@ export function MemoCard({
         onTagClick(tagName);
       }
     },
-    [onTagClick]
+    [onTagClick],
   );
 
   // MDX components with Tag handler
@@ -82,13 +76,13 @@ export function MemoCard({
     () => ({
       Tag: MemoTag(handleClickTag),
     }),
-    [handleClickTag]
+    [handleClickTag],
   );
 
   return (
     <section
       ref={ref}
-      className="bg-bg p-5 max-[580px]:p-4 animate-bottom-fade-in"
+      className="bg-bg animate-bottom-fade-in p-5 max-[580px]:p-4"
       {...otherprops}
     >
       <div
@@ -100,18 +94,18 @@ export function MemoCard({
         {/* Meta info */}
         <div className="flex items-center">
           <img
-            className="w-10 h-10 mr-2 rounded-full border border-ui-line-gray"
+            className="border-ui-line-gray mr-2 h-10 w-10 rounded-full border"
             src={theme === "light" ? "/avatar-white.png" : "/avatar-black.png"}
             alt={siteInfo.author}
           />
           <div className="flex flex-col items-start">
-            <span className="text-text-secondary font-semibold mr-1">
+            <span className="text-text-secondary mr-1 font-semibold">
               {siteInfo.author}
             </span>
             <span className="text-text-gray text-[0.8rem]">{date}</span>
           </div>
           {contentLength && contentLength > 0 && (
-            <span className="absolute right-0 text-text-gray text-[0.8rem]">
+            <span className="text-text-gray absolute right-0 text-[0.8rem]">
               {contentLength} 字
             </span>
           )}
@@ -124,25 +118,25 @@ export function MemoCard({
             lineHeight: "1.625rem",
           }}
         >
-          <div className="markdown-wrapper text-text-secondary
-            [&_h1]:text-base [&_h2]:text-base [&_h3]:text-base [&_h4]:text-base [&_h5]:text-base [&_h6]:text-base
-            [&_p]:leading-relaxed [&_ul]:leading-relaxed [&_ol]:leading-relaxed"
-          >
-            {source.content_jsx &&
-              <MDXContent code={source.content_jsx} components={mdxComponents} />
-            }
+          <div className="markdown-wrapper text-text-secondary [&_h1]:text-base [&_h2]:text-base [&_h3]:text-base [&_h4]:text-base [&_h5]:text-base [&_h6]:text-base [&_ol]:leading-relaxed [&_p]:leading-relaxed [&_ul]:leading-relaxed">
+            {source.content_jsx && (
+              <MDXContent
+                code={source.content_jsx}
+                components={mdxComponents}
+              />
+            )}
           </div>
         </div>
 
         {/* Collapse mask */}
         {shouldCollapse && (
           <div
-            className={`absolute bottom-0 w-full h-28 text-right text-accent ${isCollapse ? "bg-mask-gradient" : ""}`}
+            className={`text-accent absolute bottom-0 h-28 w-full text-right ${isCollapse ? "bg-mask-gradient" : ""}`}
             style={{ display: shouldCollapse ? "block" : "none" }}
           >
             <div
               onClick={handleExpand}
-              className="text-sm tracking-wide mt-[5.5rem] cursor-pointer"
+              className="mt-[5.5rem] cursor-pointer text-sm tracking-wide"
             >
               <span className="mr-2 transition-shadow duration-300 hover:shadow-[inset_0_-0.5em_0_var(--accent-hover)]">
                 {isCollapse ? "展开全文" : "收起"}
@@ -178,7 +172,7 @@ const MemoTag = (handleClickTag: (tag: string) => void) => {
 export function MemoLoading() {
   return (
     <section className="bg-bg p-5 max-[580px]:p-4">
-      <span className="opacity-35 font-bold">Loading...</span>
+      <span className="font-bold opacity-35">Loading...</span>
     </section>
   );
 }

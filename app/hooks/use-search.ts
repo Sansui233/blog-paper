@@ -1,9 +1,69 @@
-import { createNaive, type Match, type Naive, type Result, type SearchObj } from 'lib/search'
+import { createNaive, type Match, type Naive, type Result, type SearchConfig, type SearchObj } from 'lib/search'
 import React, { useCallback, useState } from 'react'
 
 export type SearchStatus = {
   isSearch: "ready" | "searching" | "done",
   searchText: string,
+}
+
+/**
+ * Parsed search query result
+ */
+interface ParsedQuery<T extends SearchObj> {
+  patterns: string[]
+  config?: SearchConfig<T>
+}
+
+/**
+ * Parse search query string with field syntax support
+ *
+ * Syntax:
+ * - `field:pattern1,pattern2` - search specific field with patterns
+ * - `pattern1 pattern2` - search all fields with patterns
+ *
+ * Pattern separators: space, comma, period (，、。,.)
+ *
+ * Examples:
+ * - "tags:react,vue" → patterns: ["react", "vue"], fields: ["tags"]
+ * - "title:hello world" → patterns: ["hello", "world"], fields: ["title"]
+ * - "hello world" → patterns: ["hello", "world"], fields: undefined (all)
+ * - "tags:react hello" → patterns: ["react", "hello"], fields: ["tags"] (field applies to first part only)
+ */
+export function parseSearchQuery<T extends SearchObj>(query: string): ParsedQuery<T> {
+  const trimmed = query.trim()
+  if (!trimmed) {
+    return { patterns: [] } satisfies ParsedQuery<T>
+  }
+
+  // Pattern separators: space, comma, period (both Chinese and English)
+  const separatorRegex = /[\s,，.。、]+/
+
+  // Check for field prefix syntax: "field:patterns"
+  const fieldMatch = trimmed.match(/^(\w+):(.*)$/)
+
+  if (fieldMatch) {
+    const [, fieldName, rest] = fieldMatch
+    // Split remaining text by separators
+    const patterns = rest
+      .split(separatorRegex)
+      .map(s => s.trim())
+      .filter(s => s.length > 0)
+
+    return {
+      patterns,
+      config: {
+        fields: [fieldName as keyof T]
+      } satisfies SearchConfig<T>,
+    }
+  }
+
+  // No field prefix - split by separators and search all fields
+  const patterns = trimmed
+    .split(separatorRegex)
+    .map(s => s.trim())
+    .filter(s => s.length > 0)
+
+  return { patterns }
 }
 
 type Props<T extends SearchObj, R extends Result> = {
@@ -29,7 +89,7 @@ type Props<T extends SearchObj, R extends Result> = {
 }
 
 /**
- * Here are 2 ways to use search:
+ * Here are 3 ways to use search:
  *
  * 1. `setTextAndSearch(str, true)` This will put search text into your inputRef and automatically init search engine and doing search
  * 2. `search()` This will init search engine and do search according to the content in your inputRef
@@ -45,12 +105,12 @@ function useSearch<T extends SearchObj, R extends Result>({
   searchStatus: SearchStatus;
   resetSearchStatus: () => void;
   /**  put text into input ref element and call search */
-  setTextAndSearch: (text: string, immediateSearch?: boolean) => void // put text into input ref element and (optinal) search immediately.
+  setTextAndSearch: (text: string, immediateSearch?: boolean, config?: SearchConfig<T>) => void
   /** instant search with input ref content*/
-  search: () => Promise<void>
-  initSearch: () => Promise<Naive>
+  search: (config?: SearchConfig<T>) => Promise<void>
+  initSearch: () => Promise<Naive<T>>
 } {
-  const [engine, setEngine] = useState<Naive>()
+  const [engine, setEngine] = useState<Naive<T>>()
   const [searchStatus, setsearchStatus] = useState<SearchStatus>({
     isSearch: "ready",
     searchText: "",
@@ -96,15 +156,15 @@ function useSearch<T extends SearchObj, R extends Result>({
   /**
    * start search according to the text in the input ref element
    */
-  const search = useCallback(async () => {
-    if (!inputRef.current) return
+  const search = useCallback(async (configOverride?: SearchConfig<T>) => {
+    if (!inputRef?.current) return
     const str = inputRef.current.value.trim()
     if (str.length === 0) return
 
     setsearchStatus(status => ({
       ...status,
       isSearch: "searching",
-      searchText: str // possibly the search text is stale
+      searchText: str
     }))
     globalThis.scrollTo({ top: 0 })
 
@@ -112,19 +172,30 @@ function useSearch<T extends SearchObj, R extends Result>({
     if (!e) {
       e = await initSearch() // init search engine && get data
     }
-    e.search(str.split(" "))
+
+    // Parse query with field syntax support
+    const { patterns, config: parsedConfig } = parseSearchQuery<T>(str)
+
+    if (patterns.length === 0) {
+      setsearchStatus(status => ({ ...status, isSearch: "done" }))
+      return
+    }
+
+    // configOverride takes precedence over parsed config
+    const finalConfig = configOverride ?? parsedConfig
+    e.search(patterns, finalConfig)
 
   }, [initSearch, engine, inputRef])
 
   /**
    * put text into input ref element and (optinal) search immediately.
    */
-  const setTextAndSearch = useCallback((text: string, immediateSearch = true) => {
+  const setTextAndSearch = useCallback((text: string, immediateSearch = true, config?: SearchConfig<T>) => {
     if (!inputRef.current) return
 
     inputRef.current.value = text
     if (immediateSearch) {
-      search()
+      search(config)
     }
   }, [search, inputRef])
 
@@ -141,7 +212,7 @@ function useSearch<T extends SearchObj, R extends Result>({
     searchStatus,
     resetSearchStatus,
     setTextAndSearch,
-    search, // 
+    search,
     initSearch,
   }
 }

@@ -1,10 +1,16 @@
 import { writeJson } from "lib/fs/fs";
+import type veliteConfig from 'velite.config';
+
 import { toMdxCode } from "lib/md-compile/compile";
 import { remarkTag } from "lib/remark/remark-tag";
 import path from "path";
 import rehypeHighlight from "rehype-highlight";
 import remarkGfm from "remark-gfm";
 import { INFOFILE, type MemoInfo, type MemoPost, type MemoPostJsx, type MemoTag } from "../memos.common";
+
+type Collections = typeof veliteConfig.collections;
+type Post = Collections['posts']['schema']['_output'];
+type Memo = Collections['memos']['schema']['_output'];
 
 const MEMO_CSR_DATA_DIR = path.join(process.cwd(), 'public', 'data', 'memos')
 const PAGE_SIZE = 10
@@ -64,7 +70,7 @@ export function splitMemo(raw: string, sourceFile: string = ""): MemoPost[] {
  * 2. imgs.json: array of MemoPost with imgs_md not empty
  * 3. tags.json: array of MemoTag
 */
-export async function buildMemoCsrData(memos: typeof import('.velite').memos) {
+export async function buildMemoCsrData(memos: Memo[]) {
   // 1. Read all memos from pre-built velite json files
   const memoPosts = memos
 

@@ -1,6 +1,5 @@
 import { throttle } from "../throttle";
-import type { Engine, Match, Result, SearchObj } from "./common";
-import stopwords from "./stopwords/zh.json";
+import type { Engine, Match, Result, SearchConfig, SearchObj } from "./common";
 
 /**
  * Config for creating a Naive search engine
@@ -32,13 +31,44 @@ interface Config<T extends SearchObj, R extends Result> {
   buildResult: (obj: T, matches: Match[]) => R
 }
 
-export interface Naive extends Engine { }
+export interface Naive<T extends SearchObj = SearchObj> extends Engine<T> {
+  search: (patterns: string[], config?: SearchConfig<T>) => Promise<void>
+}
 
-export function createNaive<T extends SearchObj, R extends Result>(conf: Config<T, R>): Naive {
+export function createNaive<T extends SearchObj, R extends Result>(engineConf: Config<T, R>): Naive<T> {
 
-  const tasks: Promise<void>[] = []
-  const res: R[] = []
-  const throttledNotify = conf.disableStreamNotify ? undefined : throttle(conf.notifier, 125)
+  const throttledNotify = engineConf.disableStreamNotify ? undefined : throttle(engineConf.notifier, 125)
+
+  /**
+   * find all pattern locations in string s
+   * matches is AND
+   */
+  const matchPatterns = (s: string, patterns: string[]): { word: string; index: number }[] => {
+    const res: { word: string; index: number }[] = []
+
+    for (const p of patterns) {
+      if (!/^[A-Za-z]+$/.test(p)) {
+        // 带中文直接返回，分词在浏览器没法
+        const index = s.indexOf(p)
+        if (index !== -1) {
+          res.push({ word: p, index: index })
+        } else {
+          break // once pattern match fails then return false
+        }
+      } else {
+        // English with word split
+        const reg = new RegExp(`\\b${p}\\b`, 'i');
+        const match = reg.exec(s);
+        if (match) {
+          res.push({ word: p, index: match.index })
+        } else {
+          break // once pattern match fails then return false
+        }
+      }
+    }
+
+    return res
+  }
 
   /**
    * Find if all strings in an array are in a search Object
@@ -49,146 +79,109 @@ export function createNaive<T extends SearchObj, R extends Result>(conf: Config<
    * 关键词之间为连续匹配的 And 逻辑，但不完全，会 Partial match 靠前的词
    * 比如可以匹配到 [p1] [p1, p2] [p1, p2, p3]，越靠前的关键词越重要
    * 不能匹配到 [p2] [p2, p3], 至于 [p1, p3] 相当于 [p1]
-   * 是由 _match 的 break 时机控制的。目的是在保证结果可用的情况下，尽量减少匹配次数
+   * 是由 matchPatterns 的 break 时机控制的。目的是在保证结果可用的情况下，尽量减少匹配次数
    *
    * tag 除外，特殊机制，全匹配
    *
    * 最后外面的结果排序是按关键词个数来的
-   *
-   * 结果存入 res
    */
-  const find = (patterns: string[], o: T) => {
-    return new Promise<void>(resolve => {
+  const findInObject = (patterns: string[], obj: T, fields: Array<keyof T>): R | null => {
+    for (const field of fields) {
+      if (!(field in obj)) continue
 
-      // Iterate Field
-      for (let j = 0; j < conf.field.length; j++) {
+      
 
-        const f = conf.field[j]
+      if (field === "tags") {
+        const tags = obj[field] as string[] | undefined
+        if (!tags) continue
 
-        // if field not in SearchObject properties, skip
-        if (!(f in o)) {
-          continue
+        const matched_tags = tags.filter(t => patterns.includes(t))
+        
+        if (matched_tags.length > 0) {
+          const matches = matched_tags.map(t => ({ word: t })) satisfies Match[]
+          return engineConf.buildResult(obj, matches)
         }
+      } else {
+        // other string fields
+        const fieldValue = obj[field]
+        if (typeof fieldValue !== 'string') continue
 
-        if (f === "tags") {
-          const tags = o[f] as string[] | undefined
-          if (!tags) continue
+        // search in lower case mode
+        const indexs = matchPatterns(fieldValue.toLowerCase(), patterns.map(p => p.toLowerCase()))
 
-          const input_tags = patterns.filter(p => p[0] === "#").map(t => t.slice(1))
-          const matched_tags = tags.filter(t => input_tags.includes(t))
+        // build result
+        if (indexs.length !== 0) {
+          const matches = indexs.map(i => {
+            const start = Math.max(0, i.index - 10)
+            const end = Math.min(fieldValue.length, i.index + 40)
 
-          if (matched_tags.length > 0) {
-            const matches: Match[] = matched_tags.map(t => ({ word: t }))
-            res.push(conf.buildResult(o, matches))
-            break
-          } else {
-            continue
-          }
-        } else {
-          const fieldValue = o[f]
-          if (typeof fieldValue !== 'string') continue
+            return {
+              word: i.word,
+              excerpt: field !== "title" ? fieldValue.slice(start, end).replaceAll("\n", "") : undefined
+            } satisfies Match
+          })
 
-          // search in lower case mode
-          const indexs = _match(fieldValue.toLowerCase(), patterns.map(p => p.toLowerCase()))
-
-          // build result
-          if (indexs.length !== 0) {
-            const matches: Match[] = indexs.map(i => {
-              const start = Math.max(0, i.index - 10)
-              const end = Math.min(fieldValue.length, i.index + 40)
-
-              return {
-                word: i.word,
-                excerpt: f !== "title" ? fieldValue.slice(start, end).replaceAll("\n", "") : undefined
-              }
-            })
-
-            res.push(conf.buildResult(o, matches))
-            break // 在任何一个域中找全就停止field search
-          }
+          return engineConf.buildResult(obj, matches)
         }
-
       }
+    }
 
-      // Notify observer
-      if (res.length !== 0 && throttledNotify) {
-        throttledNotify([...res])
-      }
-      resolve();
-
-    });
+    return null
   }
 
-  const _tasks_add = (patterns: string[]) => {
-    conf.data.forEach((o) => {
-      tasks.push(find(patterns, o))
-    })
+  /**
+   * Resolve search fields from SearchConfig
+   * Returns narrowed fields if valid subset provided, otherwise returns all configured fields
+   */
+  const resolveFields = (config?: SearchConfig<T>): Array<keyof T> => {
+    if (!config?.fields || config.fields.length === 0) {
+      return engineConf.field
+    }
+
+    // Validate that all requested fields are in the configured fields
+    const validFields = config.fields.filter(f => engineConf.field.includes(f))
+    return validFields.length > 0 ? validFields : engineConf.field
   }
 
-  const _clear = () => {
-    tasks.splice(0)
-    res.splice(0)
-  }
-
-  const search = async (patterns: string[]) => {
+  /**
+   * Main search function
+   */
+  const search = async (patterns: string[], config?: SearchConfig<T>): Promise<void> => {
+    // Normalize patterns
     patterns = patterns.map(s => s.trim()).filter(v => v !== "")
     if (patterns.length === 0) {
-      conf.notifier([])
+      engineConf.notifier([])
       return
     }
 
-    _tasks_add(patterns)
+    const fields = resolveFields(config)
+
+    const results: R[] = []
+
+    // Create search tasks
+    const tasks = engineConf.data.map(obj => {
+      return new Promise<void>(resolve => {
+        const result = findInObject(patterns, obj, fields)
+        if (result) {
+          results.push(result)
+          // Stream notify if enabled
+          if (throttledNotify) {
+            throttledNotify([...results])
+          }
+        }
+        resolve()
+      })
+    })
+
     await Promise.all(tasks)
 
     // Sort by match count (more matches = higher rank)
-    if (res.length > 1) {
-      res.sort((a, b) => b.matches.length - a.matches.length)
+    if (results.length > 1) {
+      results.sort((a, b) => b.matches.length - a.matches.length)
     }
 
-    conf.notifier([...res])
-    _clear()
+    engineConf.notifier([...results])
   }
 
   return { search }
-}
-
-
-/**
- * find all pattern locations in string s
- *
- * matches is AND
- */
-const _match = (s: string, patterns: string[]): {
-  word: string,
-  index: number,
-}[] => {
-
-  const res: { word: string, index: number }[] = []
-
-  for (const p of patterns) {
-    if (stopwords.includes(p)) {
-      break
-    }
-
-    if (!/^[A-Za-z]+$/.test(p)) {
-      // 带中文直接返回，分词在浏览器没法
-      const index = s.indexOf(p)
-      if (index !== -1) {
-        res.push({ word: p, index: index })
-      } else {
-        break // once pattern match fails then return false
-      }
-    } else {
-      // English with word split
-      const reg = new RegExp(`\\b${p}\\b`, 'i');
-      const match = reg.exec(s);
-      if (match) {
-        res.push({ word: p, index: match.index })
-      } else {
-        break  // once pattern match fails then return false
-      }
-    }
-  }
-
-  return res;
 }

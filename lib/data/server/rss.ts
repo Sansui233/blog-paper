@@ -1,9 +1,13 @@
-import type { Memo } from '.velite';
 import { Feed, type Item } from "feed";
 import fs from 'fs';
 import { toHTML } from "lib/md-compile/compile";
 import { siteInfo } from "site.config";
-import { buildPostsDB, type Post } from './posts';
+import type veliteConfig from 'velite.config';
+import { buildPostsDB } from './posts';
+
+type Collections = typeof veliteConfig.collections;
+type Post = Collections['posts']['schema']['_output'];
+type Memo = Collections['memos']['schema']['_output'];
 
 /**
  * Build RSS feed items from posts and memos data
@@ -176,16 +180,5 @@ async function buildSiteMap(postsData: Post[]) {
   await fs.promises.writeFile("./public/sitemap.xml", content);
 }
 
-// Legacy exports for backward compatibility (use static imports)
-async function writeRss() {
-  const { posts, memos } = await import('.velite')
-  await buildRss(posts, memos)
-}
-
-async function writeSiteMap() {
-  const { posts } = await import('.velite')
-  await buildSiteMap(posts)
-}
-
-export { buildRss, buildSiteMap, writeRss, writeSiteMap };
+export { buildRss, buildSiteMap };
 

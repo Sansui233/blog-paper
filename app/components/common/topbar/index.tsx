@@ -1,28 +1,21 @@
+import { throttle } from "lib/throttle";
 import { ChevronDown, Search } from "lucide-react";
-import React, { useEffect, useRef, useState } from "react";
+import React, { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router";
 import { siteInfo } from "site.config";
 import MenuIcon from "./menuicon";
 import NekoIcon from "./nekoicon";
 import Sidebar from "./sidebar";
 
+// Dynamic import for code splitting - preloaded after first render
+const searchBoxImport = () => import("../searchbox");
+const LazySearchBox = lazy(searchBoxImport);
+
 type Props = React.HTMLProps<HTMLElement> & {
   placeHolder?: boolean;
   scrollElem?: HTMLElement;
   hideSearch?: boolean;
 };
-
-// Throttle helper
-function throttle<T extends (...args: unknown[]) => void>(fn: T, wait: number): T {
-  let lastTime = 0;
-  return ((...args: unknown[]) => {
-    const now = Date.now();
-    if (now - lastTime >= wait) {
-      lastTime = now;
-      fn(...args);
-    }
-  }) as T;
-}
 
 export default function Topbar({
   placeHolder = true,
@@ -37,6 +30,11 @@ export default function Topbar({
   const [isDropperOpen, setIsDropperOpen] = useState(false);
   const location = useLocation();
   const searchIcon = useRef<HTMLDivElement>(null);
+
+  // Preload SearchBox after first render
+  useEffect(() => {
+    searchBoxImport();
+  }, []);
 
   // Hide on scroll
   useEffect(() => {
@@ -84,6 +82,10 @@ export default function Topbar({
     setIsSearch(!isSearch);
   };
 
+  const updateSearch = (innerState: boolean) => {
+    setIsSearch(innerState);
+  };
+
   // Determine current page for nav highlighting
   const pathname = location.pathname;
   const isPostsPage = pathname === "/" || pathname.startsWith("/posts");
@@ -99,39 +101,34 @@ export default function Topbar({
 
   return (
     <>
-      {/* TODO: SearchBox component */}
-      {/* <SearchBox outSetSearch={setIsSearch} outIsShow={isSearch} iconEle={searchIcon} /> */}
+      {/* SearchBox with dynamic import - always rendered for exit animation */}
+      <Suspense fallback={null}>
+        <LazySearchBox
+          outSetSearch={updateSearch}
+          outIsShow={isSearch}
+          iconEle={searchIcon}
+        />
+      </Suspense>
 
       <Sidebar isShow={isSidebar} toggle={toggleSidebar} />
 
       <header
-        className={`
-          h-15.75 w-full box-content
-          flex justify-between items-center
-          fixed z-10
-          bg-bg/60 backdrop-blur-[6px]
-          transition-transform duration-500 ease-out
-          ${isHidden ? "-translate-y-full" : "translate-y-0"}
-        ` + (className ? ` ${className}` : "")}
+        className={
+          `bg-bg/60 fixed z-10 box-content flex h-15.75 w-full items-center justify-between backdrop-blur-[6px] transition-transform duration-500 ease-out ${isHidden ? "-translate-y-full" : "translate-y-0"} ` +
+          (className ? ` ${className}` : "")
+        }
         {...otherProps}
       >
         {/* Avatar / Logo */}
-        <div className="flex-auto justify-start items-center font-semibold w-52.5 max-md:w-25">
-          <Link to="/" className="px-4 flex items-center">
+        <div className="w-52.5 flex-auto items-center justify-start font-semibold max-md:w-25">
+          <Link to="/" className="flex items-center px-4">
             <NekoIcon width={36} className="shrink-0" />
             <span className="px-2 max-md:hidden">{`${siteInfo.author}'s blog`}</span>
           </Link>
         </div>
 
         {/* Desktop Nav */}
-        <nav
-          className="
-            flex-[2_1_auto] flex justify-evenly items-center
-            tracking-wide
-            max-w-[50%] min-[580px]:max-w-97.5
-            max-[580px]:hidden
-          "
-        >
+        <nav className="flex max-w-[50%] flex-[2_1_auto] items-center justify-evenly tracking-wide max-[580px]:hidden min-[580px]:max-w-97.5">
           <NavItem href="/" isActive={isPostsPage}>
             Posts
           </NavItem>
@@ -144,19 +141,16 @@ export default function Topbar({
         </nav>
 
         {/* Right side: Mobile nav dropdown + Search + Menu */}
-        <div className="flex-auto flex items-center justify-end w-52.5 max-md:w-25 [&>div]:mr-4">
+        <div className="flex w-52.5 flex-auto items-center justify-end max-md:w-25 [&>div]:mr-4">
           {/* Mobile Nav Dropdown */}
           <div className="relative min-w-14.25 text-xl font-semibold min-[580px]:hidden">
             {/* Dropdown menu */}
             <div
-              className={`
-                absolute -top-2 left-0 w-full
-                transition-all duration-300
-                ${isDropperOpen
-                  ? "visible rounded-lg border border-ui-line-gray-3 bg-bg shadow-md"
+              className={`absolute -top-2 left-0 w-full transition-all duration-300 ${
+                isDropperOpen
+                  ? "border-ui-line-gray-3 bg-bg visible rounded-lg border shadow-md"
                   : "invisible border-transparent"
-                }
-              `}
+              } `}
             >
               {!isPostsPage && (
                 <DropdownLink to="/" isOpen={isDropperOpen} isFirst>
@@ -177,7 +171,7 @@ export default function Topbar({
 
             {/* Current page button */}
             <button
-              className="relative text-text-primary px-3 flex items-center"
+              className="text-text-primary relative flex items-center px-3"
               onClick={() => setIsDropperOpen((v) => !v)}
             >
               {getCurrentPageName()}
@@ -189,12 +183,7 @@ export default function Topbar({
           <div
             ref={searchIcon}
             onClick={() => (!hideSearch ? clickSearch() : null)}
-            className={`
-              cursor-pointer transition-colors duration-300
-              ${hideSearch ? "hidden" : ""}
-              ${isSearch ? "text-accent" : ""}
-              hover:text-accent-hover
-            `}
+            className={`cursor-pointer transition-colors duration-300 ${hideSearch ? "hidden" : ""} ${isSearch ? "text-accent" : ""} hover:text-accent-hover`}
           >
             <Search />
           </div>
@@ -208,7 +197,7 @@ export default function Topbar({
 
       {/* Placeholder */}
       {placeHolder && (
-        <div className="h-15.75 w-full text-center pt-2.5 text-[10px] italic text-accent font-serif opacity-60">
+        <div className="text-accent h-15.75 w-full pt-2.5 text-center font-serif text-[10px] italic opacity-60">
           人活着就是为了卡卡西
         </div>
       )}
@@ -229,14 +218,11 @@ function NavItem({ href, isActive, children }: NavItemProps) {
     <div className="px-2 pt-0.5 font-semibold">
       <Link
         to={href}
-        className={`
-          relative transition-colors duration-300
-          hover:text-accent
-          ${isActive
-            ? "before:content-[''] before:absolute before:inset-x-0 before:bottom-0 before:h-[0.4em] before:rounded-[0.5em] before:bg-accent-hover before:-z-10"
+        className={`hover:text-accent relative transition-colors duration-300 ${
+          isActive
+            ? "before:bg-accent-hover before:absolute before:inset-x-0 before:bottom-0 before:-z-10 before:h-[0.4em] before:rounded-[0.5em] before:content-['']"
             : ""
-          }
-        `}
+        } `}
       >
         {children}
       </Link>
@@ -255,13 +241,7 @@ function DropdownLink({ to, isOpen, isFirst, children }: DropdownLinkProps) {
   return (
     <Link
       to={to}
-      className={`
-        block text-center text-text-secondary
-        my-2 px-1 pb-1
-        transition-all duration-500
-        ${isOpen ? "opacity-100 blur-0" : "opacity-0 blur-md pointer-events-none"}
-        ${isFirst ? "mt-11 pt-2 border-t border-ui-line-gray-3" : ""}
-      `}
+      className={`text-text-secondary my-2 block px-1 pb-1 text-center transition-all duration-500 ${isOpen ? "blur-0 opacity-100" : "pointer-events-none opacity-0 blur-md"} ${isFirst ? "border-ui-line-gray-3 mt-11 border-t pt-2" : ""} `}
     >
       {children}
     </Link>

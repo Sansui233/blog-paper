@@ -23,6 +23,21 @@ export interface Result {
   matches: Match[]
 }
 
-export interface Engine {
-  search: (s: string[]) => unknown
+/**
+ * Per-search configuration options
+ */
+export interface SearchConfig<T extends SearchObj = SearchObj> {
+  /**
+   * Fields to search in this specific search call.
+   * Must be a subset of the fields defined in engine Config.
+   * If empty or undefined, uses all fields from engine Config.
+   */
+  fields?: Array<keyof T>
+}
+
+/**
+ * Base engine interface
+ */
+export interface Engine<T extends SearchObj = SearchObj> {
+  search: (patterns: string[], config?: SearchConfig<T>) => unknown
 }

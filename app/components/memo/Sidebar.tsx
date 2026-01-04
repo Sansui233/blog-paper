@@ -1,6 +1,62 @@
 import type { MemoInfo, MemoTag } from "lib/data/memos.common";
-import { HashIcon, TagIcon, Users, X } from "lucide-react";
+import { HashIcon, Search, TagIcon, Users, X } from "lucide-react";
+import { useRef } from "react";
 import { siteInfo } from "site.config";
+
+// MemoSearchBox - Search input for memos
+interface MemoSearchBoxProps {
+  onSearch: (query: string) => void;
+  onFocus?: () => void;
+  defaultValue?: string;
+}
+
+export function MemoSearchBox({ onSearch, onFocus, defaultValue }: MemoSearchBoxProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && inputRef.current) {
+      onSearch(inputRef.current.value);
+    }
+  };
+
+  const handleSearchClick = () => {
+    if (inputRef.current) {
+      onSearch(inputRef.current.value);
+    }
+  };
+
+  return (
+    <div
+      className="
+        mx-4 flex items-center rounded-lg
+        border border-ui-line-gray-2 bg-bg
+        shadow-[0_0_12px_0_var(--shadow-bg)]
+        focus-within:border-accent-hover
+      "
+    >
+      <input
+        ref={inputRef}
+        type="text"
+        placeholder="Search"
+        defaultValue={defaultValue}
+        onKeyDown={handleKeyDown}
+        onFocus={onFocus}
+        className="
+          ml-4 flex-1 w-0
+          border-none bg-inherit
+          leading-8 text-text-gray
+          focus:outline-none focus-visible:outline-none
+          placeholder:text-text-gray-3
+        "
+      />
+      <Search
+        size="1.4rem"
+        className="mx-2.5 flex-shrink-0 text-ui-line-gray cursor-pointer hover:text-accent"
+        onClick={handleSearchClick}
+      />
+    </div>
+  );
+}
 
 // NavCard - Shows memo and photo counts
 interface NavCardProps {
@@ -99,7 +155,9 @@ interface SidebarProps {
   info: MemoInfo;
   tags: MemoTag[];
   onTagClick: (tagName: string) => void;
+  onSearch: (query: string) => void;
   selectedTag?: string | null;
+  searchQuery?: string | null;
   isMobileSider: boolean;
   onToggle: () => void;
 }
@@ -108,7 +166,9 @@ export function Sidebar({
   info,
   tags,
   onTagClick,
+  onSearch,
   selectedTag,
+  searchQuery,
   isMobileSider,
   onToggle,
 }: SidebarProps) {
@@ -154,6 +214,7 @@ export function Sidebar({
         <X size="1.25em" className="ml-2" />
       </div>
 
+      <MemoSearchBox onSearch={onSearch} defaultValue={searchQuery ?? ""} />
       <NavCard info={info} />
       <TagsCard tags={tags} onTagClick={onTagClick} selectedTag={selectedTag} />
       <FriendsCard />

@@ -1,9 +1,14 @@
-import type { Memo, Post } from '.velite';
 import fs from "fs";
 import path from "path";
-import { type MemoSearchObj, type PostSearchObj, MEMO_SEARCH_INDEX_FILE, POSTS_SEARCH_INDEX_FILE } from "../search.common";
+import type veliteConfig from 'velite.config';
+import { MEMO_SEARCH_INDEX_FILE, POSTS_SEARCH_INDEX_FILE, type MemoSearchObj, type PostSearchObj } from "../search.common";
 
 const DATADIR = path.join(process.cwd(), 'public', 'data')
+
+// Infer types from velite.config.ts schema (same as .velite/index.d.ts but without dependency on generated files)
+type Collections = typeof veliteConfig.collections;
+type Post = Collections['posts']['schema']['_output'];
+type Memo = Collections['memos']['schema']['_output'];
 
 /**
  * Strip HTML tags and convert to plain text for search indexing
@@ -72,7 +77,6 @@ export async function buildMemoSearchIndex(memosData: Memo[]) {
 
   // 1. Sort by source file name desc, flatten memos
   const sortedFiles = [...memosData]
-    .filter(m => !m.draft)
     .sort((a, b) => a.file_path < b.file_path ? 1 : -1)
 
   const allMemos = sortedFiles.flatMap(file => file.memos)
@@ -93,6 +97,7 @@ export async function buildMemoSearchIndex(memosData: Memo[]) {
         id: memo.id,
         tags: memo.tags,
         content: memo.content,
+        imgs_md: memo.imgs_md,
       })
     }
   }
@@ -105,6 +110,7 @@ export async function buildMemoSearchIndex(memosData: Memo[]) {
         id: memo.id,
         tags: memo.tags,
         content: memo.content,
+        imgs_md: memo.imgs_md,
       })
     }
   }
