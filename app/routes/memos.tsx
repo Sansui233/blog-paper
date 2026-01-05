@@ -97,6 +97,7 @@ export async function clientLoader({
     tags: string[];
     imgs_md: string[];
     matches: Match[];
+    word_count: number;
   }
 
   const { info, tags } = await fetchCommonData();
@@ -143,6 +144,7 @@ export async function clientLoader({
       tags: obj.tags,
       imgs_md: obj.imgs_md,
       matches,
+      word_count: obj.word_count,
     }),
   });
 
@@ -162,6 +164,7 @@ export async function clientLoader({
         imgs_md: r.imgs_md,
         sourceFile: "",
         csrIndex: [0, 0] as [number, number],
+        word_count: r.word_count,
       };
     }),
   );

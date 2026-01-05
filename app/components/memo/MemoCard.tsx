@@ -8,9 +8,7 @@ import { MDXContent } from "../markdown/MDXComponent";
 import { ImageThumbs } from "./ImageThumbs";
 
 // Memo type with length for collapse calculation
-export type TMemo = MemoPostJsx & {
-  length?: number;
-};
+export type TMemo = MemoPostJsx;
 
 export type MemoCardProps = {
   source: TMemo;
@@ -28,9 +26,9 @@ export function MemoCard({
   const ref = useRef<HTMLDivElement>(null);
   const { theme } = useAppState();
 
-  const contentLength = source.length ?? undefined;
+  const wordCount = source.word_count ?? undefined;
   const shouldCollapse =
-    (contentLength && contentLength > 200) || source.content_jsx!.length > 1000;
+    (wordCount && wordCount > 200) || source.content_jsx!.length > 1000;
 
   // Parse date from memo id
   const date = useMemo(() => {
@@ -104,9 +102,9 @@ export function MemoCard({
             </span>
             <span className="text-text-gray text-[0.8rem]">{date}</span>
           </div>
-          {contentLength && contentLength > 0 && (
+          {wordCount && wordCount > 0 && (
             <span className="text-text-gray absolute right-0 text-[0.8rem]">
-              {contentLength} 字
+              {wordCount} 字
             </span>
           )}
         </div>

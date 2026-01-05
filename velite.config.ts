@@ -1,11 +1,11 @@
-import { buildMemoCsrData, splitMemo } from 'lib/data/server/memos'
-import { buildRss, buildSiteMap } from 'lib/data/server/rss'
-import { buildSearchIndex } from 'lib/data/server/searchindex'
-import { remarkUnrwrapImages } from 'lib/remark/remark-unwrap-images'
-import rehypeHighlight from 'rehype-highlight'
-import rehypeSlug from 'rehype-slug'
-import remarkGfm from 'remark-gfm'
-import { defineConfig, s } from 'velite'
+import { buildMemoCsrData, splitMemo } from "lib/data/server/memos";
+import { buildRss, buildSiteMap } from "lib/data/server/rss";
+import { buildSearchIndex } from "lib/data/server/searchindex";
+import { remarkUnrwrapImages } from "lib/remark/remark-unwrap-images";
+import rehypeHighlight from "rehype-highlight";
+import rehypeSlug from "rehype-slug";
+import remarkGfm from "remark-gfm";
+import { defineConfig, s } from "velite";
 
 // `s` is extended from Zod with some custom schemas,
 // you can also import re-exported `z` from `velite` if you don't need these extension schemas.
@@ -13,12 +13,12 @@ import { defineConfig, s } from 'velite'
 export default defineConfig({
   collections: {
     posts: {
-      name: 'Post', // collection type name
-      pattern: 'posts/*.md', // content files glob pattern
+      name: "Post", // collection type name
+      pattern: "posts/*.md", // content files glob pattern
       schema: s
         .object({
           title: s.string().max(99), // Zod primitive type
-          slug: s.path().transform(p => p.split('/').pop()!), // url
+          slug: s.path().transform((p) => p.split("/").pop()!), // url
           // slug: s.path(), // auto generate slug from file path
           date: s.isodate(), // input Date-like string, output ISO Date string.
           description: s.string().nullish(),
@@ -34,34 +34,32 @@ export default defineConfig({
           toc: s.toc({ maxDepth: 3 }), // generate table of contents from markdown headings
           tags: s.array(s.string()).default([]).nullish(), // array of strings
           categories: s.string().nullish(),
-          keywords: s.string().nullish().transform(s => s?.split(',').map(k => k.trim()) || []),
+          keywords: s
+            .string()
+            .nullish()
+            .transform((s) => s?.split(",").map((k) => k.trim()) || []),
         })
         // more additional fields (computed fields)
-        .transform(data => ({ ...data, permalink: `/posts/${data.slug}` }))
+        .transform((data) => ({ ...data, permalink: `/posts/${data.slug}` })),
     },
     memos: {
-      name: 'Memo',
-      pattern: 'memos/*.md',
+      name: "Memo",
+      pattern: "memos/*.md",
       schema: s.object({
         title: s.string().max(99),
         file_path: s.path(),
         date: s.isodate(),
         description: s.string().nullish(),
+        word_count: s.metadata().transform((m) => m.wordCount),
         draft: s.boolean().default(false),
-        memos: s.raw() // content to be split
-      }).transform(async (data, { addIssue }) => {
-        const memos = splitMemo(data.memos, data.file_path)
-        return {
-          ...data,
-          memos
-        }
+        memos: s.raw().transform((raw) => splitMemo(raw)), // content to be split
       }),
-    }
+    },
   },
   async complete(data, context) {
-    await buildMemoCsrData(data.memos)
-    await buildRss(data.posts, data.memos)
-    await buildSiteMap(data.posts)
-    await buildSearchIndex(data.posts, data.memos)
+    await buildMemoCsrData(data.memos);
+    await buildRss(data.posts, data.memos);
+    await buildSiteMap(data.posts);
+    await buildSearchIndex(data.posts, data.memos);
   },
-})
+});

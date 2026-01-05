@@ -3,13 +3,13 @@
  */
 
 export interface MemoInfo {
-  memos: number,
-  tags: number,
-  imgs: number,
-  pages: number,
+  memos: number;
+  tags: number;
+  imgs: number;
+  pages: number;
 }
 
-export const INFOFILE = "status.json"
+export const INFOFILE = "status.json";
 
 export interface MemoPost {
   id: string; // Heading2 title
@@ -18,7 +18,8 @@ export interface MemoPost {
   imgs_md: string[];
   sourceFile: string;
   csrIndex: [number, number]; // page index
-};
+  word_count: number;
+}
 
 export interface MemoPostJsx {
   id: string; // Heading2 title
@@ -27,10 +28,10 @@ export interface MemoPostJsx {
   imgs_md: string[];
   sourceFile: string;
   csrIndex: [number, number]; // page index
-};
-
+  word_count: number;
+}
 
 export type MemoTag = {
-  name: string,
-  memoIds: string[]
-}
+  name: string;
+  memoIds: string[];
+};

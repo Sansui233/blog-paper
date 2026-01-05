@@ -1,20 +1,20 @@
-import type { SearchObj } from "lib/search"
+import type { SearchObj } from "lib/search";
 
 /**
  * Post search index object for client-side search
  * Generated from velite posts data
  */
 export interface PostSearchObj extends SearchObj {
-  id: string
-  title: string
-  content: string // plain text content for search
-  tags: string[]
-  description: string
-  keywords: string[]
-  date: string
+  id: string;
+  title: string;
+  content: string; // plain text content for search
+  tags: string[];
+  description: string;
+  keywords: string[];
+  date: string;
 }
 
-export const POSTS_SEARCH_INDEX_FILE = 'posts-search-index.json'
+export const POSTS_SEARCH_INDEX_FILE = "posts-search-index.json";
 
 /**
  * Memo search index object for client-side search
@@ -24,10 +24,11 @@ export const POSTS_SEARCH_INDEX_FILE = 'posts-search-index.json'
  * content 为原始 Markdown（客户端渲染）
  */
 export interface MemoSearchObj extends SearchObj {
-  id: string        // date format: 2026-01-03 23:29:02
-  tags: string[]
-  content: string   // raw markdown for client-side rendering
-  imgs_md: string[] // image URLs in markdown format
+  id: string; // date format: 2026-01-03 23:29:02
+  tags: string[];
+  content: string; // raw markdown for client-side rendering
+  imgs_md: string[]; // image URLs in markdown format
+  word_count: number;
 }
 
-export const MEMO_SEARCH_INDEX_FILE = 'memo-search-index.json'
+export const MEMO_SEARCH_INDEX_FILE = "memo-search-index.json";
