@@ -1,5 +1,6 @@
 import { Github, Mail, Rss } from "lucide-react";
 import React, { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
 import { siteInfo } from "site.config";
 import { useTheme, type ThemeMode } from "~/hooks/use-theme";
@@ -12,6 +13,7 @@ type Props = {
 
 export default function Sidebar({ isShow, toggle }: Props) {
   const { theme, setTheme } = useTheme();
+  const { t } = useTranslation();
 
   function handleThemeChange() {
     const targetTheme: ThemeMode =
@@ -21,11 +23,11 @@ export default function Sidebar({ isShow, toggle }: Props) {
 
   const themeText = useMemo(() => {
     return theme === "system"
-      ? "系统外观"
+      ? t("ui.themeSystem")
       : theme === "dark"
-        ? "夜间模式"
-        : "日间模式";
-  }, [theme]);
+        ? t("ui.themeDark")
+        : t("ui.themeLight");
+  }, [theme, t]);
 
   // 基础的过渡样式，用于列表项的交错动画
   // 核心逻辑：isShow ? "正常位置 + 可见" : "向下偏移 + 透明"
@@ -43,7 +45,7 @@ export default function Sidebar({ isShow, toggle }: Props) {
         {/* Title */}
         <h1 className={`${getItemTransition("delay-0")}`}>
           <span className="relative inline-block">
-            {"SANSUI'S BLOG"}
+            {t("ui.blogTitle", { author: siteInfo.author.toUpperCase() })}
             {/* Underline Effect */}
             <span className="bg-accent-hover absolute bottom-0 left-0 -z-10 h-[0.5em] w-full rounded-[0.5em] mix-blend-overlay" />
           </span>
@@ -60,14 +62,14 @@ export default function Sidebar({ isShow, toggle }: Props) {
         {/* Categories */}
         <div className={`mt-4 ${getItemTransition("delay-200")}`}>
           <OptionText>
-            <Link to="/categories">分类标签</Link>
+            <Link to="/categories">{t("ui.categoriesTags")}</Link>
           </OptionText>
         </div>
 
         {/* RSS */}
         <div className={`mt-4 ${getItemTransition("delay-300")}`}>
           <OptionText>
-            <a href="/atom.xml">RSS</a>
+            <a href="/atom.xml">{t("ui.rss")}</a>
           </OptionText>
         </div>
 
@@ -88,9 +90,9 @@ export default function Sidebar({ isShow, toggle }: Props) {
             </SocialIcon>
           </div>
           <div className="mx-auto my-4 leading-relaxed">
-            Sansui 2025
+            {t("ui.copyright", { author: siteInfo.author, year: new Date().getFullYear() })}
             <br />
-            All rights reserved
+            {t("ui.allRightsReserved")}
           </div>
         </div>
       </div>

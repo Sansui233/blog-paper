@@ -1,10 +1,12 @@
 import { Github, Mail, Rss } from 'lucide-react'
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import { siteInfo } from 'site.config'
 
 type Props = React.HTMLProps<HTMLDivElement>
 
 const Footer = ({ className, ...props }: Props) => {
+  const { t } = useTranslation()
 
   // 提取公共样式让 JSX 更整洁
   // inline-block 确保 transform/margin 生效
@@ -52,7 +54,7 @@ const Footer = ({ className, ...props }: Props) => {
       {/* Copyright Text */}
       {/* my-6(1.5rem) tracking-[0.2px] */}
       <div className="my-6 mx-auto tracking-[0.2px]">
-        {"Code & Design by Sansui 2025"} <br /> {"All rights reserved"}
+        {t("ui.copyright", { author: siteInfo.author, year: new Date().getFullYear() })} <br /> {t("ui.allRightsReserved")}
       </div>
     </footer>
   )

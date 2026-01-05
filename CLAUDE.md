@@ -138,6 +138,14 @@ export function HydrateFallback() { /* Loading UI */ }
 - **RSS** - Auto-generated feed (posts + recent memos)
 - **Search** - Built-in with Chinese/English support, field-specific queries
 
+### i18n (Internationalization)
+
+Supports `zh`, `en`, `ja`. See [docs/i18n.md](docs/i18n.md) for details.
+
+- **Language detection**: localStorage → browser language → default `zh`
+- **Date handling**: Data stored as timezone-naive strings (default `Asia/Shanghai` in `site.config.ts`), converted to user's local timezone on client
+- **Key files**: `lib/i18n.ts` (init), `lib/date.ts` (date functions), `locales/*.json` (translations)
+
 ### Styles
 - **Light and Dark Colors**: styles/base.css
 - **Tailwind theme registry**: styles/theme.css

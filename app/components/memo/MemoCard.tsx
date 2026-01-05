@@ -2,6 +2,7 @@ import type { MemoPostJsx } from "lib/data/memos.common";
 import { dateToYMDMM } from "lib/date";
 import type { Dispatch, SetStateAction } from "react";
 import React, { useCallback, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { siteInfo } from "site.config";
 import useAppState from "~/hooks/use-appstate";
 import { MDXContent } from "../markdown/MDXComponent";
@@ -25,6 +26,7 @@ export function MemoCard({
   const [isCollapse, setIsCollapse] = useState(true);
   const ref = useRef<HTMLDivElement>(null);
   const { theme } = useAppState();
+  const { t } = useTranslation();
 
   const wordCount = source.word_count ?? undefined;
   const shouldCollapse =
@@ -104,7 +106,7 @@ export function MemoCard({
           </div>
           {wordCount && wordCount > 0 && (
             <span className="text-text-gray absolute right-0 text-[0.8rem]">
-              {wordCount} 字
+              {t("ui.wordCount", { count: wordCount })}
             </span>
           )}
         </div>
@@ -137,7 +139,7 @@ export function MemoCard({
               className="mt-22 cursor-pointer text-sm tracking-wide"
             >
               <span className="mr-2 transition-shadow duration-300 hover:shadow-[inset_0_-0.5em_0_var(--accent-hover)]">
-                {isCollapse ? "展开全文" : "收起"}
+                {isCollapse ? t("ui.expandText") : t("ui.collapseText")}
               </span>
             </div>
           </div>
@@ -168,9 +170,10 @@ const MemoTag = (handleClickTag: (tag: string) => void) => {
 };
 
 export function MemoLoading() {
+  const { t } = useTranslation();
   return (
     <section className="memoloading p-4 max-[580px]:p-4">
-      <span className="font-bold opacity-35">Loading...</span>
+      <span className="font-bold opacity-35">{t("ui.loading")}</span>
     </section>
   );
 }

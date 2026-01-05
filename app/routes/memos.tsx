@@ -8,6 +8,7 @@ import { remarkTag } from "lib/remark/remark-tag";
 import { createNaive, type Match, type Result } from "lib/search";
 import { MenuSquare } from "lucide-react";
 import { useCallback, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigation, useSearchParams } from "react-router";
 import rehypeHighlight from "rehype-highlight";
 import remarkGfm from "remark-gfm";
@@ -212,6 +213,7 @@ export default function MemosPage({ loaderData }: Route.ComponentProps) {
     x: number;
     y: number;
   }>();
+  const { t } = useTranslation();
 
   const navigation = useNavigation();
   const isSearching = navigation.state === "loading";
@@ -338,8 +340,8 @@ export default function MemosPage({ loaderData }: Route.ComponentProps) {
               {isFiltered && (
                 <div className="text-text-gray-2 mr-4 text-right text-sm italic">
                   {isSearching
-                    ? "Searching..."
-                    : `Results: ${loaderData.memos.length} memos`}
+                    ? t("ui.searching")
+                    : t("ui.searchResults", { count: loaderData.memos.length })}
                   <span
                     className="hover:text-accent ml-3.5 cursor-pointer font-bold not-italic"
                     onClick={() => {

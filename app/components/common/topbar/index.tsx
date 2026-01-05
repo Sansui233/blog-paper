@@ -1,6 +1,7 @@
 import { throttle } from "lib/throttle";
 import { ChevronDown, Search } from "lucide-react";
 import React, { lazy, Suspense, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Link, useLocation } from "react-router";
 import { siteInfo } from "site.config";
 import MenuIcon from "./menuicon";
@@ -30,6 +31,7 @@ export default function Topbar({
   const [isDropperOpen, setIsDropperOpen] = useState(false);
   const location = useLocation();
   const searchIcon = useRef<HTMLDivElement>(null);
+  const { t } = useTranslation();
 
   // Preload SearchBox after first render
   useEffect(() => {
@@ -93,9 +95,9 @@ export default function Topbar({
   const isAboutPage = pathname === "/about" || pathname.startsWith("/about");
 
   const getCurrentPageName = () => {
-    if (isPostsPage) return "Posts";
-    if (isMemosPage) return "Memos";
-    if (isAboutPage) return "About";
+    if (isPostsPage) return t("ui.posts");
+    if (isMemosPage) return t("ui.memos");
+    if (isAboutPage) return t("ui.about");
     return "";
   };
 
@@ -123,20 +125,20 @@ export default function Topbar({
         <div className="w-52.5 flex-auto items-center justify-start font-semibold max-md:w-25">
           <Link to="/" className="flex items-center px-4">
             <NekoIcon width={36} className="shrink-0" />
-            <span className="px-2 max-md:hidden">{`${siteInfo.author}'s blog`}</span>
+            <span className="px-2 max-md:hidden">{t("ui.blogTitle", { author: siteInfo.author })}</span>
           </Link>
         </div>
 
         {/* Desktop Nav */}
         <nav className="flex max-w-[50%] flex-[2_1_auto] items-center justify-evenly tracking-wide max-[580px]:hidden min-[580px]:max-w-97.5">
           <NavItem href="/" isActive={isPostsPage}>
-            Posts
+            {t("ui.posts")}
           </NavItem>
           <NavItem href="/memos" isActive={isMemosPage}>
-            Memos
+            {t("ui.memos")}
           </NavItem>
           <NavItem href="/about" isActive={isAboutPage}>
-            About
+            {t("ui.about")}
           </NavItem>
         </nav>
 
@@ -154,17 +156,17 @@ export default function Topbar({
             >
               {!isPostsPage && (
                 <DropdownLink to="/" isOpen={isDropperOpen} isFirst>
-                  Posts
+                  {t("ui.posts")}
                 </DropdownLink>
               )}
               {!isMemosPage && (
                 <DropdownLink to="/memos" isOpen={isDropperOpen}>
-                  Memos
+                  {t("ui.memos")}
                 </DropdownLink>
               )}
               {!isAboutPage && (
                 <DropdownLink to="/about" isOpen={isDropperOpen}>
-                  About
+                  {t("ui.about")}
                 </DropdownLink>
               )}
             </div>

@@ -1,6 +1,7 @@
 import type { WalineComment } from "@waline/client";
 import { Loader2, MessageSquare, PencilLine } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { siteInfo } from "site.config";
 import { CardCommon } from "./Sidebar";
 
@@ -9,7 +10,7 @@ interface CommentCardProps {
 }
 
 export function CommentCard({ onOpenComment }: CommentCardProps) {
-  if (!siteInfo.walineApi) return null;
+  const { t } = useTranslation();
 
   const [comments, setComments] = useState<
     Array<Pick<WalineComment, "objectId" | "comment">>
@@ -39,16 +40,16 @@ export function CommentCard({ onOpenComment }: CommentCardProps) {
   if (!siteInfo.walineApi) return null;
 
   return (
-    <CardCommon title="Comments" Icon={MessageSquare}>
+    <CardCommon title={t("ui.latestComments")} Icon={MessageSquare}>
       {/* Comment list - font-size: 0.9rem, line height: 1.5em */}
       <div>
         {isLoading ? (
           <div className="text-text-gray-3 flex items-center gap-2">
             <Loader2 size="1em" className="animate-spin" />
-            Loading...
+            {t("ui.loading")}
           </div>
         ) : comments.length === 0 ? (
-          <div className="text-text-gray-3">好像没有评论哦~</div>
+          <div className="text-text-gray-3">{t("ui.noComments")}</div>
         ) : (
           <ul className="m-0 list-none ps-0">
             {comments.map((item) => (
@@ -64,10 +65,10 @@ export function CommentCard({ onOpenComment }: CommentCardProps) {
       </div>
       <button
         onClick={onOpenComment}
-        className="bg-bg border-ui-line-gray-2 text-text-secondary hover:text-accent mt-8 flex max-w-32 cursor-pointer items-center rounded-lg border px-4 py-2 font-semibold shadow-[0_0_12px_0_var(--shadow-bg)] transition-all hover:shadow-[0_0_12px_0_var(--accent-hover)] max-[780px]:max-w-none max-[780px]:bg-[var(--bg-2)]"
+        className="bg-bg border-ui-line-gray-2 text-text-secondary hover:text-accent mt-8 flex max-w-full cursor-pointer items-center rounded-lg border px-4 py-2 font-semibold shadow-[0_0_12px_0_var(--shadow-bg)] transition-all hover:shadow-[0_0_12px_0_var(--accent-hover)] max-[780px]:max-w-none max-[780px]:bg-[var(--bg-2)]"
       >
         <PencilLine size="1em" className="mr-2" />
-        <span>添加留言</span>
+        <span>{t("ui.addComment")}</span>
       </button>
     </CardCommon>
   );

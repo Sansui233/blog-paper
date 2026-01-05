@@ -4,6 +4,7 @@ import { POSTS_SEARCH_INDEX_FILE } from "lib/data/search.common";
 import type { Match, Result } from "lib/search";
 import { debounce } from "lib/throttle";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
 
 /**
@@ -25,6 +26,7 @@ function SearchBox({ outSetSearch: outShow, outIsShow, iconEle }: Props) {
   const [res, setRes] = useState<PostSearchResult[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const { t } = useTranslation();
 
   const initData = useCallback(async () => {
     const response = await fetch(`/data/${POSTS_SEARCH_INDEX_FILE}`);
@@ -149,7 +151,7 @@ function SearchBox({ outSetSearch: outShow, outIsShow, iconEle }: Props) {
       <div className="bg-bg sticky top-0 p-4 pb-0">
         <input
           type="text"
-          placeholder="搜索你感兴趣的内容，以空格分词"
+          placeholder={t("ui.searchPlaceholder")}
           ref={inputRef}
           onInput={handleInput}
           className="bg-bg text-text-primary w-full rounded-none border-none focus:outline-none focus-visible:outline-none"
@@ -161,19 +163,19 @@ function SearchBox({ outSetSearch: outShow, outIsShow, iconEle }: Props) {
         {searchStatus.isSearch === "ready" ? (
           <div className="text-sm opacity-50">
             <div className="text-text-gray overflow-hidden text-sm whitespace-nowrap">
-              输入关键词开始搜索
+              {t("ui.searchHint")}
             </div>
           </div>
         ) : searchStatus.isSearch === "searching" ? (
           <div className="text-sm opacity-50">
             <div className="text-text-gray overflow-hidden text-sm whitespace-nowrap">
-              搜索中……
+              {t("ui.searching")}
             </div>
           </div>
         ) : res.length === 0 ? (
           <div className="text-sm opacity-50">
             <div className="text-text-gray overflow-hidden text-sm whitespace-nowrap">
-              没有找到结果
+              {t("ui.noResults")}
             </div>
           </div>
         ) : (

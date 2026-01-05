@@ -1,6 +1,7 @@
 import type { MemoInfo, MemoTag } from "lib/data/memos.common";
 import { HashIcon, Search, TagIcon, Users, X } from "lucide-react";
 import { useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { siteInfo } from "site.config";
 import { CommentCard } from "./CommentCard";
 
@@ -17,6 +18,7 @@ export function MemoSearchBox({
   defaultValue,
 }: MemoSearchBoxProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const { t } = useTranslation();
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && inputRef.current) {
@@ -35,7 +37,7 @@ export function MemoSearchBox({
       <input
         ref={inputRef}
         type="text"
-        placeholder="Search"
+        placeholder={t("ui.search")}
         defaultValue={defaultValue}
         onKeyDown={handleKeyDown}
         onFocus={onFocus}
@@ -56,16 +58,17 @@ interface NavCardProps {
 }
 
 export function NavCard({ info }: NavCardProps) {
+  const { t } = useTranslation();
   return (
     <section className="mt-6 pl-4">
       <div className="border-accent mr-3 flex items-end border-r-2 py-1">
-        <span className="mr-1 font-semibold">Memos</span>
+        <span className="mr-1 font-semibold">{t("ui.memos")}</span>
         <span className="text-text-gray-2 text-[0.875rem] font-semibold">
           {info.memos}
         </span>
       </div>
       <div className="border-ui-line-gray mr-3 flex items-end border-r-2 py-1">
-        <span className="mr-1 font-semibold">Photos</span>
+        <span className="mr-1 font-semibold">{t("ui.photos")}</span>
         <span className="text-text-gray-2 text-[0.875rem] font-semibold">
           {info.imgs}
         </span>
@@ -113,24 +116,25 @@ interface TagsCardProps {
 }
 
 export function TagsCard({ tags, onTagClick, selectedTag }: TagsCardProps) {
+  const { t } = useTranslation();
   return (
-    <CardCommon Icon={TagIcon} title="Tags">
-      {tags.map((t) => (
+    <CardCommon Icon={TagIcon} title={t("ui.tags")}>
+      {tags.map((tag) => (
         <span
-          key={t.name}
+          key={tag.name}
           className={`hover:text-accent inline-block cursor-pointer pr-3 transition-colors ${
-            selectedTag === t.name ? "text-accent font-semibold" : ""
+            selectedTag === tag.name ? "text-accent font-semibold" : ""
           }`}
-          onClick={() => onTagClick(t.name)}
+          onClick={() => onTagClick(tag.name)}
         >
           <HashIcon
             size="1rem"
             className="inline opacity-50"
             style={{ paddingRight: "1px" }}
           />
-          {t.name}
-          {t.memoIds.length > 1 && (
-            <span className="opacity-50">({t.memoIds.length})</span>
+          {tag.name}
+          {tag.memoIds.length > 1 && (
+            <span className="opacity-50">({tag.memoIds.length})</span>
           )}
         </span>
       ))}
@@ -140,10 +144,11 @@ export function TagsCard({ tags, onTagClick, selectedTag }: TagsCardProps) {
 
 // FriendsCard - Shows friend links
 export function FriendsCard() {
+  const { t } = useTranslation();
   if (!siteInfo.friends || siteInfo.friends.length === 0) return null;
 
   return (
-    <CardCommon Icon={Users} title="Friends">
+    <CardCommon Icon={Users} title={t("ui.friends")}>
       {siteInfo.friends.map((f, i) => (
         <div key={i}>
           <a
@@ -184,6 +189,7 @@ export function Sidebar({
   isMobileSider,
   onToggle,
 }: SidebarProps) {
+  const { t } = useTranslation();
   return (
     <div
       className={`max-[780px]:bg-bg max-[780px]:border-ui-line-gray-2 max-[780px]:shadow-float-menu sticky top-0 mx-2 h-screen max-w-60 overflow-y-auto pt-20.5 pb-16 [-ms-overflow-style:none] [scrollbar-width:none] max-[1080px]:mx-0 max-[780px]:fixed max-[780px]:top-auto max-[780px]:right-0 max-[780px]:bottom-0 max-[780px]:left-0 max-[780px]:z-40 max-[780px]:h-[min(66vh,500px)] max-[780px]:w-full max-[780px]:max-w-none max-[780px]:rounded-t-lg max-[780px]:rounded-b-none max-[780px]:border max-[780px]:border-b-0 max-[780px]:px-4 max-[780px]:pt-0 max-[780px]:pb-4 max-[780px]:transition-transform max-[780px]:duration-300 max-[780px]:ease-out [&::-webkit-scrollbar]:hidden ${isMobileSider ? "max-[780px]:translate-y-0" : "max-[780px]:translate-y-[105%]"} `}
@@ -196,7 +202,7 @@ export function Sidebar({
           onToggle();
         }}
       >
-        <span>小小の菜单</span>
+        <span>{t("ui.mobileMenu")}</span>
         <X size="1.25em" className="ml-2" />
       </div>
 

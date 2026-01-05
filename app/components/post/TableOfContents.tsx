@@ -1,4 +1,5 @@
 import { X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import "./TableOfContents.css";
 
 type Props = {
@@ -23,6 +24,7 @@ export function TableOfContents({
   onScrollTo,
 }: Props) {
   const isFixedTop = isViewing && !isMobileOpen;
+  const { t } = useTranslation();
 
   return (
     <aside
@@ -38,7 +40,7 @@ export function TableOfContents({
     >
       {/* Header */}
       <div className="max-lg:bg-bg sticky top-0 z-10 mb-2 pt-4 pr-4 pb-2 pl-8 text-xl font-bold max-lg:pr-4 max-lg:pl-8">
-        目录
+        {t("ui.toc")}
         <button
           onClick={(e) => {
             e.stopPropagation();
