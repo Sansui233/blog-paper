@@ -4,7 +4,7 @@
 .idea/
 
 .DS_Store
-.env
+*.env
 *.local
 /node_modules/
 # **/node_modules/
@@ -18,3 +18,4 @@
 /public/
 
 site.config.ts
+content/

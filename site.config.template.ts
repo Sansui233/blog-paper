@@ -1,5 +1,5 @@
 export const siteInfo: SiteInfo = {
-  author: "Sansui", // Required
+  author: "You", // Required
   social: {
     email: "YourName@gmail.com", // Required
     github: "https://github.com/yourname", // Required
@@ -8,16 +8,12 @@ export const siteInfo: SiteInfo = {
   domain: "https://yourname.com", // Required,Used to generate rss at build time
   friends: [
     {
-      name: "Gawain Antarx",
-      link: "https://gawainx.github.io/",
-    },
-    {
-      name: "ABYSS WHALE",
-      link: "https://starfish.yuzhehao.com/",
+      name: "Sansui233",
+      link: "https://sansui233.com/",
     },
   ],
   walineApi: "https://waline.yourname.com", // Optional, Waline Comment System
-  GAId: "G-EDE15EB3W8", // Optional, Google Analytics id
+  GAId: "G-ED80000000000", // Optional, Google Analytics id
 } as const;
 
 type SiteInfo = {

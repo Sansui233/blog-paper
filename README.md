@@ -41,6 +41,7 @@ export const siteInfo = {
     email: "sansuilnm@gmail.com", // 邮件
     github: "https://github.com/sansui233" // github 链接
   },
+  
   // Sites
   domain: "https://sansui233.com", // rss 中显示的域名。不影响实际部署
   walineApi: serverAPI, // 可选项，Waline 评论系统后端地址。不需要请删除。
@@ -59,10 +60,12 @@ export const siteInfo = {
 - `avatar-white.png` `avatar-black.png` 作者头像，分为白天模式头像与夜间模式头像。
 - `imgs/bg.jpg` "关于我" 页面使用的头图。
 
+左上角图标 svg 放在 `app/assets` 下。用 svg 主要是因为日间、夜间模式可换个。
+
 
 ### 3. 博客文章
 
-放在 `source/posts/` 目录的所有 markdown 文件为博客文章。具体见 [content/posts](./content/posts) 中的示例。
+放在 `content/posts/` 目录的所有 markdown 文件为博客文章。具体见 [content/posts](./content/posts) 中的示例。
 
 最简格式：
 
@@ -108,13 +111,14 @@ keywords: Markdown, 测试
 - 支持正文内的标签解析（类似推特）
 - 收集图片信息单独展示
 
-放在 `source/memos/` 目录的所有 markdown 文件为 memo 文章。具体见 [content/memos](./content/memos) 中的示例。
+放在 `content/memos/` 目录的所有 markdown 文件为 memo 文章。具体见 [content/memos](./content/memos) 中的示例。
 
 
 - 文章中的每个二级标题生成一个 memo。二级标题名需需要保证唯一性，可填写任意字符串，但请尽量使用时间戳，如`2023-08-30 02:54:34`，因为这是目前唯一的属性，比较有利于基于时间的功能扩展。
 - 只需要一个文件存储就行，也可以分多个文件存储。**文件名越大展示越靠前**。
-  > 为什么只用一个文件：你真的会想每次写点东西都新建文件还填写元数据吗？
 - memo 的 rss 会在 yaml 头 draft 属性更改为 true 时生成，仅抓取最靠前6条。
+
+> 为什么只用一个文件：你真的会想每次写点东西都新建文件还填写元数据吗？
 
 ### 5. “关于我”页面
 

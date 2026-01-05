@@ -4,8 +4,8 @@ import React, { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useLocation } from "react-router";
 import { siteInfo } from "site.config";
+import NekoIcon from "~/assets/icons/neko.svg?react";
 import MenuIcon from "./menuicon";
-import NekoIcon from "./nekoicon";
 import Sidebar from "./sidebar";
 
 // Dynamic import for code splitting - preloaded after first render
