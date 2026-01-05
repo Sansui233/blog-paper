@@ -1,7 +1,7 @@
 # blog-paper
 
-一个黑白简约风格的个人博客，兼具微博客功能。保留了原来 hexo 博客用法的简便性。  
-此博客已迁移至 RR 7，由 Vite 3秒极速构建。旧版 Next.js 见 archive/nextjs-main 分支。
+一个黑白简约风格的个人静态博客，具有微博客功能。保留了原来 hexo 博客用法的简便性。  
+> 此博客已迁移至 ReactRouter 7，由 Vite 3秒极速构建。旧版 Next.js 见 archive/nextjs-main 分支。
 
 - 效果：https://sansui233.com
 
@@ -12,15 +12,22 @@
 - 传统静态博客版块，与 hexo 兼容
 - 静态的微博客版块，告别长文负担
 - 支持自动亮暗模式
-- 支持站内搜索
-- 支持rss订阅
+- 支持极速站内搜索
+- 支持 rss 订阅
+- 支持 siteMap 生成，长文 SEO 有优化
+- Waline 评论系统接入
+- 多语言UI
 - ~~精美的 404 页面以告知用户网挺好的~~
+- 快速打包，超小包体，注重渲染优化
+
+~~由于首屏太快了我的卡卡西做饭 Loader 实在见不到还会闪屏，打算含恨移除~~
 
 ## 需要准备
 
 - NodeJS 环境
 - 评论系统：依赖于 [Waline](https://waline.js.org)。不是必须的
 - 站点分析： 依赖于 Google Analystics，不是必须的
+- 你的个性化头像和一张背景图
 
 ## 配置
 
@@ -60,7 +67,7 @@ export const siteInfo = {
 - `avatar-white.png` `avatar-black.png` 作者头像，分为白天模式头像与夜间模式头像。
 - `imgs/bg.jpg` "关于我" 页面使用的头图。
 
-左上角图标 svg 放在 `app/assets` 下。用 svg 主要是因为日间、夜间模式可换个。
+左上角图标 svg 放在 `app/assets` 下。用 svg 主要是因为日间、夜间模式可换个。懒得改可以不用改。
 
 
 ### 3. 博客文章
@@ -116,7 +123,7 @@ keywords: Markdown, 测试
 
 - 文章中的每个二级标题生成一个 memo。二级标题名需需要保证唯一性，可填写任意字符串，但请尽量使用时间戳，如`2023-08-30 02:54:34`，因为这是目前唯一的属性，比较有利于基于时间的功能扩展。
 - 只需要一个文件存储就行，也可以分多个文件存储。**文件名越大展示越靠前**。
-- memo 的 rss 会在 yaml 头 draft 属性更改为 true 时生成，仅抓取最靠前6条。
+- memo 的 rss 会在 yaml 头 draft 属性更改为 false 时生成，仅抓取最靠前6条。
 
 > 为什么只用一个文件：你真的会想每次写点东西都新建文件还填写元数据吗？
 
@@ -137,7 +144,7 @@ pnpm start # 启动服务（SSG模式）
 
 ## 部署
 
-参考 [deploy.sh](./deploy.sh)，上传 build/client 文件夹的内容到 gitpages。需要修改脚本中的目标文件夹。
+参考 [deploy.sh](./deploy.sh)，上传 build/client 文件夹的内容到 gitpages。需要修改脚本中的目标文件夹、push 的分支名。
 
 我个人使用的是 github pages，同时 vercel 拉取 github 的分支。
 
