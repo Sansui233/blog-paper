@@ -11,6 +11,7 @@ declare global {
 
 /** Upload analystics to google when location changed */
 export function useGtag() {
+  if(!siteInfo.GAId) return;
   const location = useLocation();
   useEffect(() => {
     if (typeof window.gtag !== "undefined") {
