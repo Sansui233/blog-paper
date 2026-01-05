@@ -15,7 +15,7 @@ export async function loader({ params }: Route.LoaderArgs) {
       };
     });
     return {
-      category: "all",
+      category: "All Posts",
       posts: groupByYear(posts),
     };
   }

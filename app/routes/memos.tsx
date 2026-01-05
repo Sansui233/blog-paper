@@ -6,7 +6,7 @@ import {
 import { toMdxCode } from "lib/md-compile/compile";
 import { remarkTag } from "lib/remark/remark-tag";
 import { createNaive, type Match, type Result } from "lib/search";
-import { Loader2, MenuSquare } from "lucide-react";
+import { MenuSquare } from "lucide-react";
 import { useCallback, useState } from "react";
 import { useNavigation, useSearchParams } from "react-router";
 import rehypeHighlight from "rehype-highlight";
@@ -334,7 +334,9 @@ export default function MemosPage({ loaderData }: Route.ComponentProps) {
               {/* Filter status - right aligned like PageDescription */}
               {isFiltered && (
                 <div className="text-text-gray-2 mr-4 text-right text-sm italic">
-                  Results: {loaderData.memos.length} memos
+                  {isSearching
+                    ? "Searching..."
+                    : `Results: ${loaderData.memos.length} memos`}
                   <span
                     className="hover:text-accent ml-3.5 cursor-pointer font-bold not-italic"
                     onClick={() => {
@@ -348,15 +350,7 @@ export default function MemosPage({ loaderData }: Route.ComponentProps) {
 
               {/* Memo list container */}
               <div className="border-ui-line-gray-2 bg-bg mt-2.5 rounded-lg border shadow-[0_0_12px_0_var(--shadow-bg)] max-[580px]:rounded-none max-[580px]:border-x-0">
-                {isSearching ? (
-                  // Searching loading state
-                  <div className="text-text-gray-2 flex min-h-60 flex-col items-center justify-center gap-3">
-                    <Loader2 size={32} className="animate-spin" />
-                    <span className="text-text-gray-3 text-center text-sm">
-                      <span>诶，被你看到了？</span>
-                    </span>
-                  </div>
-                ) : isFiltered ? (
+                {isFiltered ? (
                   // Filtered view - simple list without virtual scroll
                   <VirtualList<TMemo>
                     key={`${loaderData.filterTag ?? ""}-${loaderData.searchQuery ?? ""}`}

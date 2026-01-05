@@ -7,8 +7,9 @@ import {
   ScrollRestoration,
 } from "react-router";
 
-import { useTheme } from "~/hooks/use-theme";
+import { siteInfo } from "site.config";
 import type { Route } from "./+types/root";
+import { useGtag } from "./hooks/use-gtag";
 import "./styles/app.css";
 
 export const links: Route.LinksFunction = () => [
@@ -25,7 +26,8 @@ export const links: Route.LinksFunction = () => [
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  const { theme, setTheme } = useTheme();
+  useGtag();
+
   return (
     <html lang="en">
       <head>
@@ -33,6 +35,23 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
+        <script
+          async
+          src={`https://www.googletagmanager.com/gtag/js?id=${siteInfo.GAId}`}
+        />
+        {/* 2. 初始化脚本 */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', '${siteInfo.GAId}', {
+                page_path: window.location.pathname,
+              });
+            `,
+          }}
+        />
       </head>
       <body>
         {children}

@@ -9,5 +9,6 @@ export default [
   route("categories/:id", "routes/categories.$id.tsx"),
   route("tags/:id", "routes/tags.$id.tsx"),
   route("test/:slug", "routes/test.tsx"),
+  route("*", "./routes/404.tsx"),
 ] satisfies RouteConfig;
 

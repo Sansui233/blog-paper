@@ -37,7 +37,7 @@ export function CommentCard({ onOpenComment }: CommentCardProps) {
   if (!siteInfo.walineApi) return null;
 
   return (
-    <CardCommon title="Latest Comments" Icon={MessageSquare}>
+    <CardCommon title="Comments" Icon={MessageSquare}>
       {/* Comment list - font-size: 0.9rem, line height: 1.5em */}
       <div>
         {isLoading ? (
@@ -52,7 +52,7 @@ export function CommentCard({ onOpenComment }: CommentCardProps) {
             {comments.map((item) => (
               <li
                 key={item.objectId}
-                className="inline-st h-[1.5em] overflow-hidden text-[0.9rem]"
+                className="inline-st h-6 overflow-hidden text-[0.9rem]"
               >
                 {item.comment.replace(/<[^>]*>/g, "")}
               </li>

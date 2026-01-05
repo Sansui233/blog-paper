@@ -44,7 +44,10 @@ export default function About() {
           <p>
             Github: <a href="https://github.com/sansui233">Sansui233</a>
             <br />
-            E-mail：<a href="mailto:sansuilnm@gmail.com">sansuilnm@gmail.com</a>
+            E-mail：
+            <a href={`mailto:${siteInfo.social.email}`}>
+              {siteInfo.social.email}
+            </a>
           </p>
 
           <h4>Programing</h4>
@@ -52,16 +55,23 @@ export default function About() {
             计算机专业。杂食。目前以前端为主，喜欢用<del>爱</del>懒发电
           </p>
           <ul>
-            <li>后端：Java, C++, Golang, Python</li>
-            <li>前端：React, Next.js</li>
+            <li>后端：Golang, Python</li>
+            <li>前端：React, Next.js, React Router 7</li>
           </ul>
 
           <h4>Design&amp;Painting</h4>
-          <p>长期做海报。</p>
-          <p>业余画二次元插画类。不太会做角色设计。</p>
+          <del>要被 AI 取代了，还管这些？</del>
+          <ul>
+            <li>长期 P 图。</li>
+            <li>业余画二次元插画类。不太会做角色设计。</li>
+          </ul>
 
           <h4>Projects</h4>
-          <p>这个博客算一个。其他大多由于各种原因弃坑。比如</p>
+          <p>
+            这个博客算一个，其实手搓下来东西挺多的。
+            <br />
+            其他大多由于各种原因弃坑。比如
+          </p>
           <ul>
             <li>
               <a href="https://github.com/Sansui233/fgomerlin">

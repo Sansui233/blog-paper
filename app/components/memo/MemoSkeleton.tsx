@@ -10,7 +10,7 @@ export function OverallSkeleton() {
       <div className="text-text-gray-2 flex flex-col items-center gap-3">
         <Loader2 size={48} className="animate-spin" />
         <span className="text-lg font-medium">Cooking...</span>
-        <span className="text-text-gray-3 text-sm">现在，即刻，开始提肛</span>
+        <span className="text-text-gray-3 text-sm">等等，卡卡西正在做饭……</span>
       </div>
     </div>
   );

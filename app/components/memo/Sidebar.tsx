@@ -116,7 +116,7 @@ export function TagsCard({ tags, onTagClick, selectedTag }: TagsCardProps) {
       {tags.map((t) => (
         <span
           key={t.name}
-          className={`hover:text-accent inline-block cursor-pointer pr-3 transition-colors ${
+          className={`hover:text-accent inline-block cursor-pointer pr-3 leading-relaxed transition-colors ${
             selectedTag === t.name ? "text-accent font-semibold" : ""
           }`}
           onClick={() => onTagClick(t.name)}
@@ -148,7 +148,7 @@ export function FriendsCard() {
             href={f.link}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-text-primary relative font-bold transition-shadow duration-300 hover:shadow-[inset_0_-0.5em_0_var(--accent-hover)]"
+            className="text-text-primary relative transition-shadow duration-300 hover:shadow-[inset_0_-0.5em_0_var(--accent-hover)]"
           >
             {f.name}
           </a>
