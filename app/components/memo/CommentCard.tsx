@@ -9,6 +9,8 @@ interface CommentCardProps {
 }
 
 export function CommentCard({ onOpenComment }: CommentCardProps) {
+  if (!siteInfo.walineApi) return null;
+
   const [comments, setComments] = useState<
     Array<Pick<WalineComment, "objectId" | "comment">>
   >([]);
@@ -46,7 +48,7 @@ export function CommentCard({ onOpenComment }: CommentCardProps) {
             Loading...
           </div>
         ) : comments.length === 0 ? (
-          <div className="text-text-gray-3">等等，好像没有评论哦~</div>
+          <div className="text-text-gray-3">好像没有评论哦~</div>
         ) : (
           <ul className="m-0 list-none ps-0">
             {comments.map((item) => (

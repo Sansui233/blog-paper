@@ -57,7 +57,7 @@ interface NavCardProps {
 
 export function NavCard({ info }: NavCardProps) {
   return (
-    <section className="text-text-secondary mt-6 pl-4">
+    <section className="mt-6 pl-4">
       <div className="border-accent mr-3 flex items-end border-r-2 py-1">
         <span className="mr-1 font-semibold">Memos</span>
         <span className="text-text-gray-2 text-[0.875rem] font-semibold">
@@ -98,7 +98,9 @@ export function CardCommon({
         {Icon && <Icon size="1em" style={{ marginRight: "0.5em" }} />}
         {title}
       </div>
-      <div className="pt-2 text-[0.9rem]">{children}</div>
+      <div className="text-text-secondary pt-2 text-[0.9rem] leading-6.5">
+        {children}
+      </div>
     </section>
   );
 }
@@ -116,7 +118,7 @@ export function TagsCard({ tags, onTagClick, selectedTag }: TagsCardProps) {
       {tags.map((t) => (
         <span
           key={t.name}
-          className={`hover:text-accent inline-block cursor-pointer pr-3 leading-relaxed transition-colors ${
+          className={`hover:text-accent inline-block cursor-pointer pr-3 transition-colors ${
             selectedTag === t.name ? "text-accent font-semibold" : ""
           }`}
           onClick={() => onTagClick(t.name)}
@@ -148,7 +150,7 @@ export function FriendsCard() {
             href={f.link}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-text-primary relative transition-shadow duration-300 hover:shadow-[inset_0_-0.5em_0_var(--accent-hover)]"
+            className="relative transition-shadow duration-300 hover:shadow-[inset_0_-0.5em_0_var(--accent-hover)]"
           >
             {f.name}
           </a>
@@ -188,7 +190,7 @@ export function Sidebar({
     >
       {/* Mobile close button - only visible on mobile */}
       <div
-        className={`border-ui-line-gray-2 text-text-gray-2 hover:text-accent sticky top-0 mb-4 hidden -translate-y-px cursor-pointer items-center justify-between border-b bg-inherit py-4 pt-4 pb-3 text-base font-semibold max-[780px]:flex ${isMobileSider ? "" : "invisible"} `}
+        className={`border-ui-line-gray-2 text-text-gray-2 hover:text-accent sticky top-0 z-1 mb-4 hidden -translate-y-px cursor-pointer items-center justify-between border-b bg-inherit py-4 pt-4 pb-3 text-base font-semibold max-[780px]:flex ${isMobileSider ? "" : "invisible"} `}
         onClick={(e) => {
           e.stopPropagation();
           onToggle();

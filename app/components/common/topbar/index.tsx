@@ -146,7 +146,7 @@ export default function Topbar({
           <div className="relative min-w-14.25 text-xl font-semibold min-[580px]:hidden">
             {/* Dropdown menu */}
             <div
-              className={`absolute -top-2 left-0 w-full transition-all duration-300 ${
+              className={`absolute -top-2 left-0 w-full pt-10 transition-all duration-300 ${
                 isDropperOpen
                   ? "border-ui-line-gray-3 bg-bg visible rounded-lg border shadow-md"
                   : "invisible border-transparent"
@@ -241,7 +241,7 @@ function DropdownLink({ to, isOpen, isFirst, children }: DropdownLinkProps) {
   return (
     <Link
       to={to}
-      className={`text-text-secondary my-2 block px-1 pb-1 text-center transition-all duration-500 ${isOpen ? "blur-0 opacity-100" : "pointer-events-none opacity-0 blur-md"} ${isFirst ? "border-ui-line-gray-3 mt-11 border-t pt-2" : ""} `}
+      className={`text-text-secondary my-2 block px-1 pb-1 pl-2.75 transition-all duration-500 ${isOpen ? "blur-0 opacity-100" : "pointer-events-none opacity-0 blur-md"} ${isFirst ? "border-ui-line-gray-3 mt-11 border-t pt-2" : ""} `}
     >
       {children}
     </Link>
