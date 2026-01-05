@@ -28,8 +28,8 @@
     注册背景图片 (用于渐变)
     用法: bg-mask-gradient, bg-nav-gradient
   */
-  --background-image-mask-gradient: var(--mask-gradient);
-  --background-image-nav-gradient: var(--nav-bg-gradient);
+  --background-image-mask-gradient: var(--mask-gradient-val);
+  --background-image-nav-gradient: var(--nav-bg-gradient-val);
   /*
     注册box-shadow (用于统一阴影效果)
     用法: shadow-float-menu

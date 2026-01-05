@@ -290,7 +290,7 @@ export default function ImageBrowser() {
       onTouchEnd={handleTouchEnd}
     >
       {/* Top gradient overlay for button visibility */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-24 bg-gradient-to-b from-black/60 to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-24 bg-linear-to-b from-black/60 to-transparent" />
 
       {/* Zoom button */}
       <button

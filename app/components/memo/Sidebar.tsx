@@ -10,7 +10,11 @@ interface MemoSearchBoxProps {
   defaultValue?: string;
 }
 
-export function MemoSearchBox({ onSearch, onFocus, defaultValue }: MemoSearchBoxProps) {
+export function MemoSearchBox({
+  onSearch,
+  onFocus,
+  defaultValue,
+}: MemoSearchBoxProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -26,14 +30,7 @@ export function MemoSearchBox({ onSearch, onFocus, defaultValue }: MemoSearchBox
   };
 
   return (
-    <div
-      className="
-        mx-4 flex items-center rounded-lg
-        border border-ui-line-gray-2 bg-bg
-        shadow-[0_0_12px_0_var(--shadow-bg)]
-        focus-within:border-accent-hover
-      "
-    >
+    <div className="border-ui-line-gray-2 bg-bg focus-within:border-accent-hover mx-4 flex items-center rounded-lg border shadow-[0_0_12px_0_var(--shadow-bg)]">
       <input
         ref={inputRef}
         type="text"
@@ -41,17 +38,11 @@ export function MemoSearchBox({ onSearch, onFocus, defaultValue }: MemoSearchBox
         defaultValue={defaultValue}
         onKeyDown={handleKeyDown}
         onFocus={onFocus}
-        className="
-          ml-4 flex-1 w-0
-          border-none bg-inherit
-          leading-8 text-text-gray
-          focus:outline-none focus-visible:outline-none
-          placeholder:text-text-gray-3
-        "
+        className="text-text-gray placeholder:text-text-gray-3 ml-4 w-0 flex-1 border-none bg-inherit leading-8 focus:outline-none focus-visible:outline-none"
       />
       <Search
         size="1.4rem"
-        className="mx-2.5 flex-shrink-0 text-ui-line-gray cursor-pointer hover:text-accent"
+        className="text-ui-line-gray hover:text-accent mx-2.5 shrink-0 cursor-pointer"
         onClick={handleSearchClick}
       />
     </div>
@@ -65,14 +56,18 @@ interface NavCardProps {
 
 export function NavCard({ info }: NavCardProps) {
   return (
-    <section className="mt-6 pl-4 text-text-secondary">
-      <div className="py-1 mr-3 border-r-2 border-accent flex items-end">
-        <span className="font-semibold mr-1">Memos</span>
-        <span className="text-[0.875rem] font-semibold text-text-gray-2">{info.memos}</span>
+    <section className="text-text-secondary mt-6 pl-4">
+      <div className="border-accent mr-3 flex items-end border-r-2 py-1">
+        <span className="mr-1 font-semibold">Memos</span>
+        <span className="text-text-gray-2 text-[0.875rem] font-semibold">
+          {info.memos}
+        </span>
       </div>
-      <div className="py-1 mr-3 border-r-2 border-ui-line-gray flex items-end">
-        <span className="font-semibold mr-1">Photos</span>
-        <span className="text-[0.875rem] font-semibold text-text-gray-2">{info.imgs}</span>
+      <div className="border-ui-line-gray mr-3 flex items-end border-r-2 py-1">
+        <span className="mr-1 font-semibold">Photos</span>
+        <span className="text-text-gray-2 text-[0.875rem] font-semibold">
+          {info.imgs}
+        </span>
       </div>
     </section>
   );
@@ -81,13 +76,24 @@ export function NavCard({ info }: NavCardProps) {
 // CardCommon - Generic card wrapper
 interface CardCommonProps extends React.HTMLProps<HTMLDivElement> {
   title: string;
-  Icon?: React.ComponentType<{ size?: string | number; style?: React.CSSProperties }>;
+  Icon?: React.ComponentType<{
+    size?: string | number;
+    style?: React.CSSProperties;
+  }>;
 }
 
-export function CardCommon({ title, Icon, children, ...otherprops }: CardCommonProps) {
+export function CardCommon({
+  title,
+  Icon,
+  children,
+  ...otherprops
+}: CardCommonProps) {
   return (
-    <section className="mt-6 px-4 py-2 leading-relaxed text-text-secondary" {...otherprops}>
-      <div className="font-semibold uppercase text-sm text-text-gray-2 flex items-center">
+    <section
+      className="text-text-secondary mt-6 px-4 py-2 leading-relaxed"
+      {...otherprops}
+    >
+      <div className="text-text-gray-2 flex items-center text-sm font-semibold uppercase">
         {Icon && <Icon size="1em" style={{ marginRight: "0.5em" }} />}
         {title}
       </div>
@@ -109,8 +115,9 @@ export function TagsCard({ tags, onTagClick, selectedTag }: TagsCardProps) {
       {tags.map((t) => (
         <span
           key={t.name}
-          className={`inline-block pr-3 cursor-pointer hover:text-accent transition-colors ${selectedTag === t.name ? "text-accent font-semibold" : ""
-            }`}
+          className={`hover:text-accent inline-block cursor-pointer pr-3 transition-colors ${
+            selectedTag === t.name ? "text-accent font-semibold" : ""
+          }`}
           onClick={() => onTagClick(t.name)}
         >
           <HashIcon
@@ -140,7 +147,7 @@ export function FriendsCard() {
             href={f.link}
             target="_blank"
             rel="noopener noreferrer"
-            className="relative font-bold transition-shadow duration-300 text-text-primary hover:shadow-[inset_0_-0.5em_0_var(--accent-hover)]"
+            className="text-text-primary relative font-bold transition-shadow duration-300 hover:shadow-[inset_0_-0.5em_0_var(--accent-hover)]"
           >
             {f.name}
           </a>
@@ -174,37 +181,11 @@ export function Sidebar({
 }: SidebarProps) {
   return (
     <div
-      className={`
-        sticky top-0
-        max-w-60
-        pt-[83px] pb-16 mx-2 max-[1080px]:mx-0
-        h-screen
-        overflow-y-auto
-        [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden
-
-        max-[780px]:fixed max-[780px]:bottom-0 max-[780px]:left-0 max-[780px]:right-0
-        max-[780px]:top-auto max-[780px]:h-[min(66vh,500px)]
-        max-[780px]:max-w-none max-[780px]:w-full
-        max-[780px]:pt-0 max-[780px]:px-4 max-[780px]:pb-4
-        max-[780px]:bg-bg max-[780px]:rounded-t-lg max-[780px]:rounded-b-none
-        max-[780px]:border max-[780px]:border-ui-line-gray-2 max-[780px]:border-b-0
-        max-[780px]:shadow-float-menu max-[780px]:z-40
-        max-[780px]:transition-transform max-[780px]:duration-300 max-[780px]:ease-out
-        ${isMobileSider ? "max-[780px]:translate-y-0" : "max-[780px]:translate-y-[105%]"}
-      `}
+      className={`max-[780px]:bg-bg max-[780px]:border-ui-line-gray-2 max-[780px]:shadow-float-menu sticky top-0 mx-2 h-screen max-w-60 overflow-y-auto pt-20.5 pb-16 [-ms-overflow-style:none] [scrollbar-width:none] max-[1080px]:mx-0 max-[780px]:fixed max-[780px]:top-auto max-[780px]:right-0 max-[780px]:bottom-0 max-[780px]:left-0 max-[780px]:z-40 max-[780px]:h-[min(66vh,500px)] max-[780px]:w-full max-[780px]:max-w-none max-[780px]:rounded-t-lg max-[780px]:rounded-b-none max-[780px]:border max-[780px]:border-b-0 max-[780px]:px-4 max-[780px]:pt-0 max-[780px]:pb-4 max-[780px]:transition-transform max-[780px]:duration-300 max-[780px]:ease-out [&::-webkit-scrollbar]:hidden ${isMobileSider ? "max-[780px]:translate-y-0" : "max-[780px]:translate-y-[105%]"} `}
     >
       {/* Mobile close button - only visible on mobile */}
       <div
-        className={`
-          hidden max-[780px]:flex
-          sticky top-0 bg-inherit -translate-y-px
-          border-b border-ui-line-gray-2
-          font-semibold justify-between items-center
-          py-4 pt-4 pb-3 mb-4
-          text-text-gray-2 text-base cursor-pointer
-          hover:text-accent
-          ${isMobileSider ? "" : "invisible"}
-        `}
+        className={`border-ui-line-gray-2 text-text-gray-2 hover:text-accent sticky top-0 mb-4 hidden -translate-y-px cursor-pointer items-center justify-between border-b bg-inherit py-4 pt-4 pb-3 text-base font-semibold max-[780px]:flex ${isMobileSider ? "" : "invisible"} `}
         onClick={(e) => {
           e.stopPropagation();
           onToggle();

@@ -1,3 +1,4 @@
+import { throttle } from "lib/throttle";
 import { useEffect, useRef, useState } from "react";
 
 type Props = {
@@ -5,18 +6,6 @@ type Props = {
   current: number;
   setCurrent: (num: number) => void;
 };
-
-// Throttle helper
-function throttle<T extends (...args: unknown[]) => void>(fn: T, wait: number): T {
-  let lastTime = 0;
-  return ((...args: unknown[]) => {
-    const now = Date.now();
-    if (now - lastTime >= wait) {
-      lastTime = now;
-      fn(...args);
-    }
-  }) as T;
-}
 
 export default function NavCat({ items, current, setCurrent }: Props) {
   const ref = useRef<HTMLElement>(null);
@@ -55,11 +44,7 @@ export default function NavCat({ items, current, setCurrent }: Props) {
   return (
     <nav
       ref={ref}
-      className="
-        flex mt-4 py-4 overflow-x-auto
-        sticky -top-px bg-bg z-[1]
-        [&::-webkit-scrollbar]:hidden
-      "
+      className="bg-bg sticky -top-px z-1 mt-4 flex overflow-x-auto py-4 [&::-webkit-scrollbar]:hidden"
     >
       {items.map((item, i) => {
         const isCurrent = current === i;
@@ -67,16 +52,11 @@ export default function NavCat({ items, current, setCurrent }: Props) {
           <button
             key={i}
             onClick={() => setCurrent(i)}
-            className={`
-              text-sm py-1.5 px-2.5 mr-4
-              cursor-pointer rounded-md
-              border whitespace-nowrap
-              transition-all duration-500
-              ${isCurrent
+            className={`mr-4 cursor-pointer rounded-md border px-2.5 py-1.5 text-sm whitespace-nowrap transition-all duration-500 ${
+              isCurrent
                 ? "border-bg-inverse bg-bg-inverse text-bg"
                 : "border-ui-line-gray-2 text-text-gray hover:bg-hover-bg"
-              }
-            `}
+            } `}
           >
             <span>
               {item[0]} {item[1]}

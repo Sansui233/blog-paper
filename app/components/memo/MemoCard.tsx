@@ -30,7 +30,7 @@ export function MemoCard({
 
   const contentLength = source.length ?? undefined;
   const shouldCollapse =
-    (contentLength && contentLength > 200) || source.content_jsx!.length > 2000;
+    (contentLength && contentLength > 200) || source.content_jsx!.length > 1000;
 
   // Parse date from memo id
   const date = useMemo(() => {
@@ -42,7 +42,7 @@ export function MemoCard({
     }
   }, [source.id]);
 
-  function handleExpand(e: React.MouseEvent<HTMLDivElement>) {
+  function handleExpand() {
     if (!isCollapse) {
       const element = ref.current;
       if (element) {
@@ -82,7 +82,7 @@ export function MemoCard({
   return (
     <section
       ref={ref}
-      className="bg-bg animate-bottom-fade-in p-5 max-[580px]:p-4"
+      className="memocard bg-bg animate-bottom-fade-in p-5 max-[580px]:p-4"
       {...otherprops}
     >
       <div
@@ -131,12 +131,12 @@ export function MemoCard({
         {/* Collapse mask */}
         {shouldCollapse && (
           <div
-            className={`text-accent absolute bottom-0 h-28 w-full text-right ${isCollapse ? "bg-mask-gradient" : ""}`}
+            className={`text-accent absolute bottom-[-0.25rem] h-28 w-full text-right ${isCollapse ? "bg-mask-gradient" : ""}`}
             style={{ display: shouldCollapse ? "block" : "none" }}
           >
             <div
               onClick={handleExpand}
-              className="mt-[5.5rem] cursor-pointer text-sm tracking-wide"
+              className="mt-22 cursor-pointer text-sm tracking-wide"
             >
               <span className="mr-2 transition-shadow duration-300 hover:shadow-[inset_0_-0.5em_0_var(--accent-hover)]">
                 {isCollapse ? "展开全文" : "收起"}
@@ -171,7 +171,7 @@ const MemoTag = (handleClickTag: (tag: string) => void) => {
 
 export function MemoLoading() {
   return (
-    <section className="bg-bg p-5 max-[580px]:p-4">
+    <section className="memoloading p-4 max-[580px]:p-4">
       <span className="font-bold opacity-35">Loading...</span>
     </section>
   );

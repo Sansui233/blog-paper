@@ -5,9 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 // Source data type and element prop type
 type Props<T extends { id: string | number }> =
   React.HTMLProps<HTMLDivElement> & {
-    initialSources: T[];
-    fetchFrom?: (i: number, batchsize: number) => Promise<T[] | undefined>;
-    batchsize?: number;
+    initialItems: readonly T[];
     Elem: (
       props: {
         source: T;
@@ -15,9 +13,14 @@ type Props<T extends { id: string | number }> =
       } & React.HTMLProps<HTMLDivElement>,
     ) => React.ReactNode;
     Loading?: () => React.ReactNode;
+    loadMore?: (
+      /** prev 起始位置是当前列表已经有的第一个数据, next 起始位置是当前列表已经有的最后一个数据+1*/
+      start_i: number,
+      mode: "next" | "prev",
+    ) => Promise<T[] | undefined>;
     scrollRef?: React.RefObject<HTMLElement | null>;
     /** 外部的 hook，通知外部 source 变化*/
-    notifySourceChange?: (sources: T[]) => void;
+    notifyItemsChange?: (sources: T[]) => void;
   };
 
 export type VirtualListType = <T extends { id: string | number }>(
@@ -25,203 +28,160 @@ export type VirtualListType = <T extends { id: string | number }>(
 ) => React.ReactNode;
 
 const VirtualList: VirtualListType = ({
-  id,
-  initialSources,
-  notifySourceChange,
+  initialItems,
+  notifyItemsChange,
   Elem,
   scrollRef,
-  fetchFrom,
-  batchsize = 10,
+  loadMore,
   Loading,
-  style,
+  id,
   ...otherprops
 }) => {
-  const [sources, setSources] = useState(initialSources);
-  const [placeHolder, setPlaceHolder] = useState<number[]>(
-    new Array(sources.length).fill(300),
+  /** PlaceHolder heights for all items */
+  const [itemHeights, setItemHeights] = useState<number[]>(
+    new Array(initialItems.length).fill(300),
   );
-  const [activeIndex, setActiveIndex] = useState<number[]>(
-    new Array(sources.length).fill(0).map((_, i) => i),
+  /** items to be rendered */
+  const [visibleItems, setVisibleItems] = useState(initialItems);
+  /** The indices of current items in all iitems. can be negative
+   * Don't exceed maxLoadedCount
+   */
+  const [visibleItemIndices, setVisibleItemIndices] = useState<number[]>(
+    new Array(initialItems.length).fill(0).map((_, i) => i),
   );
-  const [winBreakPoint] = useState(sources.length * 3);
+  const [maxLoadedCount] = useState(initialItems.length * 3);
+  const [batchsize] = useState(initialItems.length);
   const [isLoading, setIsLoading] = useState(false);
-  const scrollLock = useRef({ enable: true });
-  const [lastKey, setLastKey] = useState(id); // 用于检测由外部触发的 source 变化，以解决高度没刷新的问题
+  /** Prevent multiple fetch at the same time */
+  const isFetching = useRef(false);
 
-  console.debug("%% render heights:", placeHolder);
-
-  // 高度从外部同步：当 id 变化或 sources.length 与 placeHolder.length 不匹配时重新初始化
-  useEffect(() => {
-    console.debug(
-      "⚠virtual-list-id on sources changed",
-      lastKey,
-      id,
-      "\ninitialSources长度为",
-      initialSources.length,
-      "\nsources长度为",
-      sources.length,
-      "\nplaceHolder长度为",
-      placeHolder.length,
-    );
-    if (id !== lastKey || sources.length !== placeHolder.length) {
-      console.debug("⚠从", placeHolder.length, "更新到长度", sources.length);
-      // setPlaceHolder(new Array(sources.length).fill(300));
-      // setActiveIndex(new Array(sources.length).fill(0).map((_, i) => i));
-      // setLastKey(id);
-    }
-  }, [initialSources, id, placeHolder.length]);
-
+  /** minHeight for container based on placeHolders*/
   const minHeight = useMemo(
-    () => placeHolder.reduce((sum, height) => (sum += height), 0),
-    [placeHolder],
+    () => itemHeights.reduce((sum, height) => (sum += height), 0),
+    [itemHeights],
   );
-
-  // console.debug("%% PlaceHolder heights:", placeHolder);
 
   const transformOnIndex = useCallback(
     (i: number) => {
       let sum = 0;
       for (let j = 0; j < i; j++) {
-        sum += placeHolder[j];
+        sum += itemHeights[j];
       }
       return sum;
     },
-    [placeHolder],
+    [itemHeights],
   );
 
-  // Scroll monitor: when < 20% or > 80%, fetch new source
+  const updateItemHeight = useCallback((i_value: number, height: number) => {
+    setItemHeights((prev) => {
+      const newHeights = [...prev];
+      newHeights[i_value] = height;
+      return newHeights;
+    });
+  }, []);
+
+  // Scroll monitor: when < 10% or > 90%, fetch new source
   useEffect(() => {
+    if (!loadMore) return;
+
     const scrollElem = scrollRef?.current;
-    const handler = () => {
-      if (!scrollLock.current.enable) return;
 
-      const scrollHeight =
-        transformOnIndex(activeIndex[activeIndex.length - 1]) -
-        transformOnIndex(activeIndex[0]);
-      const currScrollTop =
-        (scrollElem ? scrollElem.scrollTop : globalThis.scrollY) -
-        transformOnIndex(activeIndex[0]);
-      const currScrollBottom =
-        currScrollTop +
-        globalThis.innerHeight -
-        (scrollElem
-          ? scrollElem.getBoundingClientRect().y > 0
-            ? scrollElem.getBoundingClientRect().y
-            : 0
-          : 0);
+    const handler = async () => {
+      if (isFetching.current) return;
 
-      const progress = currScrollTop / scrollHeight;
-      const progressBottom = currScrollBottom / scrollHeight;
+      try {
+        const scrollHeight =
+          transformOnIndex(visibleItemIndices.at(-1) ?? 0) +
+          itemHeights[visibleItemIndices.at(-1) ?? 0] -
+          transformOnIndex(visibleItemIndices[0]);
+        const currScrollTop =
+          (scrollElem ? scrollElem.scrollTop : globalThis.scrollY) -
+          transformOnIndex(visibleItemIndices[0]);
+        const currScrollBottom =
+          currScrollTop +
+          globalThis.innerHeight -
+          (scrollElem
+            ? scrollElem.getBoundingClientRect().y > 0
+              ? scrollElem.getBoundingClientRect().y
+              : 0
+            : 0);
+        // console.debug(
+        //   `Scroll Height: ${scrollHeight}\n Current Top: ${currScrollTop}\n Current Bottom: ${currScrollBottom}`,
+        // );
 
-      if (isNaN(progress) || !isFinite(progress) || progress > 1.5) return;
+        const progress = currScrollTop / scrollHeight;
+        const progressBottom = currScrollBottom / scrollHeight;
 
-      scrollLock.current = { enable: false };
-
-      // Fetch previous batch when scrolled to top 20%
-      if (fetchFrom && progress < 0.2) {
-        const reqStart = activeIndex[0] - batchsize;
-        if (reqStart < 0) {
-          scrollLock.current = { enable: true };
+        if (
+          isNaN(progress) ||
+          !isFinite(progress) ||
+          progress > 1.5 ||
+          scrollHeight < 0
+        )
           return;
+
+        if (progress < 0.15) {
+          isFetching.current = true;
+          setIsLoading(true);
+          const prevdata = await loadMore(visibleItemIndices[0], "prev");
+          setIsLoading(false);
+          if (!prevdata || prevdata.length === 0) return;
+
+          // prev data max length is maxLoadedCount - batchsize, trim head
+          if (prevdata.length > maxLoadedCount - batchsize) {
+            prevdata.splice(0, prevdata.length - (maxLoadedCount - batchsize));
+          }
+
+          let prevItemIndices = prevdata.map(
+            (_, i) => i - prevdata.length + visibleItemIndices[0],
+          );
+          // concat prevItem and currentItem, and trim both to maxLoadedCount
+          let fullIndex = prevItemIndices.concat(visibleItemIndices);
+          let fulldata = prevdata.concat(visibleItems);
+          if (fullIndex.length > maxLoadedCount) {
+            fullIndex.splice(maxLoadedCount);
+            fulldata.splice(maxLoadedCount);
+          }
+
+          setVisibleItemIndices(fullIndex);
+          setVisibleItems(fulldata);
+          notifyItemsChange?.(fulldata);
+        } else if (progressBottom > 0.85) {
+          isFetching.current = true;
+
+          setIsLoading(true);
+          const reqStart = (visibleItemIndices.at(-1) || 0) + 1;
+          const nextdata = await loadMore(reqStart, "next");
+          setIsLoading(false);
+          if (!nextdata || nextdata.length === 0) return;
+          // next data max length is maxLoadedCount - batchsize, trim tail
+          if (nextdata.length > maxLoadedCount - batchsize) {
+            nextdata.splice(
+              maxLoadedCount - batchsize,
+              nextdata.length - (maxLoadedCount - batchsize),
+            );
+          }
+
+          const nextItemIndices = nextdata.map(
+            (_, i) => i + (visibleItemIndices.at(-1) || 0) + 1,
+          );
+          // concat prevItem and currentItem, and trim both to maxLoadedCount
+          const fullIndex = visibleItemIndices.concat(nextItemIndices);
+          const fulldata = visibleItems.concat(nextdata);
+
+          if (fullIndex.length > maxLoadedCount) {
+            fullIndex.splice(0, fullIndex.length - maxLoadedCount);
+            fulldata.splice(0, fulldata.length - maxLoadedCount);
+          }
+
+          setVisibleItemIndices(fullIndex);
+          setVisibleItems(fulldata);
+          notifyItemsChange?.(fulldata);
         }
-
-        setIsLoading(true);
-        fetchFrom(reqStart, batchsize).then((prevdata) => {
-          setIsLoading(false);
-          if (!prevdata || prevdata.length === 0) {
-            scrollLock.current = { enable: true };
-            return;
-          }
-
-          let prevActiveIndex = activeIndex.map(
-            (aci) => aci - activeIndex.length,
-          );
-          if (prevdata.length > activeIndex.length) {
-            const additional = new Array(prevdata.length - activeIndex.length)
-              .fill(0)
-              .map(
-                (_, i) =>
-                  i - prevdata.length + activeIndex.length + prevActiveIndex[0],
-              );
-            prevActiveIndex = additional.concat(prevActiveIndex);
-          } else if (prevdata.length < activeIndex.length) {
-            prevActiveIndex = prevActiveIndex.slice(
-              activeIndex.length - prevdata.length,
-              activeIndex.length,
-            );
-          }
-
-          const fullIndex = prevActiveIndex.concat(activeIndex);
-          const fulldata = prevdata.concat(sources);
-
-          // Slide window
-          if (fullIndex.length > winBreakPoint) {
-            fullIndex.splice(
-              0 - prevActiveIndex.length,
-              prevActiveIndex.length,
-            );
-            fulldata.splice(0 - prevActiveIndex.length, prevActiveIndex.length);
-          }
-
-          setActiveIndex(fullIndex);
-          setSources(fulldata);
-          notifySourceChange?.(fulldata);
-          scrollLock.current = { enable: true };
-        });
-      }
-      // Fetch next batch when scrolled to bottom 80%
-      else if (fetchFrom && progressBottom > 0.8) {
-        const reqStart = activeIndex[activeIndex.length - 1] + 1;
-        setIsLoading(true);
-        fetchFrom(reqStart, batchsize).then((nextdata) => {
-          setIsLoading(false);
-          if (!nextdata || nextdata.length === 0) {
-            scrollLock.current = { enable: true };
-            return;
-          }
-
-          let nextActiveIndex = activeIndex.map(
-            (aci) => aci + activeIndex.length,
-          );
-          if (nextdata.length > activeIndex.length) {
-            const additional = new Array(nextdata.length - activeIndex.length)
-              .fill(0)
-              .map((_, i) => i + nextActiveIndex[nextActiveIndex.length - 1]);
-            nextActiveIndex = nextActiveIndex.concat(additional);
-          } else if (nextdata.length < activeIndex.length) {
-            nextActiveIndex = nextActiveIndex.slice(0, nextdata.length);
-          }
-
-          if (
-            nextActiveIndex[nextActiveIndex.length - 1] >
-            placeHolder.length - 1
-          ) {
-            const additional = new Array(
-              nextActiveIndex[nextActiveIndex.length - 1] -
-                placeHolder.length +
-                1,
-            ).fill(300);
-            requestAnimationFrame(() => {
-              setPlaceHolder((prev) => prev.concat(additional));
-            });
-          }
-
-          const fullIndex = activeIndex.concat(nextActiveIndex);
-          const fulldata = sources.concat(nextdata);
-
-          // Slide window
-          if (fullIndex.length > winBreakPoint) {
-            fullIndex.splice(0, nextdata.length);
-            fulldata.splice(0, nextdata.length);
-          }
-
-          setActiveIndex(fullIndex);
-          setSources(fulldata);
-          notifySourceChange?.(fulldata);
-          scrollLock.current = { enable: true };
-        });
-      } else {
-        scrollLock.current = { enable: true };
+      } catch (error) {
+        console.error("VirtualList scroll fetch error:", error);
+      } finally {
+        isFetching.current = false;
       }
     };
 
@@ -241,16 +201,12 @@ const VirtualList: VirtualListType = ({
       }
     };
   }, [
-    scrollLock,
     scrollRef,
-    fetchFrom,
-    activeIndex,
-    setSources,
-    placeHolder,
-    transformOnIndex,
-    sources,
-    batchsize,
-    winBreakPoint,
+    visibleItems,
+    visibleItemIndices,
+    loadMore,
+    setVisibleItems,
+    transformOnIndex, // rely on itemHeights
   ]);
 
   return (
@@ -260,21 +216,21 @@ const VirtualList: VirtualListType = ({
           position: "relative" as const,
           width: "100%",
           minHeight: `${minHeight}px`,
+          willChange: "transform",
         },
-        style,
+        otherprops.style,
       )}
-      className={otherprops.className}
       id={id}
       {...otherprops}
     >
-      {sources.map((e, i) => (
+      {visibleItems.map((e, i) => (
         <ListItem
           key={e.id}
-          index={activeIndex[i]}
+          i_value={visibleItemIndices[i]}
           Elem={Elem}
           source={e}
-          placeHolder={placeHolder}
-          setPlaceHolder={setPlaceHolder}
+          itemHeights={itemHeights}
+          updateItemHeight={updateItemHeight}
         />
       ))}
       {Loading && isLoading ? (
@@ -282,9 +238,7 @@ const VirtualList: VirtualListType = ({
           style={{
             position: "absolute",
             width: "100%",
-            transform: `translateY(${placeHolder
-              .slice(0, placeHolder.length)
-              .reduce((sum, height) => (sum += height), 0)}px)`,
+            transform: `translateY(${itemHeights.reduce((sum, height) => (sum += height), 0)}px)`,
           }}
         >
           <Loading />
@@ -296,31 +250,27 @@ const VirtualList: VirtualListType = ({
 
 function ListItem<T extends { id: string | number }>({
   Elem,
-  index,
+  i_value,
   source,
-  placeHolder,
-  setPlaceHolder,
+  itemHeights,
+  updateItemHeight,
 }: {
   Elem: Props<T>["Elem"];
   source: T;
-  index: number;
-  placeHolder: number[];
-  setPlaceHolder: Dispatch<SetStateAction<number[]>>;
+  i_value: number;
+  itemHeights: readonly number[];
+  updateItemHeight: (i: number, height: number) => void;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const handler = useCallback(() => {
     if (ref.current) {
       const height = ref.current.offsetHeight;
+      if (itemHeights[i_value] === height) return;
       requestAnimationFrame(() => {
-        setPlaceHolder((placeHolder) => {
-          if (placeHolder[index] === height || height === 0) return placeHolder;
-          const newPlaceHolder = [...placeHolder];
-          newPlaceHolder[index] = height;
-          return newPlaceHolder;
-        });
+        updateItemHeight(i_value, height);
       });
     }
-  }, [ref, setPlaceHolder, index]);
+  }, [ref, updateItemHeight, i_value]);
 
   // On window resize
   useEffect(() => {
@@ -329,7 +279,7 @@ function ListItem<T extends { id: string | number }>({
     return () => {
       globalThis.removeEventListener("resize", throttled);
     };
-  }, [ref, index, setPlaceHolder, handler]);
+  }, [ref, i_value, updateItemHeight, handler]);
 
   // Height change trigger from child
   const [isHeightChange, triggerHeightChange] = useState(false);
@@ -349,10 +299,10 @@ function ListItem<T extends { id: string | number }>({
 
   // Calculate translateY
   const translateY = useMemo(() => {
-    return placeHolder
-      .slice(0, index)
+    return itemHeights
+      .slice(0, i_value)
       .reduce((sum, height) => (sum += height), 0);
-  }, [index, placeHolder]);
+  }, [i_value, itemHeights]);
 
   return (
     <div

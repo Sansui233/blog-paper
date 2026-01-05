@@ -29,7 +29,7 @@ export function ImageThumbs({ imgs_md }: ImageThumbsProps) {
       width: 1,
       height: 1,
       alt: "",
-    }))
+    })),
   );
 
   // Fetch and load images
@@ -113,9 +113,9 @@ export function ImageThumbs({ imgs_md }: ImageThumbsProps) {
     }
 
     return (
-      <div className="h-[250px] pl-12">
+      <div className="h-62.5 pl-12">
         <div
-          className="relative h-full max-w-full rounded-lg bg-bg-2 overflow-hidden cursor-zoom-in select-none"
+          className="bg-bg-2 relative h-full max-w-full cursor-zoom-in overflow-hidden rounded-lg select-none"
           style={{ aspectRatio }}
           onClick={() => handleImageClick(0)}
         >
@@ -124,7 +124,7 @@ export function ImageThumbs({ imgs_md }: ImageThumbsProps) {
               loading="lazy"
               src={img.src}
               alt={img.alt}
-              className="absolute inset-0 w-full h-full object-cover"
+              className="absolute inset-0 h-full w-full object-cover"
             />
           )}
         </div>
@@ -134,11 +134,11 @@ export function ImageThumbs({ imgs_md }: ImageThumbsProps) {
 
   // Multiple images grid layout
   return (
-    <div className="grid grid-cols-4 max-[580px]:grid-cols-3 gap-[5px] mt-2 pl-12">
+    <div className="mt-2 grid grid-cols-4 gap-1.25 pl-12 max-[580px]:grid-cols-3">
       {thumbData.map((img, i) => (
         <div
           key={i}
-          className="relative aspect-square rounded-lg bg-bg-2 overflow-hidden cursor-zoom-in select-none"
+          className="bg-bg-2 relative aspect-square cursor-zoom-in overflow-hidden rounded-lg select-none"
           onClick={() => handleImageClick(i)}
         >
           {img.ok === "loaded" && (
@@ -146,7 +146,7 @@ export function ImageThumbs({ imgs_md }: ImageThumbsProps) {
               loading="lazy"
               src={img.src}
               alt={img.alt}
-              className="absolute inset-0 w-full h-full object-cover"
+              className="absolute inset-0 h-full w-full object-cover"
             />
           )}
         </div>

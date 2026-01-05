@@ -239,17 +239,25 @@ export default function MemosPage({ loaderData }: Route.ComponentProps) {
   );
 
   // Fetch more memos for infinite scroll (currently only when not filtered)
-  const fetchFrom = useCallback(
-    async (start: number, batchsize: number): Promise<TMemo[] | undefined> => {
+  const loadMore = useCallback(
+    async (
+      start: number,
+      mode: "next" | "prev",
+    ): Promise<TMemo[] | undefined> => {
       if (isFiltered) return undefined; // Don't fetch more when filtered
 
+      const batchsize = 10;
+      if (mode === "prev") {
+        start = start - batchsize;
+      }
+      console.debug("%% loadMore at:", start, "mode:", mode);
       const pageStart = Math.floor(start / 10);
       const pageEnd = Math.floor((start + batchsize - 1) / 10);
       const indexStart = start % 10;
       const indexEnd = (start + batchsize - 1) % 10;
 
       // Check bounds
-      if (pageStart > info.pages) return undefined;
+      if (pageStart < 0 || pageStart > info.pages) return undefined;
 
       const urls: string[] = [];
       for (let i = pageStart; i <= Math.min(pageEnd, info.pages); i++) {
@@ -258,9 +266,10 @@ export default function MemosPage({ loaderData }: Route.ComponentProps) {
 
       console.debug("%% Fetching memos from:", urls);
       if (urls.length === 0) return undefined;
-      const promises = urls.map((url) =>
-        fetch(url).then((res) => res.json() as Promise<MemoPostJsx[]>),
-      );
+      const promises = urls.map(async (url) => {
+        const res = await fetch(url);
+        return res.json() as Promise<MemoPostJsx[]>;
+      });
 
       const pages = await Promise.all(promises);
       let result = pages.flat();
@@ -291,7 +300,7 @@ export default function MemosPage({ loaderData }: Route.ComponentProps) {
     >
       <div className="bg-bg-2 min-h-screen">
         {/* OneColLayout: max-width 1080px, centered, mobile and tablet full width */}
-        <div className="mx-auto max-w-[1080px] max-[780px]:max-w-full">
+        <div className="mx-auto max-w-270 max-[780px]:max-w-full">
           {/* Float button - hidden on desktop or tablet (>=780px), shown on mobile */}
           <FloatButton
             Icon={MenuSquare}
@@ -303,7 +312,7 @@ export default function MemosPage({ loaderData }: Route.ComponentProps) {
           <div className="flex flex-col justify-center min-[780px]:flex-row">
             {/* Main column (Col) - flex: 3 1 0, stretches to fill available space */}
             <div
-              className={`relative flex w-full flex-[3_1_0] flex-col px-4 pt-[73px] pb-12 [-ms-overflow-style:none] [scrollbar-width:none] max-[780px]:flex-[1_1_0] max-[580px]:px-0 min-[1080px]:max-w-[680px] [&::-webkit-scrollbar]:hidden`}
+              className={`relative flex w-full flex-[3_1_0] flex-col px-4 pt-18 pb-12 [-ms-overflow-style:none] [scrollbar-width:none] max-[780px]:flex-[1_1_0] max-[580px]:px-0 min-[1080px]:max-w-170 [&::-webkit-scrollbar]:hidden`}
             >
               {/* Filter status - right aligned like PageDescription */}
               {isFiltered && (
@@ -327,8 +336,8 @@ export default function MemosPage({ loaderData }: Route.ComponentProps) {
                   <VirtualList<TMemo>
                     key={`${loaderData.filterTag ?? ""}-${loaderData.searchQuery ?? ""}`}
                     id={`${loaderData.filterTag ?? ""}-${loaderData.searchQuery ?? ""}`}
-                    className="virtualist *:border-ui-line-gray-2 *:border-b [&>*:first-child>section]:rounded-t-lg max-[580px]:[&>*:first-child>section]:rounded-none [&>*:last-child]:border-b-0 [&>*:last-child>section]:rounded-b-lg max-[580px]:[&>*:last-child>section]:rounded-none"
-                    initialSources={loaderData.memos}
+                    className="virtualist *:border-ui-line-gray-2 *:border-b [&>*:first-child>.memocard]:rounded-t-lg max-[580px]:[&>*:first-child>.memocard]:rounded-none [&>*:last-child]:border-b-transparent [&>*:last-child>.memocard]:rounded-b-lg max-[580px]:[&>*:last-child>.memocard]:rounded-none"
+                    initialItems={loaderData.memos}
                     Elem={(props) => (
                       <MemoCard
                         source={props.source}
@@ -342,8 +351,8 @@ export default function MemosPage({ loaderData }: Route.ComponentProps) {
                   <VirtualList<TMemo>
                     id={loaderData.source}
                     key={loaderData.source}
-                    className="virtualist *:border-ui-line-gray-2 *:border-b [&>*:first-child>section]:rounded-t-lg max-[580px]:[&>*:first-child>section]:rounded-none [&>*:last-child]:border-b-0 [&>*:last-child>section]:rounded-b-lg max-[580px]:[&>*:last-child>section]:rounded-none"
-                    initialSources={loaderData.memos}
+                    className="virtualist *:border-ui-line-gray-2 *:border-b [&>*:first-child>.memocard]:rounded-t-lg max-[580px]:[&>*:first-child>.memocard]:rounded-none [&>*:has(+_div>.memoloading)]:border-b-transparent [&>*:has(+_div>.memoloading)>.memocard]:rounded-b-lg [&>*:last-child>.memocard]:rounded-b-lg max-[580px]:[&>*>.memocard]:rounded-none"
+                    initialItems={loaderData.memos}
                     Elem={(props) => (
                       <MemoCard
                         source={props.source}
@@ -351,8 +360,7 @@ export default function MemosPage({ loaderData }: Route.ComponentProps) {
                         triggerHeightChange={props.triggerHeightChange}
                       />
                     )}
-                    fetchFrom={fetchFrom}
-                    batchsize={10}
+                    loadMore={loadMore}
                     Loading={MemoLoading}
                   />
                 )}
