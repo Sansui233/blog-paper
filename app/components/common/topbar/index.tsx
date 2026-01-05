@@ -125,7 +125,9 @@ export default function Topbar({
         <div className="w-52.5 flex-auto items-center justify-start font-semibold max-md:w-25">
           <Link to="/" className="flex items-center px-4">
             <NekoIcon width={36} className="shrink-0" />
-            <span className="px-2 max-md:hidden">{t("ui.blogTitle", { author: siteInfo.author })}</span>
+            <span className="px-2 max-md:hidden">
+              {t("ui.blogTitle", { author: siteInfo.author })}
+            </span>
           </Link>
         </div>
 
@@ -243,7 +245,7 @@ function DropdownLink({ to, isOpen, isFirst, children }: DropdownLinkProps) {
   return (
     <Link
       to={to}
-      className={`text-text-secondary my-2 block px-1 pb-1 pl-2.75 transition-all duration-500 ${isOpen ? "blur-0 opacity-100" : "pointer-events-none opacity-0 blur-md"} ${isFirst ? "border-ui-line-gray-3 mt-11 border-t pt-2" : ""} `}
+      className={`text-text-secondary my-2 block px-1 pb-1 pl-2.75 transition-all duration-500 ${isOpen ? "blur-0 opacity-100" : "pointer-events-none opacity-0 blur-md"} `}
     >
       {children}
     </Link>

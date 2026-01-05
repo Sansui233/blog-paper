@@ -1,3 +1,5 @@
+import { Post } from ".velite";
+import { Eye, MessageSquare } from "lucide-react";
 import { lazy, Suspense, useMemo, useRef, useState } from "react";
 import LayoutContainer from "~/components/common/layout";
 import { MDImg } from "~/components/markdown/MDImg";
@@ -9,7 +11,8 @@ import { useMdx } from "~/hooks/use-mdx";
 import { useTocHighlight } from "~/hooks/use-toc-highlight";
 import type { Route } from "./+types/posts.$slug";
 
-const Waline = lazy(() => import("~/components/common/waline"));
+const walineImport = () => import("~/components/common/waline");
+const Waline = lazy(walineImport);
 
 export async function loader({ params }: Route.LoaderArgs) {
   const { posts_db } = await import("lib/data/server/posts");
@@ -71,6 +74,10 @@ export default function BlogPost({ loaderData }: Route.ComponentProps) {
             categories={post.categories}
             tags={post.tags}
           />
+          <section>
+            <ViewComment post={post} />
+          </section>
+
           <div ref={contentRef} className="markdown-wrapper">
             {useMdx(post.content_jsx, mdxComponents)}
           </div>
@@ -103,6 +110,35 @@ export default function BlogPost({ loaderData }: Route.ComponentProps) {
         onTocToggle={() => setIsMobileTocOpen((v) => !v)}
       />
     </LayoutContainer>
+  );
+}
+
+function ViewComment({ post }: { post: Post }) {
+  return (
+    <div className="text-right text-sm opacity-50">
+      <Eye size="1em" className="mr-1 mb-0.5" />
+      <span
+        className="waline-pageview-count"
+        data-path={`/posts/${encodeURI(post.slug)}`}
+      />{" "}
+      阅读
+      <span
+        className="hover:text-accent cursor-pointer"
+        onClick={() => {
+          const el = document.getElementById("waline");
+          if (el) {
+            el.scrollIntoView({ behavior: "smooth" });
+          }
+        }}
+      >
+        <MessageSquare size="1em" className="mr-1 mb-0.5 ml-4" />
+        <span
+          className="waline-comment-count"
+          data-path={`/posts/${encodeURI(post.slug)}`}
+        />{" "}
+        评论
+      </span>
+    </div>
   );
 }
 

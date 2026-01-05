@@ -37,14 +37,10 @@ export function parseDate(str: string | Date): Date {
 
   if (hasTimezone) {
     const date = new Date(str);
-    console.debug(date.toString());
     if (date.toString() !== "Invalid Date") {
-      console.debug("%% 2");
       return date;
     }
   }
-
-  console.debug(str);
 
   // 无时区信息，按站点时区解析
   // 格式: "2021-01-01 00:00" 或 "2021-01-01"
