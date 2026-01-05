@@ -9,5 +9,5 @@ export async function getDynamicPaths(): Promise<string[]> {
   const tags = [...new Set(posts.flatMap((p) => p.tags || []))];
   const tagPaths = tags.map((t) => `/tags/${t}`);
 
-  return [...postPaths, ...categoryPaths, ...tagPaths];
+  return [...postPaths, ...categoryPaths, ...tagPaths, "/categories/all"];
 }

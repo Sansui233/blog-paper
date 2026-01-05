@@ -30,7 +30,7 @@ git clone --depth=1 https://github.com/Sansui233/next-blog-paper.git
 
 ### 1. 站点配置文件
 
-在工作目录下添加`site.config.js`。
+在工作目录下添加`site.config.ts`。
 
 ```js
 export const siteInfo = {
@@ -121,19 +121,16 @@ keywords: Markdown, 测试
 
 ## 构建博客
 
-
 ```sh
 pnpm i # 安装依赖
 pnpm velite # 构建静态数据、rss、search-index 等
 pnpm build # 导出静态页面到 build/client 文件夹
-
-pnpm start # 启动服务（SSR渲染模式）
-npx serve build/client # 启动服务（预览SSG）
+pnpm start # 启动服务（SSG模式）
 ```
 
 ## 部署
 
-参考 [deploy.sh](https://github.com/Sansui233/next-blog-paper/blob/master/deploy.sh)，上传 out 文件夹的内容到 gitpages。需要修改脚本中的目标文件夹和 git push 的分支名。
+参考 [deploy.sh](./deploy.sh)，上传 out 文件夹的内容到 gitpages。需要修改脚本中的目标文件夹和 git push 的分支名。
 
 我个人使用的是 github pages，同时 vercel 拉取 github 的分支。
 
@@ -143,20 +140,19 @@ npx serve build/client # 启动服务（预览SSG）
 - [x] rss 完成
 - [x] Dark Mode
 - [x] 详细分类页
-- [ ] 分页渲染
-- [ ] 评论接入
+- [x] 分页渲染
+- [x] 评论接入
 - [ ] 统计接入
-- [ ] 站内搜索
+- [x] 站内搜索
 - [ ] 增加微博客内容(相册等)
 - [ ] UI语言切换
 - [ ] mdx 支持性测试
-- [ ] 打包代码优化分割
 
 
 ## Thanks
 
 - 框架：React Router 7
-- MDX parser: next-mdx-remote
+- MDX parser: mdx-js, velite
 - CSS 方案: tailwind css
 - 评论系统: [Waline](https://waline.js.org)
 - 统计数据: Google Analytics

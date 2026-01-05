@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useMemo, useRef, useState } from "react";
 import LayoutContainer from "~/components/common/layout";
 import { MDImg } from "~/components/markdown/MDImg";
 import { FloatButtons } from "~/components/post/FloatButtons";
@@ -8,6 +8,8 @@ import { TableOfContents } from "~/components/post/TableOfContents";
 import { useMdx } from "~/hooks/use-mdx";
 import { useTocHighlight } from "~/hooks/use-toc-highlight";
 import type { Route } from "./+types/posts.$slug";
+
+const Waline = lazy(() => import("~/components/common/waline"));
 
 export async function loader({ params }: Route.LoaderArgs) {
   const { posts_db } = await import("lib/data/server/posts");
@@ -61,25 +63,30 @@ export default function BlogPost({ loaderData }: Route.ComponentProps) {
   return (
     <LayoutContainer>
       {/* Main article */}
-      <article className="mx-auto w-170 px-5 py-15 max-xl:w-[calc(100%-480px)] max-xl:max-w-170 max-lg:w-auto max-lg:max-w-170 max-sm:w-full max-sm:py-12">
-        <h1 className="mt-0 mb-0 text-center">{post.title}</h1>
-        <PostMeta
-          date={post.date}
-          categories={post.categories}
-          tags={post.tags}
-        />
-        <div ref={contentRef} className="markdown-wrapper">
-          {useMdx(post.content_jsx, mdxComponents)}
-        </div>
-
-        <section>
-          <div className="mt-16 text-right text-sm opacity-50">
-            更新于 {post.date.split("T")[0]}
+      <div className="mx-auto w-170 px-5 py-15 max-xl:w-[calc(100%-480px)] max-xl:max-w-170 max-lg:w-auto max-lg:max-w-170 max-sm:w-full max-sm:py-12">
+        <article>
+          <h1 className="mt-0 mb-0 text-center">{post.title}</h1>
+          <PostMeta
+            date={post.date}
+            categories={post.categories}
+            tags={post.tags}
+          />
+          <div ref={contentRef} className="markdown-wrapper">
+            {useMdx(post.content_jsx, mdxComponents)}
           </div>
-        </section>
 
-        <Pagination prevPost={prevPost} nextPost={nextPost} />
-      </article>
+          <section>
+            <div className="mt-16 text-right text-sm opacity-50">
+              更新于 {post.date.split("T")[0]}
+            </div>
+          </section>
+
+          <Pagination prevPost={prevPost} nextPost={nextPost} />
+        </article>
+        <Suspense fallback={<div>Loading comments...</div>}>
+          <Waline />
+        </Suspense>
+      </div>
 
       <TableOfContents
         flatItems={headings}

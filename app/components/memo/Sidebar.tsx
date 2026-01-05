@@ -2,6 +2,7 @@ import type { MemoInfo, MemoTag } from "lib/data/memos.common";
 import { HashIcon, Search, TagIcon, Users, X } from "lucide-react";
 import { useRef } from "react";
 import { siteInfo } from "site.config";
+import { CommentCard } from "./CommentCard";
 
 // MemoSearchBox - Search input for memos
 interface MemoSearchBoxProps {
@@ -163,6 +164,7 @@ interface SidebarProps {
   tags: MemoTag[];
   onTagClick: (tagName: string) => void;
   onSearch: (query: string) => void;
+  onOpenComment: (e: React.MouseEvent) => void;
   selectedTag?: string | null;
   searchQuery?: string | null;
   isMobileSider: boolean;
@@ -174,6 +176,7 @@ export function Sidebar({
   tags,
   onTagClick,
   onSearch,
+  onOpenComment,
   selectedTag,
   searchQuery,
   isMobileSider,
@@ -199,6 +202,7 @@ export function Sidebar({
       <NavCard info={info} />
       <TagsCard tags={tags} onTagClick={onTagClick} selectedTag={selectedTag} />
       <FriendsCard />
+      <CommentCard onOpenComment={onOpenComment} />
     </div>
   );
 }

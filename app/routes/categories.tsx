@@ -32,6 +32,13 @@ export default function CategoriesIndex({ loaderData }: Route.ComponentProps) {
           <h1 className="mt-2 mb-0">分类</h1>
         </CategoryTitle>
         <div className="flex flex-wrap content-start items-center justify-center">
+          <Link
+            key="all"
+            to={`/categories/all`}
+            className="bg-tag-bg m-1.5 rounded-full px-4 py-1.5 text-sm opacity-80 transition-all duration-300 hover:scale-115 hover:opacity-100"
+          >
+            {`All Posts(${Object.values(categories).reduce((a, b) => a + b, 0)})`}
+          </Link>
           {Object.keys(categories).map((k) => (
             <Link
               key={k}

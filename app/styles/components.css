@@ -1,11 +1,14 @@
 @layer components {
   .markdown-wrapper {
-    /* 直接引用动画名，或者用 Tailwind 的工具类 */
     animation: bottomFadeIn 0.5s ease;
     color: var(--text-secondary);
 
     h1, h2, h3, h4, h5 { color: var(--text-primary); }
-    h6 { color: var(--text-gray); }
+    h6 { color: var(--text-gray); overflow-wrap: break-word;}
+
+    p{
+      overflow-wrap: break-word;;
+    }
 
     hr { 
       background-color: var(--ui-line-gray3); 
@@ -55,6 +58,16 @@
       content: "•";
       @apply absolute -left-4;
       color: var(--accent);
+    }
+
+    ol {
+      list-style: decimal;
+      @apply ps-6;
+    }
+    ol li::marker {
+      color: var(--text-gray-2);
+      font-weight: 500;
+      font-size: 0.9em;
     }
 
     del { @apply opacity-30; }

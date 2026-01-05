@@ -16,6 +16,7 @@
   --color-bg-2: var(--bg-2);
   --color-bg-inverse: var(--bg-inverse);
   --color-bg-mask: var(--bg-mask);
+  --color-bg-modal: var(--bg-modal);
   --color-tag-bg: var(--tag-bg);
   --color-float-bg: var(--float-bg);
   --color-hover-bg: var(--hover-bg);
@@ -38,7 +39,10 @@
 
   /* 注册动画到 Tailwind 工具类 */
   --animate-bottom-fade-in: bottomFadeIn 0.5s ease;
-  --animate-focus-in: focusIn 0.5s ease;
+  --animate-focus-in: focusIn 0.3s ease forwards;
+  --animate-focus-out: focusOut 0.3s ease forwards;
+  --animate-scale-in: scaleIn 0.3s ease forwards;
+  --animate-scale-out: scaleOut 0.3s ease forwards;
   --animate-slide-down: slideDown 0.3s ease;
   --animate-text-focus-in: textFocusIn 0.8s ease-out;
 }

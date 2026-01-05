@@ -36,6 +36,7 @@
     --bg-2: #f9f9f9;
     --bg-inverse: #292929;
     --bg-mask: #f4f5f7f4;
+    --bg-modal: #f9f9f988;
     --tag-bg: #efefef;
     --float-bg: #f5f5f5;
     --hover-bg: #00000012;
@@ -63,6 +64,7 @@
     --bg-2: #1e1e1e;
     --bg-inverse: #f8f8f8;
     --bg-mask: #242424f4;
+    --bg-modal: #1e1e1e88;
     --tag-bg: #353535;
     --float-bg: #303030;
     --hover-bg: #ffffff55;

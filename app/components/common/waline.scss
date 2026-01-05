@@ -1,0 +1,45 @@
+#waline {
+  margin: 0 auto;
+
+  --waline-theme-color: var(--color-bg-inverse);
+  --waline-bg-color: var(--color-bg);
+  --waline-color: var(--color-text-gray);
+  --waline-active-color: var(--color-accent);
+  --waline-bg-color-light: #99999915;
+  --waline-border: 1px solid #99999966;
+  --waline-border-color: #99999966;
+  --waline-info-bg-color: #99999915;
+
+  .wl-btn.primary {
+    background-color: var(--color-bg-inverse);
+    color: var(--color-bg);
+  }
+  .wl-gif-popup {
+    @media screen and (max-width: 580px) {
+      .wl-gallery-column {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr 1fr;
+        max-height: 200px;
+      }
+    }
+    img {
+      border-color: var(--color-bg);
+    }
+    input {
+      background: var(--color-bg);
+      color: var(--color-text-primary);
+    }
+  }
+}
+  // @media screen and (max-width:580px) {
+  //   .wl-footer {
+  //     margin: unset;
+  //     padding: 0.5rem 0.75rem;
+  //   }
+
+  //   .wl-gif-popup {
+  //     width: 100%;
+  //     left: 0;
+  //     padding: 0;
+  //   }
+  // }}

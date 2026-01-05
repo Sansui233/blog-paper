@@ -6,17 +6,18 @@ import {
 import { toMdxCode } from "lib/md-compile/compile";
 import { remarkTag } from "lib/remark/remark-tag";
 import { createNaive, type Match, type Result } from "lib/search";
-import { MenuSquare } from "lucide-react";
+import { Loader2, MenuSquare } from "lucide-react";
 import { useCallback, useState } from "react";
-import { useSearchParams } from "react-router";
+import { useNavigation, useSearchParams } from "react-router";
 import rehypeHighlight from "rehype-highlight";
 import remarkGfm from "remark-gfm";
 import { siteInfo } from "site.config";
 import { FloatButton } from "~/components/common/FloatButton";
 import LayoutContainer from "~/components/common/layout";
+import CommentModal from "~/components/memo/CommentModal";
 import ImageBrowser from "~/components/memo/ImageBrowser";
 import { MemoCard, MemoLoading, type TMemo } from "~/components/memo/MemoCard";
-import { MemoSkeleton } from "~/components/memo/MemoSkeleton";
+import { OverallSkeleton } from "~/components/memo/MemoSkeleton";
 import { Sidebar } from "~/components/memo/Sidebar";
 import VirtualList from "~/components/memo/VirtualList";
 import { parseSearchQuery } from "~/hooks/use-search";
@@ -105,6 +106,8 @@ export async function clientLoader({
     (r) => r.json(),
   )) as MemoSearchObj[];
 
+  // await new Promise((resolve) => setTimeout(resolve, 300000));
+
   // Determine search patterns and config based on query type
   let patterns: string[];
   let searchConfig: { fields?: Array<keyof MemoSearchObj> } | undefined;
@@ -178,7 +181,7 @@ clientLoader.hydrate = true as const;
 
 // --- 4. HydrateFallback (prevents flash of SSG content) ---
 export function HydrateFallback() {
-  return <MemoSkeleton />;
+  return <OverallSkeleton />;
 }
 
 // --- 5. Meta ---
@@ -201,6 +204,14 @@ export default function MemosPage({ loaderData }: Route.ComponentProps) {
   } = loaderData;
   const [searchParams, setSearchParams] = useSearchParams();
   const [isMobileSider, setIsMobileSider] = useState(false);
+  const [isCommentOpen, setIsCommentOpen] = useState(false);
+  const [clickPosition, setClickPosition] = useState<{
+    x: number;
+    y: number;
+  }>();
+
+  const navigation = useNavigation();
+  const isSearching = navigation.state === "loading";
 
   const selectedTag = searchParams.get("tag") || filterTag;
   const currentSearchQuery = searchParams.get("q") || searchQuery;
@@ -237,6 +248,12 @@ export default function MemosPage({ loaderData }: Route.ComponentProps) {
     },
     [setSearchParams],
   );
+
+  // Handle opening comment modal with click position for animation
+  const handleOpenComment = useCallback((e: React.MouseEvent) => {
+    setClickPosition({ x: e.clientX, y: e.clientY });
+    setIsCommentOpen(true);
+  }, []);
 
   // Fetch more memos for infinite scroll (currently only when not filtered)
   const loadMore = useCallback(
@@ -331,7 +348,15 @@ export default function MemosPage({ loaderData }: Route.ComponentProps) {
 
               {/* Memo list container */}
               <div className="border-ui-line-gray-2 bg-bg mt-2.5 rounded-lg border shadow-[0_0_12px_0_var(--shadow-bg)] max-[580px]:rounded-none max-[580px]:border-x-0">
-                {isFiltered ? (
+                {isSearching ? (
+                  // Searching loading state
+                  <div className="text-text-gray-2 flex min-h-60 flex-col items-center justify-center gap-3">
+                    <Loader2 size={32} className="animate-spin" />
+                    <span className="text-text-gray-3 text-center text-sm">
+                      <span>诶，被你看到了？</span>
+                    </span>
+                  </div>
+                ) : isFiltered ? (
                   // Filtered view - simple list without virtual scroll
                   <VirtualList<TMemo>
                     key={`${loaderData.filterTag ?? ""}-${loaderData.searchQuery ?? ""}`}
@@ -374,6 +399,7 @@ export default function MemosPage({ loaderData }: Route.ComponentProps) {
                 tags={tags}
                 onTagClick={handleTagClick}
                 onSearch={handleSearch}
+                onOpenComment={handleOpenComment}
                 selectedTag={selectedTag}
                 searchQuery={currentSearchQuery}
                 isMobileSider={isMobileSider}
@@ -386,6 +412,13 @@ export default function MemosPage({ loaderData }: Route.ComponentProps) {
 
       {/* Image browser modal */}
       <ImageBrowser />
+
+      {/* Comment modal */}
+      <CommentModal
+        isOpen={isCommentOpen}
+        onClose={() => setIsCommentOpen(false)}
+        clickPosition={clickPosition}
+      />
     </LayoutContainer>
   );
 }

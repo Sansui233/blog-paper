@@ -4,7 +4,6 @@ type Post = Collections['posts']['schema']['_output'];
 
 import { dateToYMDMM } from 'lib/date';
 
-const CATEGORY_ALL = 'All Posts'
 const TAG_UNTAGGED = 'Untagged'
 
 export type PostsDB = ReturnType<typeof buildPostsDB>
@@ -32,7 +31,6 @@ export function buildPostsDB(postsData: Post[]) {
    */
   const categories = (function () {
     const cats = new Map<string, number>()
-    cats.set(CATEGORY_ALL, velite.length)
 
     velite.forEach(p => {
       if (p.categories) {
@@ -77,7 +75,7 @@ export function buildPostsDB(postsData: Post[]) {
       .map(p => ({
         slug: p.slug,
         title: p.title,
-        date: new Date(p.date)
+        date: p.date
       }))
   }
 
@@ -86,11 +84,11 @@ export function buildPostsDB(postsData: Post[]) {
    */
   function inCategory(c: string) {
     return velite
-      .filter(p => c === CATEGORY_ALL || p.categories === c)
+      .filter(p => p.categories === c)
       .map(p => ({
         slug: p.slug,
         title: p.title,
-        date: new Date(p.date)
+        date: p.date
       }))
   }
 
@@ -132,7 +130,7 @@ export const posts_db: PostsDB = await (async () => {
 export function groupByYear(posts: {
   slug: string,
   title: string,
-  date: Date,
+  date: string | Date,
 }[]): {
   [year: string]: {
     slug: string;
@@ -143,11 +141,11 @@ export function groupByYear(posts: {
   const postsTree = new Map<number, { slug: string, title: string, date: string }[]>()
 
   posts.forEach(p => {
-    const y = p.date.getFullYear()
+    const y = new Date(p.date).getFullYear()
     const entry = {
       slug: p.slug,
       title: p.title,
-      date: dateToYMDMM(p.date)
+      date: dateToYMDMM(new Date(p.date))
     }
 
     if (postsTree.has(y)) {

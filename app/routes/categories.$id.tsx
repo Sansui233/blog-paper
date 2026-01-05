@@ -5,6 +5,20 @@ import type { Route } from "./+types/categories.$id";
 export async function loader({ params }: Route.LoaderArgs) {
   const { posts_db, groupByYear } = await import("lib/data/server/posts");
   const category = params.id;
+
+  if (category === "all") {
+    const posts = posts_db.velite.map((p) => {
+      return {
+        slug: p.slug,
+        title: p.title,
+        date: p.date,
+      };
+    });
+    return {
+      category: "all",
+      posts: groupByYear(posts),
+    };
+  }
   const posts = posts_db.inCategory(category);
 
   return {
