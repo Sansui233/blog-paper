@@ -1,6 +1,7 @@
 import { Post } from ".velite";
 import { Eye, MessageSquare } from "lucide-react";
 import { lazy, Suspense, useMemo, useRef, useState } from "react";
+import { siteInfo } from "site.config";
 import LayoutContainer from "~/components/common/layout";
 import { MDImg } from "~/components/markdown/MDImg";
 import { FloatButtons } from "~/components/post/FloatButtons";
@@ -43,8 +44,34 @@ export async function loader({ params }: Route.LoaderArgs) {
 export function meta({ loaderData }: Route.MetaArgs) {
   const { post } = loaderData;
   const description = post.description || post.excerpt?.slice(0, 160) || "";
+  const url = `${siteInfo.domain}/posts/${post.slug}`;
+  const keywords = [
+    ...(post.keywords || []),
+    ...(post.tags || []),
+    post.categories,
+  ]
+    .filter(Boolean)
+    .join(", ");
 
-  return [{ title: post.title }, { name: "description", content: description }];
+  return [
+    { title: post.title },
+    { name: "description", content: description },
+    { name: "keywords", content: keywords },
+    { name: "author", content: siteInfo.author },
+    // Open Graph
+    { property: "og:title", content: post.title },
+    { property: "og:description", content: description },
+    { property: "og:type", content: "article" },
+    { property: "og:url", content: url },
+    ...(post.cover ? [{ property: "og:image", content: post.cover.src }] : []),
+    { property: "article:published_time", content: post.date },
+    { property: "article:author", content: siteInfo.author },
+    // Twitter Card
+    { name: "twitter:card", content: "summary_large_image" },
+    { name: "twitter:title", content: post.title },
+    { name: "twitter:description", content: description },
+    ...(post.cover ? [{ name: "twitter:image", content: post.cover.src }] : []),
+  ];
 }
 
 export default function BlogPost({ loaderData }: Route.ComponentProps) {
