@@ -1,5 +1,5 @@
 import type { MemoPostJsx } from "lib/data/memos.common";
-import { dateToYMDMM } from "lib/date";
+import { parseMemoId } from "lib/date";
 import type { Dispatch, SetStateAction } from "react";
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -32,14 +32,10 @@ export function MemoCard({
   const shouldCollapse =
     (wordCount && wordCount > 200) || source.content_jsx!.length > 1000;
 
-  // Parse date from memo id
-  const date = useMemo(() => {
-    const d = new Date(source.id);
-    if (d.toString() !== "Invalid Date") {
-      return dateToYMDMM(d);
-    } else {
-      return source.id;
-    }
+  // Parse date from memo id using parseMemoId
+  // If parsing fails, display the id as-is
+  const dateDisplay = useMemo(() => {
+    return parseMemoId(source.id).display;
   }, [source.id]);
 
   function handleExpand() {
@@ -102,7 +98,7 @@ export function MemoCard({
             <span className="text-text-secondary mr-1 font-semibold">
               {siteInfo.author}
             </span>
-            <span className="text-text-gray text-[0.8rem]">{date}</span>
+            <span className="text-text-gray text-[0.8rem]">{dateDisplay}</span>
           </div>
           {wordCount && wordCount > 0 && (
             <span className="text-text-gray absolute right-0 text-[0.8rem]">

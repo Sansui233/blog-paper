@@ -1,4 +1,4 @@
-import { parseDate } from "lib/date";
+import { dateI18n, parseDate } from "lib/date";
 import { Folder } from "lucide-react";
 import { Link } from "react-router";
 import "./ArticleItem.css";
@@ -26,8 +26,7 @@ export default function ArticleItem({ post, index }: Props) {
         {/* Meta: date + category */}
         <div className="my-2 text-text-gray-2">
           <span className="font-medium text-sm">
-            {/* {dateI18n(parseDate(post.date))} */}
-            {parseDate(post.date).toLocaleDateString()}
+            {dateI18n(parseDate(post.date), "dateNatural")}
           </span>
           <Folder size="1em" className="inline ml-2 mr-1 mb-0.5" />
           <span className="font-medium text-sm inline-block">
