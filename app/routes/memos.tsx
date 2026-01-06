@@ -216,7 +216,10 @@ export default function MemosPage({ loaderData }: Route.ComponentProps) {
   const { t } = useTranslation();
 
   const navigation = useNavigation();
-  const isSearching = navigation.state === "loading";
+  const isSearching =
+    navigation.state === "loading" &&
+    navigation.location.pathname === "/memos" && // refer to ~/routes.ts
+    navigation.location.search !== "";
 
   const selectedTag = searchParams.get("tag") || filterTag;
   const currentSearchQuery = searchParams.get("q") || searchQuery;
@@ -336,12 +339,14 @@ export default function MemosPage({ loaderData }: Route.ComponentProps) {
             <div
               className={`relative flex w-full flex-[3_1_0] flex-col px-4 pt-18 pb-12 [-ms-overflow-style:none] [scrollbar-width:none] max-[780px]:flex-[1_1_0] max-[580px]:px-0 min-[1080px]:max-w-170 [&::-webkit-scrollbar]:hidden`}
             >
-              {/* Filter status - right aligned like PageDescription */}
-              {isFiltered && (
+              {/* Searching status - right aligned like PageDescription */}
+              {(isSearching || isFiltered) && (
                 <div className="text-text-gray-2 mr-4 text-right text-sm italic">
                   {isSearching
                     ? t("ui.searching")
-                    : t("ui.searchResults", { count: loaderData.memos.length })}
+                    : t("ui.searchResults", {
+                        count: loaderData.memos.length,
+                      })}
                   <span
                     className="hover:text-accent ml-3.5 cursor-pointer font-bold not-italic"
                     onClick={() => {
