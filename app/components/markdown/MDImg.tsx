@@ -1,8 +1,16 @@
-import { useCallback, useEffect, useRef, useState, type CSSProperties, type DetailedHTMLProps, type ImgHTMLAttributes, type Ref } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type DetailedHTMLProps,
+  type ImgHTMLAttributes,
+  type Ref,
+} from "react";
 import { useDocumentEvent } from "~/hooks/use-event";
 import { useViewHeight, useViewWidth } from "~/hooks/use-view";
 import { SkeletonError, SkeletonLoading } from "../common/skeleton";
-
 
 /**
  * custom img component
@@ -10,7 +18,12 @@ import { SkeletonError, SkeletonLoading } from "../common/skeleton";
  * @returns
  */
 
-export function MDImg(props: DetailedHTMLProps<ImgHTMLAttributes<HTMLImageElement>, HTMLImageElement>) {
+export function MDImg(
+  props: DetailedHTMLProps<
+    ImgHTMLAttributes<HTMLImageElement>,
+    HTMLImageElement
+  >,
+) {
   // see https://nextjs.org/docs/messages/react-hydration-error#possible-ways-to-fix-it
   const [isClient, setIsClient] = useState(false);
 
@@ -25,10 +38,12 @@ export function MDImg(props: DetailedHTMLProps<ImgHTMLAttributes<HTMLImageElemen
   const containerRef: Ref<HTMLDivElement> | undefined = useRef(null);
 
   // life cycle - init style
-  const [containerStyle, setContainerStyle] = useState<CSSProperties & {
-    width: string;
-    height: string;
-  }>({ width: '100%', height: "auto" });
+  const [containerStyle, setContainerStyle] = useState<
+    CSSProperties & {
+      width: string;
+      height: string;
+    }
+  >({ width: "100%", height: "auto" });
   const [imgStyle, setImgStyle] = useState<CSSProperties>({
     filter: "blur(12px)",
     height: "0",
@@ -70,38 +85,42 @@ export function MDImg(props: DetailedHTMLProps<ImgHTMLAttributes<HTMLImageElemen
       elem.onload = null;
       elem.onerror = null;
     };
-
   }, [isClient]);
 
   // Close on scroll
-  useDocumentEvent("scroll", () => {
-    if (isModal) {
-      setisModal(false);
-      handleClick();
-    }
-  }, false, [isModal]);
+  useDocumentEvent(
+    "scroll",
+    () => {
+      if (isModal) {
+        setisModal(false);
+        handleClick();
+      }
+    },
+    false,
+    [isModal],
+  );
 
   // Click to show or hide image model
   const handleClick = useCallback(() => {
     if (isModal && imgRef.current && containerRef.current) {
       // hide model
       //0ms
-      setImgStyle(s => {
+      setImgStyle((s) => {
         return {
           ...s,
           transform: "scale(1) translate(0,0)",
-          cursor: "zoom-in"
+          cursor: "zoom-in",
         };
       });
       // 300ms
       setTimeout(() => {
-        setImgStyle(s => {
+        setImgStyle((s) => {
           return {
             ...s,
-            zIndex: "auto"
+            zIndex: "auto",
           };
         });
-        setContainerStyle(s => {
+        setContainerStyle((s) => {
           return {
             ...s,
             height: "auto",
@@ -109,7 +128,6 @@ export function MDImg(props: DetailedHTMLProps<ImgHTMLAttributes<HTMLImageElemen
           };
         });
       }, 300);
-
     } else if (imgRef.current && containerRef.current) {
       // show model
       const img = imgRef.current.getBoundingClientRect();
@@ -120,19 +138,19 @@ export function MDImg(props: DetailedHTMLProps<ImgHTMLAttributes<HTMLImageElemen
       const transX = img.x - 2 * ctn.x - ctn.width / 2 + vw / 2;
 
       const scale = Math.min(vw / width, vh / height) - 0.05;
-      setContainerStyle(s => {
+      setContainerStyle((s) => {
         // Lock height
         return {
           ...s,
           height: height + "px",
         };
       });
-      setImgStyle(s => {
+      setImgStyle((s) => {
         return {
           ...s,
           transform: `translateX(${transX}px) translateY(${transY}px) scale(${scale})`,
           zIndex: 11,
-          cursor: "zoom-out"
+          cursor: "zoom-out",
         };
       });
     } else {
@@ -143,22 +161,38 @@ export function MDImg(props: DetailedHTMLProps<ImgHTMLAttributes<HTMLImageElemen
 
   // Render
   if (isClient) {
-
-    return <div ref={containerRef} className="relative my-6" style={{
-      ...containerStyle
-    }}>
-      {isLoading && <SkeletonLoading height="100px" width="100%" />}
-      {isError && <SkeletonError height="100px" width="100%" />}
-      {/*eslint-disable-next-line @next/next/no-img-element*/}{/* eslint-disable-next-line jsx-a11y/alt-text */}
-      <img ref={imgRef} loading="lazy" onClick={handleClick} style={{
-        ...imgStyle,
-        position: "relative",
-        transition: "transform .3s ease, filter 1s ease"
-      }} {...props} />
-      {/* Mask */}
-      {isModal ? <div className="fixed inset-0 z-10 backdrop-blur cursor-zoom-out" onClick={handleClick} /> : null}
-
-    </div>;
+    return (
+      <div
+        ref={containerRef}
+        className="relative my-6"
+        style={{
+          ...containerStyle,
+        }}
+      >
+        {isLoading && <SkeletonLoading height="100px" width="100%" />}
+        {isError && <SkeletonError height="100px" width="100%" />}
+        {/*eslint-disable-next-line @next/next/no-img-element*/}
+        {/* eslint-disable-next-line jsx-a11y/alt-text */}
+        <img
+          ref={imgRef}
+          loading="lazy"
+          onClick={handleClick}
+          style={{
+            ...imgStyle,
+            position: "relative",
+            transition: "transform .3s ease, filter 1s ease",
+          }}
+          {...props}
+        />
+        {/* Mask */}
+        {isModal ? (
+          <div
+            className="fixed inset-0 z-20 cursor-zoom-out backdrop-blur"
+            onClick={handleClick}
+          />
+        ) : null}
+      </div>
+    );
   }
 
   return;

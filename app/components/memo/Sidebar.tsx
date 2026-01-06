@@ -192,11 +192,11 @@ export function Sidebar({
   const { t } = useTranslation();
   return (
     <div
-      className={`max-[780px]:bg-bg max-[780px]:border-ui-line-gray-2 max-[780px]:shadow-float-menu sticky top-0 mx-2 h-screen max-w-60 overflow-y-auto pt-20.5 pb-16 [-ms-overflow-style:none] [scrollbar-width:none] max-[1080px]:mx-0 max-[780px]:fixed max-[780px]:top-auto max-[780px]:right-0 max-[780px]:bottom-0 max-[780px]:left-0 max-[780px]:z-40 max-[780px]:h-[min(66vh,500px)] max-[780px]:w-full max-[780px]:max-w-none max-[780px]:rounded-t-lg max-[780px]:rounded-b-none max-[780px]:border max-[780px]:border-b-0 max-[780px]:px-4 max-[780px]:pt-0 max-[780px]:pb-4 max-[780px]:transition-transform max-[780px]:duration-300 max-[780px]:ease-out [&::-webkit-scrollbar]:hidden ${isMobileSider ? "max-[780px]:translate-y-0" : "max-[780px]:translate-y-[105%]"} `}
+      className={`max-[780px]:bg-bg max-[780px]:border-ui-line-gray-2 max-[780px]:shadow-float-menu sticky top-0 mx-2 h-screen max-w-60 overflow-y-auto pt-20.5 pb-16 [-ms-overflow-style:none] [scrollbar-width:none] max-[1080px]:mx-0 max-[780px]:fixed max-[780px]:top-auto max-[780px]:right-0 max-[780px]:bottom-0 max-[780px]:left-0 max-[780px]:z-4 max-[780px]:h-[min(66vh,500px)] max-[780px]:w-full max-[780px]:max-w-none max-[780px]:rounded-t-lg max-[780px]:rounded-b-none max-[780px]:border max-[780px]:border-b-0 max-[780px]:px-4 max-[780px]:pt-0 max-[780px]:pb-4 max-[780px]:transition-transform max-[780px]:duration-300 max-[780px]:ease-out [&::-webkit-scrollbar]:hidden ${isMobileSider ? "max-[780px]:translate-y-0" : "max-[780px]:translate-y-[105%]"} `}
     >
       {/* Mobile close button - only visible on mobile */}
       <div
-        className={`border-ui-line-gray-2 text-text-gray-2 hover:text-accent sticky top-0 z-1 mb-4 hidden -translate-y-px cursor-pointer items-center justify-between border-b bg-inherit py-4 pt-4 pb-3 text-base font-semibold max-[780px]:flex ${isMobileSider ? "" : "invisible"} `}
+        className={`border-ui-line-gray-2 text-text-gray-2 hover:text-accent sticky top-0 z-5 mb-4 hidden -translate-y-px cursor-pointer items-center justify-between border-b bg-inherit py-4 pt-4 pb-3 text-base font-semibold max-[780px]:flex ${isMobileSider ? "" : "invisible"} `}
         onClick={(e) => {
           e.stopPropagation();
           onToggle();

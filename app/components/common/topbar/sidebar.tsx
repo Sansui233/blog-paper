@@ -39,7 +39,7 @@ export default function Sidebar({ isShow, toggle }: Props) {
 
   return (
     <section
-      className={`bg-bg/90 fixed inset-0 z-9 h-full w-full overflow-auto backdrop-blur-[6px] transition-all duration-500 ease-[cubic-bezier(0.46,0,0.08,1.11)] ${isShow ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"} `}
+      className={`bg-bg/90 fixed inset-0 z-8 h-full w-full overflow-auto backdrop-blur-[6px] transition-all duration-500 ease-[cubic-bezier(0.46,0,0.08,1.11)] ${isShow ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"} `}
     >
       <div className="relative mx-auto pt-32 pb-23 text-center font-bold">
         {/* Title */}
@@ -90,7 +90,10 @@ export default function Sidebar({ isShow, toggle }: Props) {
             </SocialIcon>
           </div>
           <div className="mx-auto my-4 leading-relaxed">
-            {t("ui.copyright", { author: siteInfo.author, year: new Date().getFullYear() })}
+            {t("ui.copyright", {
+              author: siteInfo.author,
+              year: new Date().getFullYear(),
+            })}
             <br />
             {t("ui.allRightsReserved")}
           </div>
@@ -98,7 +101,7 @@ export default function Sidebar({ isShow, toggle }: Props) {
       </div>
 
       {/* Close Button */}
-      <div className="fixed top-5.5 right-5 z-50 h-5 w-6">
+      <div className="fixed top-5.5 right-5 z-5 h-5 w-6">
         <MenuIcon isClose={true} isCloseToggler={toggle} />
       </div>
     </section>

@@ -64,7 +64,7 @@ export function CommentModal({
 
   return (
     <div
-      className={`bg-bg-modal fixed inset-0 z-50 cursor-zoom-out ${
+      className={`bg-bg-modal fixed inset-0 z-20 cursor-zoom-out ${
         isBeforeClose ? "animate-focus-out" : "animate-focus-in"
       }`}
       onClick={(e) => {

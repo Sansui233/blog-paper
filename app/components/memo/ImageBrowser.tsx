@@ -284,17 +284,17 @@ export default function ImageBrowser() {
   return (
     <div
       ref={containerRef}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/90"
+      className="fixed inset-0 z-20 flex items-center justify-center bg-black/90"
       onClick={closeModal}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
       {/* Top gradient overlay for button visibility */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-24 bg-linear-to-b from-black/60 to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 z-1 h-24 bg-linear-to-b from-black/60 to-transparent" />
 
       {/* Zoom button */}
       <button
-        className="absolute top-4 right-14 z-10 p-2 text-white/80 transition-colors hover:text-white"
+        className="absolute top-4 right-14 z-5 p-2 text-white/80 transition-colors hover:text-white"
         onClick={(e) => {
           e.stopPropagation();
           toggleZoom();
@@ -311,7 +311,7 @@ export default function ImageBrowser() {
 
       {/* Close button */}
       <button
-        className="absolute top-4 right-4 z-10 p-2 text-white/80 transition-colors hover:text-white"
+        className="absolute top-4 right-4 z-5 p-2 text-white/80 transition-colors hover:text-white"
         onClick={closeModal}
         aria-label="Close"
       >

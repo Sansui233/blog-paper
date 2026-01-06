@@ -28,7 +28,7 @@ export function TableOfContents({
 
   return (
     <aside
-      className={`/* Desktop positioning */ fixed left-[78%] z-20 w-72 max-w-72 overflow-auto transition-[top] duration-300 xl:animate-[fadeInRight_0.3s_ease] ${isFixedTop ? "top-16" : "top-32"} ${isFixedTop ? "max-h-[calc(100vh-4rem)]" : "max-h-[calc(100vh-8rem)]"} /* Tablet: narrower */ /* Mobile: drawer from bottom/right */ max-lg:bg-bg max-lg:shadow-float-menu max-lg:border-ui-line-gray-3 max-xl:left-[76%] max-xl:w-60 max-lg:top-auto max-lg:right-2 max-lg:bottom-34 max-lg:left-auto max-lg:max-h-[calc(100vh-8rem-9rem)] max-lg:w-75 max-lg:rounded-lg max-lg:border max-lg:transition-all max-lg:duration-300 ${
+      className={`/* Desktop positioning */ fixed left-[78%] z-5 w-72 max-w-72 overflow-auto transition-[top] duration-300 xl:animate-[fadeInRight_0.3s_ease] ${isFixedTop ? "top-16" : "top-32"} ${isFixedTop ? "max-h-[calc(100vh-4rem)]" : "max-h-[calc(100vh-8rem)]"} /* Tablet: narrower */ /* Mobile: drawer from bottom/right */ max-lg:bg-bg max-lg:shadow-float-menu max-lg:border-ui-line-gray-3 max-xl:left-[76%] max-xl:w-60 max-lg:top-auto max-lg:right-2 max-lg:bottom-34 max-lg:left-auto max-lg:max-h-[calc(100vh-8rem-9rem)] max-lg:w-75 max-lg:rounded-lg max-lg:border max-lg:transition-all max-lg:duration-300 ${
         isMobileOpen
           ? "max-lg:translate-x-0 max-lg:opacity-100"
           : "max-lg:pointer-events-none max-lg:translate-x-full max-lg:opacity-0"
@@ -39,7 +39,7 @@ export function TableOfContents({
       } `}
     >
       {/* Header */}
-      <div className="max-lg:bg-bg sticky top-0 z-10 mb-2 pt-4 pr-4 pb-2 pl-8 text-xl font-bold max-lg:pr-4 max-lg:pl-8">
+      <div className="max-lg:bg-bg sticky top-0 z-9 mb-2 pt-4 pr-4 pb-2 pl-8 text-xl font-bold max-lg:pr-4 max-lg:pl-8">
         {t("ui.toc")}
         <button
           onClick={(e) => {
