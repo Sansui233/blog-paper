@@ -1,11 +1,12 @@
 import type { MemoPostJsx } from "lib/data/memos.common";
-import { parseMemoId } from "lib/date";
+import { parseDate } from "lib/date";
 import type { Dispatch, SetStateAction } from "react";
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { siteInfo } from "site.config";
+import { MDXContent } from "~/components/markdown/MDXComponent";
 import useAppState from "~/hooks/use-appstate";
-import { MDXContent } from "../markdown/MDXComponent";
+import useDateI18n from "~/hooks/use-date-i18n";
 import { ImageThumbs } from "./ImageThumbs";
 
 // Memo type with length for collapse calculation
@@ -27,16 +28,17 @@ export function MemoCard({
   const ref = useRef<HTMLDivElement>(null);
   const { theme } = useAppState();
   const { t } = useTranslation();
+  const { parseMemoIdDisplay } = useDateI18n();
 
   const wordCount = source.word_count ?? undefined;
   const shouldCollapse =
     (wordCount && wordCount > 200) || source.content_jsx!.length > 1000;
 
-  // Parse date from memo id using parseMemoId
+  // Parse date from memo id using parseMemoIdDisplay
   // If parsing fails, display the id as-is
   const dateDisplay = useMemo(() => {
-    return parseMemoId(source.id).display;
-  }, [source.id]);
+    return parseMemoIdDisplay(source.id, parseDate);
+  }, [source.id, parseMemoIdDisplay]);
 
   function handleExpand() {
     if (!isCollapse) {

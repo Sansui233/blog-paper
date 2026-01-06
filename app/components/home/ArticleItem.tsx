@@ -1,6 +1,7 @@
-import { dateI18n, parseDate } from "lib/date";
+import { parseDate } from "lib/date";
 import { Folder } from "lucide-react";
 import { Link } from "react-router";
+import useDateI18n from "~/hooks/use-date-i18n";
 import "./ArticleItem.css";
 
 type PostType = {
@@ -17,6 +18,8 @@ type Props = {
 };
 
 export default function ArticleItem({ post, index }: Props) {
+  const { dateI18n } = useDateI18n();
+
   return (
     <Link
       to={`/posts/${post.slug}`}

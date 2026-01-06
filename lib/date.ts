@@ -1,5 +1,4 @@
-import { siteInfo } from "../site.config";
-import i18next from "./i18n";
+import { siteInfo } from "site.config";
 
 /**
  * 获取站点配置的时区偏移量（分钟）
@@ -95,78 +94,4 @@ export function dateToYMDHM(d: Date): string {
   // node.js will return "24" for midnight "00". convert to ECMA-402 standard "00"
   const hour = lookup.hour === "24" ? "00" : lookup.hour;
   return `${lookup.year}-${lookup.month}-${lookup.day} ${hour}:${lookup.minute}`;
-}
-
-/**
- * 国际化日期显示
- * @param d Date 对象
- * @param mode 'dateNatural' = "Jan 6th, 2026", 'dateYMD' = "2026-01-06"
- */
-export function dateI18n(
-  d: Date,
-  mode: "dateYMD" | "dateNatural" = "dateNatural",
-): string {
-  const t = i18next.t;
-  const lang = i18next.resolvedLanguage;
-
-  function getEngOrdinalSuffix(day: number) {
-    const s = ["th", "st", "nd", "rd"],
-      v = day % 100;
-    return s[(v - 20) % 10] || s[v] || s[0];
-  }
-
-  if (mode !== "dateNatural" || lang !== "en") {
-    return t(`ui.${mode}`, {
-      year: d.getFullYear(),
-      month: d.getMonth() + 1,
-      day: d.getDate(),
-      hour: d.getHours(),
-      minute: d.getMinutes(),
-    });
-  } else {
-    return t(`ui.${mode}`, {
-      year: d.getFullYear(),
-      month: new Intl.DateTimeFormat("en-US", { month: "short" }).format(d),
-      day: d.getDate(),
-      daySuffix: getEngOrdinalSuffix(d.getDate()),
-      hour: d.getHours(),
-      minute: d.getMinutes(),
-    });
-  }
-}
-
-/**
- * 相对时间显示（x分钟前）
- */
-export function dateRelative(d: Date): string {
-  const t = i18next.t;
-  const now = new Date();
-  const diff = now.getTime() - d.getTime();
-  const minutes = Math.floor(diff / 60000);
-  const hours = Math.floor(diff / 3600000);
-  const days = Math.floor(diff / 86400000);
-
-  if (minutes < 1) return t("ui.timeJustNow");
-  if (minutes < 60) return t("ui.timeMinutesAgo", { count: minutes });
-  if (hours < 24) return t("ui.timeHoursAgo", { count: hours });
-  if (days < 7) return t("ui.timeDaysAgo", { count: days });
-
-  // 超过7天显示具体日期
-  return dateToYMDHM(d);
-}
-
-/**
- * 解析 Memo ID，尝试转换为时间
- * 如果解析失败，返回 ID 本身作为显示文本
- */
-export function parseMemoId(id: string): {
-  date: Date | null;
-  display: string;
-} {
-  const parsed = parseDate(id);
-  if (parsed.getTime() === -1) {
-    // 解析失败，直接使用 ID 本身
-    return { date: null, display: id };
-  }
-  return { date: parsed, display: dateRelative(parsed) };
 }

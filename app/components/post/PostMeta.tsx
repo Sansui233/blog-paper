@@ -1,6 +1,7 @@
-import { dateI18n, parseDate } from "lib/date";
+import { parseDate } from "lib/date";
 import { Folder, Tag as TagIcon } from "lucide-react";
 import { Link } from "react-router";
+import useDateI18n from "~/hooks/use-date-i18n";
 
 type Props = {
   date: string;
@@ -9,7 +10,7 @@ type Props = {
 };
 
 export function PostMeta({ date, categories, tags = [] }: Props) {
-  // const formattedDate = dateI18n(parseDate(date)); // 保留备用
+  const { dateI18n } = useDateI18n();
   const formattedDate = dateI18n(parseDate(date), "dateNatural");
 
   return (
