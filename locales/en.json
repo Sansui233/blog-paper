@@ -38,6 +38,8 @@
     "mobileMenu": "Menu",
     "siteDescription": "A personal blog about work and life",
     "noComments": "No comments yet",
-    "addComment": "Comment"
+    "addComment": "Comment",
+    "postView": "View",
+    "postComment": "Comment"
   }
 }

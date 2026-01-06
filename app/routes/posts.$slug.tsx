@@ -1,6 +1,8 @@
 import { Post } from ".velite";
+import { TFunction } from "i18next";
 import { Eye, MessageSquare } from "lucide-react";
 import { lazy, Suspense, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { siteInfo } from "site.config";
 import LayoutContainer from "~/components/common/layout";
 import { MDImg } from "~/components/markdown/MDImg";
@@ -79,6 +81,7 @@ export default function BlogPost({ loaderData }: Route.ComponentProps) {
   const contentRef = useRef<HTMLDivElement>(null);
   const [isMobileTocOpen, setIsMobileTocOpen] = useState(false);
   const headings = useMemo(() => flattenToc(post.toc || []), [post.toc]);
+  const { t } = useTranslation();
 
   const { currentIndex, isViewing, scrollTo } = useTocHighlight(
     headings,
@@ -102,7 +105,7 @@ export default function BlogPost({ loaderData }: Route.ComponentProps) {
             tags={post.tags}
           />
           <section>
-            <ViewComment post={post} />
+            <ViewComment post={post} t={t} />
           </section>
 
           <div ref={contentRef} className="markdown-wrapper">
@@ -140,15 +143,21 @@ export default function BlogPost({ loaderData }: Route.ComponentProps) {
   );
 }
 
-function ViewComment({ post }: { post: Post }) {
+function ViewComment({
+  post,
+  t,
+}: {
+  post: Post;
+  t: TFunction<"translation", undefined>;
+}) {
   return (
     <div className="text-right text-sm opacity-50">
       <Eye size="1em" className="mr-1 mb-0.5" />
       <span
         className="waline-pageview-count"
         data-path={`/posts/${encodeURI(post.slug)}`}
-      />{" "}
-      阅读
+      />
+      {" " + t("postView")} &nbsp; &nbsp;
       <span
         className="hover:text-accent cursor-pointer"
         onClick={() => {
@@ -162,8 +171,8 @@ function ViewComment({ post }: { post: Post }) {
         <span
           className="waline-comment-count"
           data-path={`/posts/${encodeURI(post.slug)}`}
-        />{" "}
-        评论
+        />
+        {" " + t("postComment")}
       </span>
     </div>
   );

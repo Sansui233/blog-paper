@@ -38,6 +38,8 @@
     "mobileMenu": "小小の菜单",
     "siteDescription": "一个关于工作和生活的个人博客",
     "noComments": "好像没有评论哦~",
-    "addComment": "添加留言"
+    "addComment": "添加留言",
+    "postView": "阅读",
+    "postComment": "评论"
   }
 }

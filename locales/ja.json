@@ -38,6 +38,8 @@
     "mobileMenu": "メニュー",
     "siteDescription": "仕事と生活についての個人ブログ",
     "noComments": "コメントはまだありません",
-    "addComment": "コメントする"
+    "addComment": "コメントする",
+    "postView": "閲覧数",
+    "postComment": "コメント"
   }
 }
