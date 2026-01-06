@@ -154,10 +154,10 @@ function ViewComment({
     <div className="text-right text-sm opacity-50">
       <Eye size="1em" className="mr-1 mb-0.5" />
       <span
-        className="waline-pageview-count"
+        className="waline-pageview-count mr-1"
         data-path={`/posts/${encodeURI(post.slug)}`}
       />
-      {" " + t("postView")} &nbsp; &nbsp;
+      {t("ui.postView")}
       <span
         className="hover:text-accent cursor-pointer"
         onClick={() => {
@@ -169,10 +169,10 @@ function ViewComment({
       >
         <MessageSquare size="1em" className="mr-1 mb-0.5 ml-4" />
         <span
-          className="waline-comment-count"
+          className="waline-comment-count mr-1"
           data-path={`/posts/${encodeURI(post.slug)}`}
         />
-        {" " + t("postComment")}
+        {t("ui.postComment")}
       </span>
     </div>
   );
