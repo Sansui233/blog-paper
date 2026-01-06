@@ -9,6 +9,7 @@ import {
 
 import { siteInfo } from "site.config";
 import type { Route } from "./+types/root";
+import { I18nProvider } from "./components/common/I18nProvider";
 import { useGtag } from "./hooks/use-gtag";
 import "./styles/app.css";
 
@@ -25,6 +26,9 @@ export const links: Route.LinksFunction = () => [
   },
 ];
 
+/**
+ * root.tsx Layout 主要是用于设置 HTML 结构和全局脚本，不涉及业务界面
+ */
 export function Layout({ children }: { children: React.ReactNode }) {
   useGtag();
 
@@ -63,7 +67,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  return <Outlet />;
+  return (
+    <I18nProvider>
+      <Outlet />
+    </I18nProvider>
+  );
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {

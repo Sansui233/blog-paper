@@ -2,11 +2,13 @@
 
 ## 同一个组件内的状态追踪
 
-搜索功能本来是通过组件内判断 URL 和 searchParams   状态的更新来获取变更，现在发现第一次不会显示 search 状态。调试后发现是这种流程。
+搜索功能本来是通过组件内判断 navigation state 和 searchParams 状态的更新来获取变更，现在发现第一次不会显示 search 状态。调试后发现是这种流程。
 
 > 点击span -> setSearchParams -> client Loader 更新数据 -> url 变更（navigator变更） -> 更新组件 -> 更新 searchParams
 
-因此永远不要依靠组件内的 searchParams 追踪用户状态。searchParams 是**在数据更新完成后** 的状态。用户操作状态应该始终在点击时追踪，并在数据更新完成后更新。这种情况无法避免会使用到状态机。
+因此永远不要依靠组件内的 searchParams 追踪用户状态。searchParams 是**在数据更新完成后** 的状态。searchParams 是 navigation.state 重新变为 "idle" 时后才会有的。
+
+用户操作状态应该始终在点击时追踪，并在数据更新完成后更新。这种情况无法避免会使用到状态机。
 
 针对单个组件里跨路由的情况，你应该对当前的整个组件页面，建立组件级别的的用户操作 UI 状态。
 
@@ -51,7 +53,7 @@ Outlet 的子组件通过 Link 切换时，Outlet 是永远不会被卸载的。
 和 Next.js 不同，Remix 里不是严格区分 client 和 server Boundary 的 设计（恕我直言，我觉得有点过度设计，正如基于文件系统的路由那样）, 所以 Outlet 是像原生 React 那样具有客户端的能力的，能直接使用 use-context 等 API。
 
 在 Remix 里你可以有两种方法
-- 1. 通过子组件 useOutletContext（但在 SSG 时是没用的，只在 Client有用，而且是依赖反转，有可能需要预防 Layout 首屏不一致性的问题）
+- 1. 通过子组件 useOutletContext（但在 SSG 时是没用的，只在 Client 有用，而且是依赖反转，有可能需要预防 Layout 首屏不一致性的问题）
 - 2. 如果是 URL 做状态传递，Outlet 去监听 URL（自顶向下的，没有不一致性问题）
 
 ## Link 和 setSearchParams 比较
@@ -70,5 +72,59 @@ Outlet 的子组件通过 Link 切换时，Outlet 是永远不会被卸载的。
 
 
 
+## 路由执行顺序图
 
+SSR 场景
 
+```mermaid
+sequenceDiagram
+    participant B as 浏览器 (Browser)
+    participant S as 服务器 (Server)
+    participant M as 中间件 (Middleware)
+    participant L as 所有的 Loaders
+    participant R as React 组件 (Rendering)
+
+    B->>S: GET /dashboard/settings
+    Note over S: 进入 React Router 服务器运行时
+
+    S->>M: 1. 执行父路由 Middleware
+    M->>M: 2. 执行子路由 Middleware
+    Note right of M: 串行执行 (Serial)<br/>如果有 redirect 则中断
+
+    M->>L: 3. 并行执行所有匹配路由的 Loaders
+    L-->>S: 返回所有 Data
+
+    S->>R: 4. 渲染完整的 HTML (RenderToString)
+    Note right of R: 包含当前的 Data 和 Context
+
+    S-->>B: 5. 发送完整的 HTML 响应
+    B->>B: 6. 浏览器解析 HTML 并 Hydrate (激活)
+```
+
+CSR场景
+```mermaid
+sequenceDiagram
+    participant B as 浏览器 (Browser UI)
+    participant RC as 路由控制器 (Client Router)
+    participant M as 客户端 Middleware (如果有)
+    participant LD as 静态数据 (.data) / Loaders
+    participant COMP as React 组件 (Rendering)
+
+    B->>RC: 1. 点击 <Link to="/new-page">
+    RC->>RC: 2. 匹配新路由 (Route Matching)
+
+    RC->>M: 3. 执行 Middleware (串行)
+    Note right of M: 如果是 SSG 模式，检查权限或预处理
+
+    M->>LD: 4. 发起 Fetch 请求 (并行)
+    Note right of LD: 请求目标路由的 .data 文件<br/>(如果是 SSG, 请求静态 JSON)
+
+    LD-->>RC: 返回 Data
+
+    RC->>RC: 5. 更新内部 State (Location, Data)
+    
+    RC->>COMP: 6. 触发 React Re-render
+    Note over COMP: 旧组件 Unmount<br/>新组件 Mount
+
+    COMP-->>B: 7. DOM 更新完成，用户看到新界面
+```

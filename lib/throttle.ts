@@ -1,11 +1,15 @@
-type ThrottledFunction<T extends (...args: any) => any> = (...args: Parameters<T>) => ReturnType<T>;
+type ThrottledFunction<T extends (...args: any) => any> = (
+  ...args: Parameters<T>
+) => ReturnType<T>;
 
-export function throttle<T extends (...args: any) => any>(func: T, limit: number): ThrottledFunction<T> {
+export function throttle<T extends (...args: any) => any>(
+  func: T,
+  limit: number,
+): ThrottledFunction<T> {
   let inThrottle: boolean;
   let lastResult: ReturnType<T>;
 
-  return function (this: any): ReturnType<T> {
-    const args = arguments;
+  return function (this: any, ...args: Parameters<T>): ReturnType<T> {
     const context = this;
 
     if (!inThrottle) {
@@ -13,7 +17,7 @@ export function throttle<T extends (...args: any) => any>(func: T, limit: number
 
       setTimeout(() => (inThrottle = false), limit);
 
-      lastResult = func.apply(context, args);
+      lastResult = func.apply(context, args) as ReturnType<T>;
     }
 
     return lastResult;

@@ -4,40 +4,41 @@ import en from "../locales/en.json";
 import ja from "../locales/ja.json";
 import zh from "../locales/zh.json";
 
-const STORAGE_KEY = "language";
+export const STORAGE_KEY = "language";
+export const DEFAULT_LANG = "zh";
 export const SUPPORTED_LANGS = ["zh", "en", "ja"] as const;
 export type SupportedLang = (typeof SUPPORTED_LANGS)[number];
 
-function getInitialLanguage(): SupportedLang {
-  if (typeof window === "undefined") return "zh";
+/**
+ * 检测用户首选语言（仅在客户端调用）
+ */
+export function detectUserLanguage(): SupportedLang {
+  if (typeof window === "undefined") return DEFAULT_LANG;
 
-  // 1. 先检查 localStorage
+  // 1. 检测浏览器语言
+  const browserLang = navigator.language.split("-")[0];
+  if (SUPPORTED_LANGS.includes(browserLang as SupportedLang)) {
+    return browserLang as SupportedLang;
+  }
+  // 2. 先检查 localStorage
   const stored = localStorage.getItem(STORAGE_KEY);
   if (stored && SUPPORTED_LANGS.includes(stored as SupportedLang)) {
     return stored as SupportedLang;
   }
 
-  // 2. 检测浏览器语言
-  const browserLang = navigator.language.split("-")[0];
-  if (SUPPORTED_LANGS.includes(browserLang as SupportedLang)) {
-    return browserLang as SupportedLang;
-  }
-
-  // store into localStorage
-  localStorage.setItem(STORAGE_KEY, "zh");
-  console.debug("local storage set lang to zh");
-
-  return "zh"; // 默认中文
+  return DEFAULT_LANG;
 }
 
+// 初始化时始终使用默认语言，避免 SSG 水合不匹配
+// 客户端会在 I18nProvider 中检测并切换到用户语言
 i18next.use(initReactI18next).init({
   resources: {
     en: { translation: en },
     zh: { translation: zh },
     ja: { translation: ja },
   },
-  lng: getInitialLanguage(),
-  fallbackLng: "zh",
+  lng: DEFAULT_LANG, // SSG 和客户端初始都用默认语言
+  fallbackLng: DEFAULT_LANG,
   interpolation: { escapeValue: false },
 });
 
@@ -45,7 +46,6 @@ i18next.use(initReactI18next).init({
 i18next.on("languageChanged", (lng) => {
   if (typeof window !== "undefined") {
     localStorage.setItem(STORAGE_KEY, lng);
-    console.debug(`local storage set lang to ${lng}`);
   }
 });
 
