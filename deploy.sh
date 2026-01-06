@@ -24,5 +24,8 @@ git commit -m "Updated at $curr_time"
 
 git push origin master # 分支名称根据实际情况修改
 
+echo "Deployment to GitHub Pages completed."
+sleep 3
+
 # 返回原始目录
 cd -

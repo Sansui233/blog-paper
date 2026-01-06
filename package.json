@@ -5,7 +5,7 @@
   "scripts": {
     "pre": "velite",
     "dev": "react-router dev",
-    "build": "react-router build",
+    "build": "react-router build && mv ./build/client/404/index.html ./build/client/404.html",
     "start": "npx serve ./build/client",
     "ssr-start": "react-router-serve ./build/server/index.js",
     "typecheck": "react-router typegen && tsc",
