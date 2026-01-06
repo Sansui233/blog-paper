@@ -54,16 +54,26 @@
   100% { transform: translateY(-100%); }
 }
 
-@keyframes slideInLeft {
-  0% { transform: translateX(-1000px); opacity: 0; }
-  100% { transform: translateX(0); opacity: 1; }
+/* Nav indicator animations */
+@keyframes navIndicatorStretch {
+  0% { transform: scaleX(1); }
+  50% { transform: scaleX(1.5); }
+  100% { transform: scaleX(1); }
 }
 
-@keyframes slideInRight {
-  0% { transform: translateX(1000px); opacity: 0; }
-  100% { transform: translateX(0); opacity: 1; }
+@keyframes navIndicatorBlink {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
 }
 
-@keyframes LoaderAnimation {
-  50% { background-position: right; }
+/* Navigation progress bar animations */
+@keyframes progressLoading {
+  0% { width: 0%; }
+  100% { width: 80%; }
+}
+
+@keyframes progressComplete {
+  0% { width: 80%; opacity: 1; }
+  50% { width: 100%; opacity: 1; }
+  100% { width: 100%; opacity: 0; }
 }

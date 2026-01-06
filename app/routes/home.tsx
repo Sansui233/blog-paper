@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { siteInfo } from "site.config";
-import LayoutContainer, { OneColLayout } from "~/components/common/layout";
+import { OneColLayout } from "~/components/common/layout";
 import ArticleItem from "~/components/home/ArticleItem";
 import NavCat from "~/components/home/NavCat";
 import type { Route } from "./+types/home";
@@ -38,19 +38,17 @@ export default function Home({ loaderData }: Route.ComponentProps) {
   }, [currCategory, posts, categories]);
 
   return (
-    <LayoutContainer>
-      <OneColLayout>
-        <NavCat
-          items={categories}
-          current={currCategory}
-          setCurrent={setCurrCategory}
-        />
-        <section className="animate-bottom-fade-in grid grid-cols-2 justify-center gap-x-16 max-md:grid-cols-1">
-          {filteredPosts.map((post, i) => (
-            <ArticleItem key={post.slug} post={post} index={i} />
-          ))}
-        </section>
-      </OneColLayout>
-    </LayoutContainer>
+    <OneColLayout>
+      <NavCat
+        items={categories}
+        current={currCategory}
+        setCurrent={setCurrCategory}
+      />
+      <section className="animate-bottom-fade-in grid grid-cols-2 justify-center gap-x-16 max-md:grid-cols-1">
+        {filteredPosts.map((post, i) => (
+          <ArticleItem key={post.slug} post={post} index={i} />
+        ))}
+      </section>
+    </OneColLayout>
   );
 }

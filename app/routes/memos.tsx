@@ -14,7 +14,6 @@ import rehypeHighlight from "rehype-highlight";
 import remarkGfm from "remark-gfm";
 import { siteInfo } from "site.config";
 import { FloatButton } from "~/components/common/FloatButton";
-import LayoutContainer from "~/components/common/layout";
 import CommentModal from "~/components/memo/CommentModal";
 import ImageBrowser from "~/components/memo/ImageBrowser";
 import { MemoCard, MemoLoading, type TMemo } from "~/components/memo/MemoCard";
@@ -317,12 +316,7 @@ export default function MemosPage({ loaderData }: Route.ComponentProps) {
   );
 
   return (
-    <LayoutContainer
-      hidesearch
-      hideFooter
-      hidePlaceholder
-      topBarClassName="border-b border-ui-line-gray-2"
-    >
+    <>
       <div className="bg-bg-2 min-h-screen">
         {/* OneColLayout: max-width 1080px, centered, mobile and tablet full width */}
         <div className="mx-auto max-w-270 max-[780px]:max-w-full">
@@ -423,6 +417,6 @@ export default function MemosPage({ loaderData }: Route.ComponentProps) {
         onClose={() => setIsCommentOpen(false)}
         clickPosition={clickPosition}
       />
-    </LayoutContainer>
+    </>
   );
 }

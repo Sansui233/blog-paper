@@ -1,5 +1,4 @@
 import TLContent from "~/components/categories/Timeline";
-import LayoutContainer from "~/components/common/layout";
 import type { Route } from "./+types/tags.$id";
 
 export async function loader({ params }: Route.LoaderArgs) {
@@ -23,9 +22,5 @@ export function meta({ loaderData }: Route.MetaArgs) {
 export default function TagPage({ loaderData }: Route.ComponentProps) {
   const { tag, posts } = loaderData;
 
-  return (
-    <LayoutContainer>
-      <TLContent mode="tag" title={tag} posts={posts} />
-    </LayoutContainer>
-  );
+  return <TLContent mode="tag" title={tag} posts={posts} />;
 }

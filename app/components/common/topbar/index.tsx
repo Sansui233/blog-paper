@@ -1,8 +1,15 @@
 import { throttle } from "lib/throttle";
 import { ChevronDown, Search } from "lucide-react";
-import React, { lazy, Suspense, useEffect, useRef, useState } from "react";
+import React, {
+  lazy,
+  Suspense,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { useTranslation } from "react-i18next";
-import { Link, useLocation } from "react-router";
+import { Link, useLocation, useNavigation } from "react-router";
 import { siteInfo } from "site.config";
 import NekoIcon from "~/assets/icons/neko.svg?react";
 import MenuIcon from "./menuicon";
@@ -132,17 +139,7 @@ export default function Topbar({
         </div>
 
         {/* Desktop Nav */}
-        <nav className="flex max-w-[50%] flex-[2_1_auto] items-center justify-evenly tracking-wide max-[580px]:hidden min-[580px]:max-w-97.5">
-          <NavItem href="/" isActive={isPostsPage}>
-            {t("ui.posts")}
-          </NavItem>
-          <NavItem href="/memos" isActive={isMemosPage}>
-            {t("ui.memos")}
-          </NavItem>
-          <NavItem href="/about" isActive={isAboutPage}>
-            {t("ui.about")}
-          </NavItem>
-        </nav>
+        <DesktopNav />
 
         {/* Right side: Mobile nav dropdown + Search + Menu */}
         <div className="flex w-52.5 flex-auto items-center justify-end max-md:w-25 [&>div]:mr-4">
@@ -211,26 +208,196 @@ export default function Topbar({
 
 // --- Sub-components ---
 
-type NavItemProps = {
-  href: string;
-  isActive: boolean;
-  children: React.ReactNode;
-};
+const NAV_ITEMS = [
+  { href: "/", pathMatch: (p: string) => p === "/" || p.startsWith("/posts") },
+  {
+    href: "/memos",
+    pathMatch: (p: string) => p === "/memos" || p.startsWith("/memos"),
+  },
+  {
+    href: "/about",
+    pathMatch: (p: string) => p === "/about" || p.startsWith("/about"),
+  },
+] as const;
 
-function NavItem({ href, isActive, children }: NavItemProps) {
+function DesktopNav() {
+  const { t } = useTranslation();
+  const location = useLocation();
+  const navigation = useNavigation();
+  const navRef = useRef<HTMLElement>(null);
+  const itemRefs = useRef<(HTMLAnchorElement | null)[]>([]);
+
+  // Track indicator position and state
+  const [indicatorStyle, setIndicatorStyle] = useState<React.CSSProperties>({
+    opacity: 0, // Hidden until first measurement
+  });
+  const [circleStyle, setCircleStyle] = useState<React.CSSProperties>({
+    opacity: 0,
+  });
+  const [hoverIndex, setHoverIndex] = useState<number | null>(null);
+  const [hasMounted, setHasMounted] = useState(false);
+  const [isMoving, setIsMoving] = useState(false);
+  const prevIndexRef = useRef<number>(-1);
+
+  // Get active index based on current path
+  const activeIndex = NAV_ITEMS.findIndex((item) =>
+    item.pathMatch(location.pathname),
+  );
+
+  // Get target index during navigation
+  const getTargetIndex = () => {
+    if (navigation.state === "loading" && navigation.location) {
+      const targetPath = navigation.location.pathname;
+      return NAV_ITEMS.findIndex((item) => item.pathMatch(targetPath));
+    }
+    return -1;
+  };
+
+  const targetIndex = getTargetIndex();
+  const isNavigating = navigation.state === "loading" && targetIndex >= 0;
+
+  // Determine which index to show indicator at
+  const displayIndex =
+    hoverIndex !== null ? hoverIndex : isNavigating ? targetIndex : activeIndex;
+
+  // Update indicator position - measure the Link element (text) not the container
+  const updateIndicatorPosition = (index: number, animate = true) => {
+    const item = itemRefs.current[index];
+    const nav = navRef.current;
+    if (!item || !nav) return;
+
+    const navRect = nav.getBoundingClientRect();
+    const itemRect = item.getBoundingClientRect();
+    const left = itemRect.left - navRect.left;
+    const width = itemRect.width;
+
+    // Determine movement direction
+    const direction =
+      prevIndexRef.current >= 0 && prevIndexRef.current < index
+        ? "right"
+        : prevIndexRef.current >= 0 && prevIndexRef.current > index
+          ? "left"
+          : null;
+
+    // Show circle during movement
+    if (animate && direction) {
+      setIsMoving(true);
+      setTimeout(() => setIsMoving(false), 500);
+    }
+
+    // Circle position: at the leading edge based on direction
+    const circleSize = 6; // approximate px for 0.4em
+    const circleLeft =
+      direction === "right"
+        ? left + width - circleSize
+        : direction === "left"
+          ? left
+          : left + width / 2 - circleSize / 2; // center when no direction
+
+    setCircleStyle({
+      left: circleLeft,
+      opacity: 1,
+      // Circle moves ahead with ease-out
+      transition: animate ? "left 0.35s ease-out, opacity 0.15s" : "none",
+    });
+
+    setIndicatorStyle({
+      left,
+      width,
+      opacity: 1,
+      // Bar follows with very slow start then catches up quickly
+      transition: animate
+        ? "left 0.7s cubic-bezier(0.7, 0, 0.2, 1), width 0.3s ease-out"
+        : "none",
+    });
+
+    prevIndexRef.current = index;
+  };
+
+  // Mark as mounted and do initial measurement
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
+
+  // Update position when displayIndex changes
+  useLayoutEffect(() => {
+    if (displayIndex >= 0 && hasMounted) {
+      updateIndicatorPosition(displayIndex, hasMounted);
+    }
+  }, [displayIndex, hasMounted]);
+
+  // Handle hover
+  const handleMouseEnter = (index: number) => {
+    if (index !== hoverIndex) {
+      setHoverIndex(index);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    setHoverIndex(null);
+  };
+
+  // Recalculate on resize
+  useEffect(() => {
+    const handleResize = () => {
+      if (displayIndex >= 0) {
+        updateIndicatorPosition(displayIndex, false);
+      }
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [displayIndex]);
+
+  const labels = [t("ui.posts"), t("ui.memos"), t("ui.about")];
+
   return (
-    <div className="px-2 pt-0.5 font-semibold">
-      <Link
-        to={href}
-        className={`hover:text-accent relative transition-colors duration-300 ${
-          isActive
-            ? "before:bg-accent-hover before:absolute before:inset-x-0 before:bottom-0 before:-z-10 before:h-[0.4em] before:rounded-[0.5em] before:content-['']"
-            : ""
-        } `}
-      >
-        {children}
-      </Link>
-    </div>
+    <nav
+      ref={navRef}
+      className="relative flex max-w-[50%] flex-[2_1_auto] items-center justify-evenly tracking-wide max-[580px]:hidden min-[580px]:max-w-97.5"
+      onMouseLeave={handleMouseLeave}
+    >
+      {/* Leading circle - always rendered, visible during movement */}
+      {displayIndex >= 0 && (
+        <div
+          className="bg-accent-hover pointer-events-none absolute top-[1.1em] -z-10 h-[0.4em] w-[0.4em] rounded-full"
+          style={{
+            ...circleStyle,
+            opacity: isMoving ? 1 : 0,
+          }}
+        />
+      )}
+
+      {/* Sliding indicator bar - follows the circle */}
+      {displayIndex >= 0 && (
+        <div
+          className={`bg-accent-hover pointer-events-none absolute top-[1.1em] -z-10 h-[0.4em] rounded-[0.5em] ${
+            isNavigating ? "animate-nav-indicator-blink" : ""
+          }`}
+          style={indicatorStyle}
+        />
+      )}
+
+      {/* Nav items */}
+      {NAV_ITEMS.map((item, index) => (
+        <div
+          key={item.href}
+          className="px-2 pt-0.5 font-semibold"
+          onMouseEnter={() => handleMouseEnter(index)}
+        >
+          <Link
+            ref={(el) => {
+              itemRefs.current[index] = el;
+            }}
+            to={item.href}
+            className={`hover:text-accent relative transition-colors duration-300 ${
+              displayIndex === index ? "text-text-primary" : ""
+            }`}
+          >
+            {labels[index]}
+          </Link>
+        </div>
+      ))}
+    </nav>
   );
 }
 

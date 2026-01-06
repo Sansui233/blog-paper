@@ -45,4 +45,8 @@
   --animate-scale-out: scaleOut 0.3s ease forwards;
   --animate-slide-down: slideDown 0.3s ease;
   --animate-text-focus-in: textFocusIn 0.8s ease-out;
+  --animate-progress-loading: progressLoading 3s ease-out forwards;
+  --animate-progress-complete: progressComplete 0.3s ease-out forwards;
+  --animate-nav-indicator-stretch: navIndicatorStretch 0.3s ease-out;
+  --animate-nav-indicator-blink: navIndicatorBlink 0.8s ease-in-out infinite;
 }

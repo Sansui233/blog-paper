@@ -4,7 +4,6 @@ import { Eye, MessageSquare } from "lucide-react";
 import { lazy, Suspense, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { siteInfo } from "site.config";
-import LayoutContainer from "~/components/common/layout";
 import { MDImg } from "~/components/markdown/MDImg";
 import { FloatButtons } from "~/components/post/FloatButtons";
 import { Pagination } from "~/components/post/Pagination";
@@ -94,7 +93,7 @@ export default function BlogPost({ loaderData }: Route.ComponentProps) {
   }, []);
 
   return (
-    <LayoutContainer>
+    <>
       {/* Main article */}
       <div className="mx-auto w-170 px-5 py-15 max-xl:w-[calc(100%-480px)] max-xl:max-w-170 max-lg:w-auto max-lg:max-w-170 max-sm:w-full max-sm:py-12">
         <article>
@@ -139,7 +138,7 @@ export default function BlogPost({ loaderData }: Route.ComponentProps) {
         isViewing={isViewing}
         onTocToggle={() => setIsMobileTocOpen((v) => !v)}
       />
-    </LayoutContainer>
+    </>
   );
 }
 

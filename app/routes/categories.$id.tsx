@@ -1,5 +1,4 @@
 import TLContent from "~/components/categories/Timeline";
-import LayoutContainer from "~/components/common/layout";
 import type { Route } from "./+types/categories.$id";
 
 export async function loader({ params }: Route.LoaderArgs) {
@@ -40,9 +39,5 @@ export function meta({ loaderData }: Route.MetaArgs) {
 export default function CategoryPage({ loaderData }: Route.ComponentProps) {
   const { category, posts } = loaderData;
 
-  return (
-    <LayoutContainer>
-      <TLContent mode="category" title={category} posts={posts} />
-    </LayoutContainer>
-  );
+  return <TLContent mode="category" title={category} posts={posts} />;
 }

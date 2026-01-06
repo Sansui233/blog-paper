@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { siteInfo } from "site.config";
-import LayoutContainer, { OneColLayout } from "~/components/common/layout";
+import { OneColLayout } from "~/components/common/layout";
 import type { Route } from "./+types/about";
 import "./about.css";
 
@@ -27,7 +27,7 @@ export default function About() {
   }, []);
 
   return (
-    <LayoutContainer hidesearch={true}>
+    <>
       {/* Hero Section */}
       <h1 className={`about-hero ${isBgLoaded ? "loaded" : ""}`}>
         <span>{`Hi, I'm ${siteInfo.author}`}</span>
@@ -117,6 +117,6 @@ export default function About() {
           </ul>
         </div>
       </OneColLayout>
-    </LayoutContainer>
+    </>
   );
 }

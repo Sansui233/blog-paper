@@ -148,6 +148,12 @@ pnpm start # 启动服务（SSG模式）
 
 我个人使用的是 github pages，同时 vercel 拉取 github 的分支。
 
+## SSR 模式
+
+此博客主要为 SSG（静态页面导出）方式。如果你需要 SSR（服务器渲染）方式，需要修改 react-router.config.ts 的 `ssr: true`，重新 `pnpm run build`，并 `pnpm run ssr-start`。这种模式下不是真正的 SSR，仍然有预构建的内容。
+
+但总体来说，此博客是建立在 SSG 上做的优化，使用真正的 SSR 略显浪费。
+
 ## Progress
 
 - [x] 基本框架完成
