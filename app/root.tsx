@@ -22,12 +22,27 @@ export function Layout({ children }: { children: React.ReactNode }) {
   useGtag();
 
   return (
-    <html lang="en">
+    <html lang="zh" suppressHydrationWarning={true}>
       <head>
         <meta charSet="utf-8" />
         <meta
           name="viewport"
           content="width=device-width, initial-scale=1.0, user-scalable=yes, minimum-scale=0.25, maximum-scale=5.0"
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                var theme = localStorage.getItem("theme");
+                if (theme === "system" || !theme) {
+                  theme = window.matchMedia("(prefers-color-scheme: dark)").matches
+                    ? "dark" : "light";
+                }
+                console.debug("theme", theme);
+                document.documentElement.classList.add(theme);
+              })();
+            `,
+          }}
         />
         <Meta />
         <Links />
