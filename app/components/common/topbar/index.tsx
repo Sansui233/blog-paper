@@ -154,17 +154,29 @@ export default function Topbar({
               } `}
             >
               {!isPostsPage && (
-                <DropdownLink to="/" isOpen={isDropperOpen} isFirst>
+                <DropdownLink
+                  to="/"
+                  isOpen={isDropperOpen}
+                  setIsOpen={setIsDropperOpen}
+                >
                   {t("ui.posts")}
                 </DropdownLink>
               )}
               {!isMemosPage && (
-                <DropdownLink to="/memos" isOpen={isDropperOpen}>
+                <DropdownLink
+                  to="/memos"
+                  isOpen={isDropperOpen}
+                  setIsOpen={setIsDropperOpen}
+                >
                   {t("ui.memos")}
                 </DropdownLink>
               )}
               {!isAboutPage && (
-                <DropdownLink to="/about" isOpen={isDropperOpen}>
+                <DropdownLink
+                  to="/about"
+                  isOpen={isDropperOpen}
+                  setIsOpen={setIsDropperOpen}
+                >
                   {t("ui.about")}
                 </DropdownLink>
               )}
@@ -298,7 +310,7 @@ function DesktopNav() {
       left: circleLeft,
       opacity: 1,
       // Circle moves ahead with ease-out
-      transition: animate ? "left 0.35s ease-out, opacity 0.15s" : "none",
+      transition: animate ? "left 0.5s cubic-bezier(0.7, 0, 0.2, 1)" : "none",
     });
 
     setIndicatorStyle({
@@ -362,7 +374,6 @@ function DesktopNav() {
           className="bg-accent-hover pointer-events-none absolute top-[1.1em] -z-10 h-[0.4em] w-[0.4em] rounded-full"
           style={{
             ...circleStyle,
-            opacity: isMoving ? 1 : 0,
           }}
         />
       )}
@@ -404,15 +415,23 @@ function DesktopNav() {
 type DropdownLinkProps = {
   to: string;
   isOpen: boolean;
+  setIsOpen: (open: boolean) => void;
   isFirst?: boolean;
   children: React.ReactNode;
 };
 
-function DropdownLink({ to, isOpen, isFirst, children }: DropdownLinkProps) {
+function DropdownLink({
+  to,
+  isOpen,
+  setIsOpen,
+  isFirst,
+  children,
+}: DropdownLinkProps) {
   return (
     <Link
       to={to}
       className={`text-text-secondary my-2 block px-1 pb-1 pl-2.75 transition-all duration-500 ${isOpen ? "blur-0 opacity-100" : "pointer-events-none opacity-0 blur-md"} `}
+      onClick={() => setIsOpen(false)}
     >
       {children}
     </Link>
