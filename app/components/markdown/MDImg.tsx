@@ -149,7 +149,6 @@ export function MDImg(
         return {
           ...s,
           transform: `translateX(${transX}px) translateY(${transY}px) scale(${scale})`,
-          zIndex: 11,
           cursor: "zoom-out",
         };
       });
@@ -171,8 +170,13 @@ export function MDImg(
       >
         {isLoading && <SkeletonLoading height="100px" width="100%" />}
         {isError && <SkeletonError height="100px" width="100%" />}
-        {/*eslint-disable-next-line @next/next/no-img-element*/}
-        {/* eslint-disable-next-line jsx-a11y/alt-text */}
+        {/* Mask */}
+        {isModal ? (
+          <div
+            className="fixed inset-0 z-20 cursor-zoom-out backdrop-blur"
+            onClick={handleClick}
+          />
+        ) : null}
         <img
           ref={imgRef}
           loading="lazy"
@@ -181,16 +185,10 @@ export function MDImg(
             ...imgStyle,
             position: "relative",
             transition: "transform .3s ease, filter 1s ease",
+            zIndex: isModal ? 21 : "auto",
           }}
           {...props}
         />
-        {/* Mask */}
-        {isModal ? (
-          <div
-            className="fixed inset-0 z-20 cursor-zoom-out backdrop-blur"
-            onClick={handleClick}
-          />
-        ) : null}
       </div>
     );
   }
