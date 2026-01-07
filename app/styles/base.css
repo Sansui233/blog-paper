@@ -82,9 +82,15 @@
      Tailwind 默认 reset 已经处理了 box-sizing 和 margin:0。
      这里保留你特定的 html/body 设置 
   */
-  
+
   html, body {
     @apply h-full;
+  }
+
+  @supports (font: -apple-system-body) {
+    html {
+      font: -apple-system-body;
+    }
   }
 
   body {
