@@ -62,7 +62,9 @@ export default function Sidebar({ isShow, toggle }: Props) {
         {/* Categories */}
         <div className={`mt-4 ${getItemTransition("delay-200")}`}>
           <OptionText>
-            <Link to="/categories">{t("ui.categoriesTags")}</Link>
+            <Link to="/categories" onClick={toggle}>
+              {t("ui.categoriesTags")}
+            </Link>
           </OptionText>
         </div>
 
