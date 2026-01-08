@@ -31,8 +31,9 @@ export function MemoCard({
   const { parseMemoIdDisplay } = useDateI18n();
 
   const wordCount = source.word_count ?? undefined;
-  const shouldCollapse =
-    (wordCount && wordCount > 200) || source.content_jsx!.length > 1000;
+  const shouldCollapse = wordCount
+    ? wordCount > 200
+    : source.content_jsx!.length > 1000;
 
   // Parse date from memo id using parseMemoIdDisplay
   // If parsing fails, display the id as-is
