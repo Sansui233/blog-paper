@@ -27,6 +27,8 @@ export type VirtualListType = <T extends { id: string | number }>(
   props: Props<T>,
 ) => React.ReactNode;
 
+// 由于 itemHeights 是正向扩展的数组，所以无法进行负向item缓存，只适合数据量相比初始值正向增长的场景
+// 如果要支持负向无限滚动，需要新建立数据结构，拦截对 index 的访问，以支持负向长度扩充与扩充后的正确负向索引，可以在不修改当前代码逻辑的情况下实现很多东西，否则前向滚动必须整体移位
 const VirtualList: VirtualListType = ({
   initialItems,
   notifyItemsChange,
@@ -75,7 +77,7 @@ const VirtualList: VirtualListType = ({
   const updateItemHeight = useCallback((i_value: number, height: number) => {
     setItemHeights((prev) => {
       const newHeights = [...prev];
-      newHeights[i_value] = height;
+      newHeights[i_value] = height; //索引不存在时，会自动扩展
       return newHeights;
     });
   }, []);
