@@ -33,7 +33,7 @@ export function MemoSearchBox({
   };
 
   return (
-    <div className="border-ui-line-gray-2 bg-bg focus-within:border-accent-hover mx-4 flex items-center rounded-lg border shadow-[0_0_12px_0_var(--shadow-bg)]">
+    <div className="border-ui-line-gray-2 bg-bg focus-within:border-accent-hover mx-3 flex items-center rounded-full border shadow-[0_0_12px_0_var(--shadow-bg)]">
       <input
         ref={inputRef}
         type="text"

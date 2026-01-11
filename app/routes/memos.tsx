@@ -353,13 +353,13 @@ export default function MemosPage({ loaderData }: Route.ComponentProps) {
               )}
 
               {/* Memo list container */}
-              <div className="border-ui-line-gray-2 bg-bg mt-2.5 rounded-lg border shadow-[0_0_12px_0_var(--shadow-bg)] max-[580px]:rounded-none max-[580px]:border-x-0">
+              <div className="border-ui-line-gray-2 bg-bg mt-2.5 rounded-3xl border shadow-[0_0_12px_0_var(--shadow-bg)] max-[580px]:rounded-none max-[580px]:border-x-0">
                 {isFiltered ? (
                   // Filtered view - simple list without virtual scroll
                   <VirtualList<TMemo>
                     key={`${loaderData.filterTag ?? ""}-${loaderData.searchQuery ?? ""}`}
                     id={`${loaderData.filterTag ?? ""}-${loaderData.searchQuery ?? ""}`}
-                    className="virtualist *:border-ui-line-gray-2 *:border-b [&>*:first-child>.memocard]:rounded-t-lg max-[580px]:[&>*:first-child>.memocard]:rounded-none [&>*:last-child]:border-b-transparent [&>*:last-child>.memocard]:rounded-b-lg max-[580px]:[&>*:last-child>.memocard]:rounded-none"
+                    className="virtualist *:border-ui-line-gray-2 *:border-b [&>*:first-child>.memocard]:rounded-t-3xl max-[580px]:[&>*:first-child>.memocard]:rounded-none [&>*:last-child]:border-b-transparent [&>*:last-child>.memocard]:rounded-b-3xl max-[580px]:[&>*:last-child>.memocard]:rounded-none"
                     initialItems={loaderData.memos}
                     Elem={(props) => (
                       <MemoCard
@@ -374,7 +374,7 @@ export default function MemosPage({ loaderData }: Route.ComponentProps) {
                   <VirtualList<TMemo>
                     id={loaderData.source}
                     key={loaderData.source}
-                    className="virtualist *:border-ui-line-gray-2 *:border-b [&>*:first-child>.memocard]:rounded-t-lg max-[580px]:[&>*:first-child>.memocard]:rounded-none [&>*:has(+_div>.memoloading)]:border-b-transparent [&>*:has(+_div>.memoloading)>.memocard]:rounded-b-lg [&>*:last-child>.memocard]:rounded-b-lg max-[580px]:[&>*>.memocard]:rounded-none"
+                    className="virtualist *:border-ui-line-gray-2 *:border-b [&>*:first-child>.memocard]:rounded-t-3xl max-[580px]:[&>*:first-child>.memocard]:rounded-none [&>*:has(+_div>.memoloading)]:border-b-transparent [&>*:has(+_div>.memoloading)>.memocard]:rounded-b-3xl [&>*:last-child>.memocard]:rounded-b-3xl max-[580px]:[&>*>.memocard]:rounded-none"
                     initialItems={loaderData.memos}
                     Elem={(props) => (
                       <MemoCard

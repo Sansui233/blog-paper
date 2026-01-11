@@ -65,7 +65,7 @@ export function CommentCard({ onOpenComment }: CommentCardProps) {
       </div>
       <button
         onClick={onOpenComment}
-        className="bg-bg border-ui-line-gray-2 text-text-secondary hover:text-accent mt-8 flex max-w-full cursor-pointer items-center rounded-lg border px-4 py-2 font-semibold shadow-[0_0_12px_0_var(--shadow-bg)] transition-all hover:shadow-[0_0_12px_0_var(--accent-hover)] max-[780px]:max-w-none max-[780px]:bg-[var(--bg-2)]"
+        className="bg-bg border-ui-line-gray-2 text-text-secondary hover:text-accent mt-8 flex max-w-full cursor-pointer items-center rounded-full border px-4 py-2 font-semibold shadow-[0_0_12px_0_var(--shadow-bg)] transition-all hover:shadow-[0_0_12px_0_var(--accent-hover)] max-[780px]:max-w-none max-[780px]:bg-[var(--bg-2)]"
       >
         <PencilLine size="1em" className="mr-2" />
         <span>{t("ui.addComment")}</span>

@@ -74,7 +74,7 @@ export function CommentModal({
     >
       {/* Comment container - fixed size, scale animation from click position */}
       <div
-        className={`border-ui-line-gray-2 bg-bg mx-auto h-full w-full max-w-195 cursor-default overflow-y-auto border py-8 shadow-[0_0_24px_0_var(--shadow-bg)] min-[780px]:mt-[2vh] min-[780px]:h-[96vh] min-[780px]:rounded-lg ${
+        className={`border-ui-line-gray-2 bg-bg mx-auto h-full w-full max-w-195 cursor-default overflow-y-auto border py-8 shadow-[0_0_24px_0_var(--shadow-bg)] min-[780px]:mt-[2vh] min-[780px]:h-[96vh] min-[780px]:rounded-3xl ${
           isBeforeClose ? "animate-scale-out" : "animate-scale-in"
         }`}
         style={{
@@ -92,7 +92,7 @@ export function CommentModal({
       {/* Close bar - top right on desktop, bottom center on mobile */}
       <div className="text-text-gray-3 hover:text-text-primary fixed top-2 right-0 left-0 flex h-10 justify-end px-2 max-[780px]:top-auto max-[780px]:bottom-2 max-[780px]:justify-center">
         <div
-          className="border-ui-line-gray-2 flex cursor-pointer items-center rounded-lg border px-2 py-1 shadow-[0_0_12px_0_var(--shadow-bg)] backdrop-blur-md"
+          className="border-ui-line-gray-2 flex cursor-pointer items-center rounded-3xl border px-2 py-1 shadow-[0_0_12px_0_var(--shadow-bg)] backdrop-blur-md"
           onClick={(e) => {
             e.stopPropagation();
             handleClose();
