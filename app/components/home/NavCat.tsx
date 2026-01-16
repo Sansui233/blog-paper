@@ -1,5 +1,6 @@
 import { throttle } from "lib/throttle";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 type Props = {
   items: [string, number][];
@@ -10,6 +11,7 @@ type Props = {
 export default function NavCat({ items, current, setCurrent }: Props) {
   const ref = useRef<HTMLElement>(null);
   const [isMouseInside, setIsMouseInside] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const handleMouseEnter = () => setIsMouseInside(true);
@@ -48,6 +50,7 @@ export default function NavCat({ items, current, setCurrent }: Props) {
     >
       {items.map((item, i) => {
         const isCurrent = current === i;
+        const displayName = item[0] === 'All Posts' ? t("ui.allPosts") : item[0];
         return (
           <button
             key={i}
@@ -59,7 +62,7 @@ export default function NavCat({ items, current, setCurrent }: Props) {
             } `}
           >
             <span>
-              {item[0]} {item[1]}
+              {displayName} {item[1]}
             </span>
           </button>
         );

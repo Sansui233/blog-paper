@@ -7,6 +7,9 @@ import type { Route } from "./+types/home";
 
 export async function loader() {
   const { posts_db } = await import("lib/data/server/posts");
+  const categories = Array.from(posts_db.categories.entries());
+  const totalPosts = categories.reduce((sum, [_, count]) => sum + count, 0);
+
   return {
     posts: posts_db.velite.map((p) => ({
       slug: p.slug,
@@ -15,7 +18,7 @@ export async function loader() {
       categories: p.categories,
       description: p.description,
     })),
-    categories: Array.from(posts_db.categories.entries()),
+    categories: [["All Posts", totalPosts], ...categories],
   };
 }
 

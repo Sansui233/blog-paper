@@ -1,4 +1,5 @@
 import { Link } from "react-router";
+import { useTranslation } from "react-i18next";
 import { siteInfo } from "site.config";
 import { CategoryTitle } from "~/components/categories/Timeline";
 import { OneColLayout } from "~/components/common/layout";
@@ -22,6 +23,7 @@ export function meta({}: Route.MetaArgs) {
 
 export default function CategoriesIndex({ loaderData }: Route.ComponentProps) {
   const { categories, tags } = loaderData;
+  const { t } = useTranslation();
 
   return (
     <OneColLayout className="max-sm:px-12 max-sm:pb-12">
@@ -36,7 +38,7 @@ export default function CategoriesIndex({ loaderData }: Route.ComponentProps) {
           to={`/categories/all`}
           className="bg-tag-bg m-1.5 rounded-full px-4 py-1.5 text-sm opacity-80 transition-all duration-300 hover:scale-115 hover:opacity-100"
         >
-          {`All Posts(${Object.values(categories).reduce((a, b) => a + b, 0)})`}
+          {`${t("ui.allPosts")}(${Object.values(categories).reduce((a, b) => a + b, 0)})`}
         </Link>
         {Object.keys(categories).map((k) => (
           <Link
