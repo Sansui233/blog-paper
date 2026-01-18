@@ -112,10 +112,7 @@ export function MemoCard({
 
         {/* Content */}
         <div
-          className={`pl-12 ${shouldCollapse ? "pb-8" : ""}`}
-          style={{
-            lineHeight: "1.625rem",
-          }}
+          className={`pl-1 min-[580px]:pl-12 ${shouldCollapse ? "pb-8" : ""}`}
         >
           <div className="markdown-wrapper text-text-secondary [&_h1]:text-base [&_h2]:text-base [&_h3]:text-base [&_h4]:text-base [&_h5]:text-base [&_h6]:text-base [&_ol]:leading-relaxed [&_p]:leading-relaxed [&_ul]:leading-relaxed">
             {source.content_jsx && (
@@ -137,7 +134,7 @@ export function MemoCard({
               onClick={handleExpand}
               className="mt-22 cursor-pointer text-sm tracking-wide"
             >
-              <span className="mr-2 transition-shadow duration-300 hover:shadow-[inset_0_-0.5em_0_var(--accent-hover)]">
+              <span className="mr-2 shadow-[inset_0_-2px_0_var(--accent-hover)] transition-shadow duration-300 hover:shadow-[inset_0_-0.5em_0_var(--accent-hover)]">
                 {isCollapse ? t("ui.expandText") : t("ui.collapseText")}
               </span>
             </div>

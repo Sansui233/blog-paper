@@ -134,7 +134,7 @@ export function ImageThumbs({ imgs_md }: ImageThumbsProps) {
 
   // Multiple images grid layout
   return (
-    <div className="mt-2 grid grid-cols-4 gap-1.25 pl-12 max-[580px]:grid-cols-3">
+    <div className="mt-2 grid grid-cols-4 gap-1.25 pl-1 max-[580px]:grid-cols-3 min-[580px]:pl-12">
       {thumbData.map((img, i) => (
         <div
           key={i}

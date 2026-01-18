@@ -26,12 +26,12 @@
   :root {
     /* --- Light Mode Colors --- */
     --text-primary: #000000;
-    --text-secondary: #343a3b;
+    --text-secondary: #3a4142;
     --text-gray: #777;
     --text-gray-2: #989898;
     --text-gray-3: #aeaeae;
-    --accent: #ae8d0b;
-    --accent-hover: #e0c56e;
+    --accent: #cf9f00;
+    --accent-hover: #ebc446;
     --bg: #ffffff;
     --bg-2: #f9f9f9;
     --bg-inverse: #292929;

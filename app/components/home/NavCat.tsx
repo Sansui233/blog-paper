@@ -50,7 +50,8 @@ export default function NavCat({ items, current, setCurrent }: Props) {
     >
       {items.map((item, i) => {
         const isCurrent = current === i;
-        const displayName = item[0] === 'All Posts' ? t("ui.allPosts") : item[0];
+        const displayName =
+          item[0] === "All Posts" ? t("ui.allPosts") : item[0];
         return (
           <button
             key={i}
